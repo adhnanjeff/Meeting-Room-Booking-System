@@ -13,6 +13,7 @@ export const managerRoutes: Routes = [
       { path: 'calendar', loadComponent: () => import('../../components/calendar/calendar.component').then(m => m.CalendarComponent) },
       { path: 'my-bookings', loadComponent: () => import('../employee/my-bookings/my-bookings').then(m => m.MyBookings) },
       { path: 'invitations', loadComponent: () => import('../../components/invitations/invitations').then(m => m.Invitations) },
+      { path: 'scheduled-meetings', loadComponent: () => import('../../components/scheduled-meetings/scheduled-meetings').then(m => m.ScheduledMeetings) },
       { path: 'profile', loadComponent: () => import('../employee/profile/profile').then(m => m.Profile) }
     ]
   }

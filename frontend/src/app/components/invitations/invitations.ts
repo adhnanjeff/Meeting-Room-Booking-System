@@ -16,6 +16,8 @@ interface Invitation {
   status: 'Pending' | 'Accepted' | 'Declined';
 }
 
+
+
 @Component({
   selector: 'app-invitations',
   standalone: true,
@@ -27,20 +29,53 @@ interface Invitation {
         <p>Respond to meeting invitations you've received</p>
       </div>
 
+      <div class="filters">
+        <div class="filter-buttons">
+          <button 
+            class="filter-btn"
+            [class.active]="activeFilter === 'all'"
+            (click)="setFilter('all')"
+          >
+            All Invitations
+          </button>
+          <button 
+            class="filter-btn"
+            [class.active]="activeFilter === 'pending'"
+            (click)="setFilter('pending')"
+          >
+            Pending
+          </button>
+          <button 
+            class="filter-btn"
+            [class.active]="activeFilter === 'accepted'"
+            (click)="setFilter('accepted')"
+          >
+            Accepted
+          </button>
+          <button 
+            class="filter-btn"
+            [class.active]="activeFilter === 'declined'"
+            (click)="setFilter('declined')"
+          >
+            Declined
+          </button>
+        </div>
+      </div>
+
       <div class="invitations-container">
         <div *ngIf="isLoading" class="loading">
           <div class="loading-spinner"></div>
           <p>Loading invitations...</p>
         </div>
 
-        <div *ngIf="!isLoading && invitations.length === 0" class="empty-state">
-          <div class="empty-icon"><i class="pi pi-inbox"></i></div>
-          <h3>No invitations</h3>
-          <p>You don't have any pending meeting invitations.</p>
+        <div *ngIf="!isLoading && filteredInvitations.length === 0" class="empty-state">
+          <div class="empty-icon">📭</div>
+          <h3>No invitations found</h3>
+          <p>You don't have any invitations matching the current filter.</p>
         </div>
 
-        <div class="invitations-grid" *ngIf="!isLoading && invitations.length > 0">
-          <div *ngFor="let invitation of invitations" class="invitation-card">
+        <div class="invitations-grid" *ngIf="!isLoading && filteredInvitations.length > 0">
+          <div *ngFor="let invitation of filteredInvitations" class="invitation-card">
             <div class="invitation-header">
               <h3>{{ invitation.title }}</h3>
               <span class="status-badge" [class]="'status-' + invitation.status.toLowerCase()">
@@ -68,12 +103,8 @@ interface Invitation {
             </div>
 
             <div class="invitation-actions" *ngIf="invitation.status === 'Pending'">
-              <button class="btn-accept" (click)="acceptInvitation(invitation)">
-                <i class="pi pi-check"></i> Accept
-              </button>
-              <button class="btn-decline" (click)="declineInvitation(invitation)">
-                <i class="pi pi-times"></i> Decline
-              </button>
+              <button class="btn-round btn-success" (click)="acceptInvitation(invitation)"><i class="pi pi-check"></i></button>
+              <button class="btn-round btn-danger" (click)="declineInvitation(invitation)"><i class="pi pi-times"></i></button>
             </div>
           </div>
         </div>
@@ -98,6 +129,37 @@ interface Invitation {
     .page-header p {
       color: var(--text-light);
     }
+
+    .filters {
+      margin-bottom: 2rem;
+    }
+
+    .filter-buttons {
+      display: flex;
+      gap: 0.5rem;
+    }
+
+    .filter-btn {
+      padding: 0.5rem 1rem;
+      border: 1px solid var(--border);
+      background: var(--surface);
+      color: var(--text);
+      border-radius: 8px;
+      cursor: pointer;
+      transition: all 0.2s ease;
+    }
+
+    .filter-btn:hover {
+      border-color: var(--primary);
+    }
+
+    .filter-btn.active {
+      background: var(--primary);
+      color: white;
+      border-color: var(--primary);
+    }
+
+
 
     .loading {
       text-align: center;
@@ -235,7 +297,9 @@ interface Invitation {
 export class Invitations implements OnInit {
   currentUser: User | null = null;
   invitations: Invitation[] = [];
+  filteredInvitations: Invitation[] = [];
   isLoading = true;
+  activeFilter: 'all' | 'pending' | 'accepted' | 'declined' = 'all';
 
   constructor(
     private authService: AuthService,
@@ -283,9 +347,32 @@ export class Invitations implements OnInit {
     );
 
     Promise.all(bookingPromises).then(processedInvitations => {
-      this.invitations = processedInvitations.filter(inv => inv.status === 'Pending');
+      this.invitations = processedInvitations;
+      this.applyFilter();
     });
   }
+
+  setFilter(filter: 'all' | 'pending' | 'accepted' | 'declined'): void {
+    this.activeFilter = filter;
+    this.applyFilter();
+  }
+
+  applyFilter(): void {
+    if (this.activeFilter === 'all') {
+      this.filteredInvitations = this.invitations;
+    } else {
+      const statusMap = {
+        'pending': 'Pending',
+        'accepted': 'Accepted', 
+        'declined': 'Declined'
+      };
+      this.filteredInvitations = this.invitations.filter(inv => 
+        inv.status === statusMap[this.activeFilter as keyof typeof statusMap]
+      );
+    }
+  }
+
+
 
   formatDate(dateString: string): string {
     return new Date(dateString).toLocaleDateString('en-US', {
@@ -314,8 +401,8 @@ export class Invitations implements OnInit {
     this.invitationService.acceptInvitation(invitation.attendeeId).subscribe({
       next: () => {
         invitation.status = 'Accepted';
+        this.applyFilter();
         this.toastService.success('Invitation Accepted', `You've accepted the invitation for "${invitation.title}"`);
-        this.loadInvitations();
       },
       error: (error) => {
         console.error('Error accepting invitation:', error);
@@ -328,8 +415,8 @@ export class Invitations implements OnInit {
     this.invitationService.declineInvitation(invitation.attendeeId).subscribe({
       next: () => {
         invitation.status = 'Declined';
+        this.applyFilter();
         this.toastService.info('Invitation Declined', `You've declined the invitation for "${invitation.title}"`);
-        this.loadInvitations();
       },
       error: (error) => {
         console.error('Error declining invitation:', error);

@@ -27,13 +27,13 @@ interface ApprovalItem {
   template: `
     <div class="container">
       <div class="page-header">
-        <h1>👋 Welcome back, {{ currentUser?.userName }}!</h1>
+        <h1><i class="pi pi-user"></i> Welcome back, {{ currentUser?.userName }}!</h1>
         <p>Manage your team and approve meeting requests</p>
       </div>
 
       <div class="stats-grid">
         <div class="stat-card urgent">
-          <div class="stat-icon">⏳</div>
+          <div class="stat-icon"><i class="pi pi-clock"></i></div>
           <div class="stat-content">
             <div class="stat-number">{{ pendingApprovals }}</div>
             <div class="stat-label">Pending Approvals</div>
@@ -41,7 +41,7 @@ interface ApprovalItem {
         </div>
         
         <div class="stat-card">
-          <div class="stat-icon">👥</div>
+          <div class="stat-icon"><i class="pi pi-users"></i></div>
           <div class="stat-content">
             <div class="stat-number">{{ teamSize }}</div>
             <div class="stat-label">Team Members</div>
@@ -49,7 +49,7 @@ interface ApprovalItem {
         </div>
         
         <div class="stat-card">
-          <div class="stat-icon">📅</div>
+          <div class="stat-icon"><i class="pi pi-calendar"></i></div>
           <div class="stat-content">
             <div class="stat-number">{{ teamMeetings }}</div>
             <div class="stat-label">Team Meetings Today</div>
@@ -60,12 +60,12 @@ interface ApprovalItem {
       <div class="content-grid">
         <div class="card">
           <div class="card-header">
-            <h3>⏳ Urgent Approvals</h3>
+            <h3><i class="pi pi-exclamation-triangle"></i> Urgent Approvals</h3>
             <a routerLink="../approvals" class="view-all">View All</a>
           </div>
           <div class="card-content">
             <div *ngIf="approvalItems.length === 0" class="empty-state">
-              <div class="empty-icon">✅</div>
+              <div class="empty-icon"><i class="pi pi-check-circle"></i></div>
               <p>No pending approvals</p>
               <p class="empty-desc">All caught up! New requests will appear here.</p>
             </div>
@@ -74,29 +74,29 @@ interface ApprovalItem {
               <div *ngFor="let approval of approvalItems.slice(0, 3)" class="approval-item" [class.emergency]="approval.isEmergency">
                 <div class="approval-header">
                   <div class="approval-title">
-                    <span *ngIf="approval.isEmergency" class="emergency-badge">🚨 EMERGENCY</span>
+                    <span *ngIf="approval.isEmergency" class="emergency-badge"><i class="pi pi-exclamation-triangle"></i> EMERGENCY</span>
                     {{ approval.meetingTitle }}
                   </div>
                   <div class="approval-time">{{ approval.requestedTime }}</div>
                 </div>
                 <div class="approval-details">
                   <div class="detail-row">
-                    <span class="icon">👤</span>
+                    <span class="icon"><i class="pi pi-user"></i></span>
                     <span>{{ approval.requesterName }}</span>
                   </div>
                   <div class="detail-row">
-                    <span class="icon">📅</span>
+                    <span class="icon"><i class="pi pi-calendar"></i></span>
                     <span>{{ approval.meetingDate }} {{ approval.startTime }}-{{ approval.endTime }}</span>
                   </div>
                   <div class="detail-row" *ngIf="approval.suggestedRoom">
-                    <span class="icon">🏢</span>
+                    <span class="icon"><i class="pi pi-building"></i></span>
                     <span>Suggested: {{ approval.suggestedRoom }}</span>
                   </div>
                 </div>
                 <div class="approval-actions">
-                  <button class="btn-approve" (click)="approveRequest(approval)">Approve</button>
-                  <button class="btn-suggest" *ngIf="approval.isEmergency" (click)="suggestAlternative(approval)">Suggest Room</button>
-                  <button class="btn-reject" (click)="rejectRequest(approval)">Reject</button>
+                  <button class="btn-round btn-success" (click)="approveRequest(approval)"><i class="pi pi-check"></i></button>
+                  <button *ngIf="approval.isEmergency" class="btn-round btn-secondary" (click)="suggestAlternative(approval)"><i class="pi pi-bookmark"></i></button>
+                  <button class="btn-round btn-danger" (click)="rejectRequest(approval)"><i class="pi pi-times"></i></button>
                 </div>
               </div>
             </div>
@@ -105,33 +105,23 @@ interface ApprovalItem {
 
         <div class="card">
           <div class="card-header">
-            <h3>🚀 Manager Actions</h3>
+            <h3><i class="pi pi-calendar-check"></i> Today's Meeting Schedule</h3>
           </div>
           <div class="card-content">
-            <div class="action-buttons">
-              <a routerLink="../approvals" class="action-btn primary">
-                <span class="action-icon">✅</span>
-                <div class="action-content">
-                  <div class="action-title">Review Approvals</div>
-                  <div class="action-desc">Process team requests</div>
+            <div *ngIf="todaysMeetings.length === 0" class="empty-state">
+              <div class="empty-icon"><i class="pi pi-calendar"></i></div>
+              <p>No meetings today</p>
+              <p class="empty-desc">Your schedule is clear for today.</p>
+            </div>
+            
+            <div *ngIf="todaysMeetings.length > 0" class="meeting-list">
+              <div *ngFor="let meeting of todaysMeetings" class="meeting-item">
+                <div class="meeting-time">{{ formatTime(meeting.startTime) }}</div>
+                <div class="meeting-details">
+                  <div class="meeting-title">{{ meeting.title }}</div>
+                  <div class="meeting-room">{{ meeting.roomName }}</div>
                 </div>
-              </a>
-              
-              <a routerLink="../team" class="action-btn">
-                <span class="action-icon">👥</span>
-                <div class="action-content">
-                  <div class="action-title">Manage Team</div>
-                  <div class="action-desc">View team activities</div>
-                </div>
-              </a>
-              
-              <a routerLink="../book-room" class="action-btn">
-                <span class="action-icon">📝</span>
-                <div class="action-content">
-                  <div class="action-title">Book Meeting</div>
-                  <div class="action-desc">Schedule team meetings</div>
-                </div>
-              </a>
+              </div>
             </div>
           </div>
         </div>
@@ -170,25 +160,53 @@ interface ApprovalItem {
 
     .stat-card {
       background: var(--surface);
-      border-radius: 12px;
-      padding: 1.5rem;
+      border-radius: var(--border-radius);
+      padding: var(--card-padding);
       box-shadow: var(--shadow);
       border: 1px solid var(--border);
       display: flex;
       align-items: center;
       gap: 1rem;
+      transition: all 0.3s ease;
+      position: relative;
+      overflow: hidden;
+    }
+
+    .stat-card::before {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: 0;
+      right: 0;
+      height: 4px;
+      background: linear-gradient(135deg, var(--primary), var(--secondary));
+    }
+
+    .stat-card:hover {
+      box-shadow: var(--shadow-lg);
+      transform: translateY(-4px);
     }
 
     .stat-card.urgent {
-      border-color: var(--warning);
-      background: linear-gradient(135deg, #fef3c7 0%, var(--surface) 100%);
+      border-color: var(--secondary);
+      background: linear-gradient(135deg, rgba(46, 216, 182, 0.1) 0%, var(--surface) 100%);
+    }
+
+    .stat-card.urgent::before {
+      background: linear-gradient(135deg, var(--secondary), #00d4aa);
+    }
+
+    .stat-card.urgent .stat-icon {
+      background: linear-gradient(135deg, var(--secondary), #00d4aa);
     }
 
     .stat-icon {
       font-size: 2rem;
-      background: var(--background);
+      background: linear-gradient(135deg, var(--primary), var(--secondary));
+      color: white;
       padding: 0.75rem;
-      border-radius: 12px;
+      border-radius: var(--border-radius-lg);
+      box-shadow: 0 4px 8px rgba(64, 153, 255, 0.2);
     }
 
     .stat-number {
@@ -210,16 +228,20 @@ interface ApprovalItem {
 
     .card {
       background: var(--surface);
-      border-radius: 12px;
+      border-radius: var(--border-radius);
       box-shadow: var(--shadow);
       border: 1px solid var(--border);
+      transition: all 0.3s ease;
+      overflow: hidden;
     }
 
     .card-header {
-      padding: 1.5rem 1.5rem 0;
+      padding: var(--card-padding) var(--card-padding) 0;
       display: flex;
       justify-content: space-between;
       align-items: center;
+      border-bottom: none;
+      background: transparent;
     }
 
     .card-header h3 {
@@ -240,7 +262,7 @@ interface ApprovalItem {
     }
 
     .card-content {
-      padding: 1.5rem;
+      padding: 20px var(--card-padding);
     }
 
     .empty-state {
@@ -267,14 +289,17 @@ interface ApprovalItem {
 
     .approval-item {
       border: 1px solid var(--border);
-      border-radius: 8px;
+      border-radius: var(--border-radius);
       padding: 1rem;
       background: var(--background);
+      transition: all 0.3s ease;
+      position: relative;
     }
 
     .approval-item.emergency {
       border-color: var(--error);
-      background: linear-gradient(135deg, #fef2f2 0%, var(--background) 100%);
+      background: linear-gradient(135deg, var(--error-bg) 0%, var(--background) 100%);
+      border-left: 4px solid var(--error);
     }
 
     .approval-header {
@@ -358,55 +383,45 @@ interface ApprovalItem {
       background: #dc2626;
     }
 
-    .action-buttons {
+    .meeting-list {
       display: flex;
       flex-direction: column;
-      gap: 1rem;
+      gap: 0.75rem;
     }
 
-    .action-btn {
+    .meeting-item {
       display: flex;
       align-items: center;
       gap: 1rem;
-      padding: 1rem;
-      border-radius: 8px;
+      padding: 0.75rem;
+      border-radius: var(--border-radius);
       border: 1px solid var(--border);
-      text-decoration: none;
-      color: var(--text);
-      transition: all 0.2s ease;
-    }
-
-    .action-btn:hover {
-      border-color: var(--secondary);
       background: var(--background);
+      transition: all 0.3s ease;
+      border-left: 4px solid var(--success);
     }
 
-    .action-btn.primary {
-      background: var(--secondary);
-      color: white;
-      border-color: var(--secondary);
+    .meeting-item:hover {
+      background: var(--surface);
+      transform: translateX(5px);
     }
 
-    .action-btn.primary:hover {
-      background: #059669;
-    }
-
-    .action-icon {
-      font-size: 1.5rem;
-    }
-
-    .action-title {
+    .meeting-time {
       font-weight: 600;
+      color: var(--primary);
+      font-size: 0.875rem;
+      min-width: 60px;
+    }
+
+    .meeting-title {
+      font-weight: 500;
+      color: var(--text);
       margin-bottom: 0.25rem;
     }
 
-    .action-desc {
+    .meeting-room {
       font-size: 0.875rem;
       color: var(--text-light);
-    }
-
-    .action-btn.primary .action-desc {
-      color: rgba(255, 255, 255, 0.8);
     }
 
     @media (max-width: 768px) {
@@ -430,6 +445,7 @@ export class ManagerHome implements OnInit {
   teamSize = 0;
   teamMeetings = 0;
   approvalItems: ApprovalItem[] = [];
+  todaysMeetings: any[] = [];
 
   constructor(
     private authService: AuthService,
@@ -537,16 +553,29 @@ export class ManagerHome implements OnInit {
       this.bookingService.getBookingsByUser(this.currentUser.id).subscribe({
         next: (bookings) => {
           const today = new Date().toDateString();
-          this.teamMeetings = bookings.filter(booking => 
+          const todaysBookings = bookings.filter(booking => 
             new Date(booking.startTime).toDateString() === today &&
             (booking.status === 'Approved' || booking.status === 'Scheduled')
-          ).length;
+          );
+          this.teamMeetings = todaysBookings.length;
+          this.todaysMeetings = todaysBookings.sort((a, b) => 
+            new Date(a.startTime).getTime() - new Date(b.startTime).getTime()
+          );
         },
         error: (error) => {
           console.error('Error loading today\'s meetings:', error);
           this.teamMeetings = 0;
+          this.todaysMeetings = [];
         }
       });
     }
+  }
+
+  formatTime(dateString: string): string {
+    return new Date(dateString).toLocaleTimeString('en-US', {
+      hour: 'numeric',
+      minute: '2-digit',
+      hour12: true
+    });
   }
 }

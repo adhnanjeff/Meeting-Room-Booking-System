@@ -45,6 +45,10 @@ import { ThemeToggle } from '../../../components/theme-toggle';
         </div>
         
         <div class="sidebar-footer">
+          <div class="role-badge admin">
+            <i class="pi pi-shield"></i>
+            <span>Admin</span>
+          </div>
           <button class="logout-btn" (click)="logout()">
             <i class="pi pi-sign-out nav-icon"></i>
             <span>Logout</span>
@@ -74,6 +78,12 @@ import { ThemeToggle } from '../../../components/theme-toggle';
       left: 0;
       height: 100vh;
       overflow-y: auto;
+      scrollbar-width: none;
+      -ms-overflow-style: none;
+    }
+
+    .sidebar::-webkit-scrollbar {
+      display: none;
     }
 
     .sidebar-header {
@@ -188,6 +198,20 @@ import { ThemeToggle } from '../../../components/theme-toggle';
       background: var(--background);
       overflow-y: auto;
       margin-left: 280px;
+    }
+
+    .role-badge {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 0.5rem;
+      padding: 0.5rem;
+      margin-bottom: 0.5rem;
+      background: linear-gradient(135deg, #ff5370, #ff7043);
+      color: white;
+      border-radius: 20px;
+      font-size: 0.75rem;
+      font-weight: 600;
     }
   `]
 })

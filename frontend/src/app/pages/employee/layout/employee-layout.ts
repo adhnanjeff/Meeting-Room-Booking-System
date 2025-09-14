@@ -51,6 +51,10 @@ import { ToastComponent } from '../../../components/toast/toast.component';
             <i class="pi pi-envelope nav-icon"></i>
             <span>Invitations</span>
           </a>
+          <a routerLink="scheduled-meetings" routerLinkActive="active" class="nav-item">
+            <i class="pi pi-calendar-check nav-icon"></i>
+            <span>Scheduled Meetings</span>
+          </a>
           <a routerLink="profile" routerLinkActive="active" class="nav-item">
             <i class="pi pi-user nav-icon"></i>
             <span>Profile</span>
@@ -58,6 +62,10 @@ import { ToastComponent } from '../../../components/toast/toast.component';
         </div>
         
         <div class="sidebar-footer">
+          <div class="role-badge employee">
+            <i class="pi pi-user"></i>
+            <span>Employee</span>
+          </div>
           <button class="logout-btn" (click)="logout()">
             <i class="pi pi-sign-out nav-icon"></i>
             <span>Logout</span>
@@ -88,11 +96,29 @@ import { ToastComponent } from '../../../components/toast/toast.component';
       left: 0;
       height: 100vh;
       overflow-y: auto;
+      scrollbar-width: none;
+      -ms-overflow-style: none;
+      box-shadow: 0 0 25px rgba(0, 0, 0, 0.1);
+    }
+
+    .sidebar::-webkit-scrollbar {
+      display: none;
+    }
+
+    [data-theme="dark"] .sidebar {
+      background: linear-gradient(135deg, #3b4650 0%, #2f3349 100%);
+      border-right: none;
     }
 
     .sidebar-header {
       padding: 1.5rem;
       border-bottom: 1px solid var(--border);
+      background: var(--background);
+    }
+
+    [data-theme="dark"] .sidebar-header {
+      border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+      background: rgba(0, 0, 0, 0.1);
     }
 
     .header-top {
@@ -109,6 +135,10 @@ import { ToastComponent } from '../../../components/toast/toast.component';
       margin: 0;
     }
 
+    [data-theme="dark"] .sidebar-header h2 {
+      color: #ffffff;
+    }
+
     .user-info {
       display: flex;
       align-items: center;
@@ -118,7 +148,7 @@ import { ToastComponent } from '../../../components/toast/toast.component';
     .user-avatar {
       width: 40px;
       height: 40px;
-      background: var(--primary);
+      background: linear-gradient(135deg, var(--primary), var(--info));
       color: white;
       border-radius: 50%;
       display: flex;
@@ -126,6 +156,7 @@ import { ToastComponent } from '../../../components/toast/toast.component';
       justify-content: center;
       font-weight: 600;
       font-size: 0.875rem;
+      box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
     }
 
     .user-details {
@@ -138,9 +169,17 @@ import { ToastComponent } from '../../../components/toast/toast.component';
       font-size: 0.875rem;
     }
 
+    [data-theme="dark"] .user-name {
+      color: #ffffff;
+    }
+
     .user-role {
       font-size: 0.75rem;
       color: var(--text-light);
+    }
+
+    [data-theme="dark"] .user-role {
+      color: #b9c7d4;
     }
 
     .nav-menu {
@@ -155,19 +194,32 @@ import { ToastComponent } from '../../../components/toast/toast.component';
       padding: 0.75rem 1.5rem;
       color: var(--text-light);
       text-decoration: none;
-      transition: all 0.2s ease;
+      transition: all 0.3s ease;
       border-left: 3px solid transparent;
+      position: relative;
+      margin: 2px 0;
+    }
+
+    [data-theme="dark"] .nav-item {
+      color: #b9c7d4;
     }
 
     .nav-item:hover {
       background: var(--background);
       color: var(--text);
+      border-left-color: var(--primary);
+    }
+
+    [data-theme="dark"] .nav-item:hover {
+      background: rgba(255, 255, 255, 0.1);
+      color: #ffffff;
     }
 
     .nav-item.active {
-      background: var(--background);
+      background: rgba(64, 153, 255, 0.15);
       color: var(--primary);
       border-left-color: var(--primary);
+      box-shadow: inset 0 0 10px rgba(64, 153, 255, 0.1);
     }
 
     .nav-icon {
@@ -179,6 +231,12 @@ import { ToastComponent } from '../../../components/toast/toast.component';
     .sidebar-footer {
       padding: 1rem;
       border-top: 1px solid var(--border);
+      background: var(--background);
+    }
+
+    [data-theme="dark"] .sidebar-footer {
+      border-top: 1px solid rgba(255, 255, 255, 0.1);
+      background: rgba(0, 0, 0, 0.1);
     }
 
     .logout-btn {
@@ -191,13 +249,18 @@ import { ToastComponent } from '../../../components/toast/toast.component';
       border: none;
       color: var(--text-light);
       cursor: pointer;
-      border-radius: 8px;
-      transition: all 0.2s ease;
+      border-radius: var(--border-radius);
+      transition: all 0.3s ease;
+    }
+
+    [data-theme="dark"] .logout-btn {
+      color: #b9c7d4;
     }
 
     .logout-btn:hover {
-      background: var(--background);
+      background: rgba(255, 83, 112, 0.15);
       color: var(--error);
+      transform: translateX(5px);
     }
 
     .main-content {
@@ -205,6 +268,20 @@ import { ToastComponent } from '../../../components/toast/toast.component';
       background: var(--background);
       overflow-y: auto;
       margin-left: 280px;
+    }
+
+    .role-badge {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 0.5rem;
+      padding: 0.5rem;
+      margin-bottom: 0.5rem;
+      background: linear-gradient(135deg, var(--primary), #4099ff);
+      color: white;
+      border-radius: 20px;
+      font-size: 0.75rem;
+      font-weight: 600;
     }
 
     @media (max-width: 768px) {
@@ -221,6 +298,8 @@ import { ToastComponent } from '../../../components/toast/toast.component';
       .main-content {
         margin-left: 0;
       }
+
+
     }
   `]
 })

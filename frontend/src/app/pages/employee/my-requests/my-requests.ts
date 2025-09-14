@@ -17,20 +17,53 @@ import { ToastService } from '../../../services/toast.service';
         <p>Track your pending and processed booking requests</p>
       </div>
 
+      <div class="filters">
+        <div class="filter-buttons">
+          <button 
+            class="filter-btn"
+            [class.active]="activeFilter === 'all'"
+            (click)="setFilter('all')"
+          >
+            All Requests
+          </button>
+          <button 
+            class="filter-btn"
+            [class.active]="activeFilter === 'pending'"
+            (click)="setFilter('pending')"
+          >
+            Pending
+          </button>
+          <button 
+            class="filter-btn"
+            [class.active]="activeFilter === 'approved'"
+            (click)="setFilter('approved')"
+          >
+            Approved
+          </button>
+          <button 
+            class="filter-btn"
+            [class.active]="activeFilter === 'rejected'"
+            (click)="setFilter('rejected')"
+          >
+            Rejected
+          </button>
+        </div>
+      </div>
+
       <div class="requests-container">
         <div *ngIf="isLoading" class="loading">
           <div class="loading-spinner"></div>
           <p>Loading your requests...</p>
         </div>
 
-        <div *ngIf="!isLoading && requests.length === 0" class="empty-state">
+        <div *ngIf="!isLoading && filteredRequests.length === 0" class="empty-state">
           <div class="empty-icon"><i class="pi pi-inbox"></i></div>
           <h3>No requests found</h3>
-          <p>You don't have any booking requests.</p>
+          <p>You don't have any requests matching the current filter.</p>
         </div>
 
-        <div class="requests-grid" *ngIf="!isLoading && requests.length > 0">
-          <div *ngFor="let request of requests" class="request-card" [class]="'status-' + request.status.toLowerCase()">
+        <div class="requests-grid" *ngIf="!isLoading && filteredRequests.length > 0">
+          <div *ngFor="let request of filteredRequests" class="request-card" [class]="'status-' + request.status.toLowerCase()">
             <div class="request-header">
               <div class="request-date">
                 <div class="date-day">{{ formatDate(request.startTime) }}</div>
@@ -152,6 +185,35 @@ import { ToastService } from '../../../services/toast.service';
 
     .page-header p {
       color: var(--text-light);
+    }
+
+    .filters {
+      margin-bottom: 2rem;
+    }
+
+    .filter-buttons {
+      display: flex;
+      gap: 0.5rem;
+    }
+
+    .filter-btn {
+      padding: 0.5rem 1rem;
+      border: 1px solid var(--border);
+      background: var(--surface);
+      color: var(--text);
+      border-radius: 8px;
+      cursor: pointer;
+      transition: all 0.2s ease;
+    }
+
+    .filter-btn:hover {
+      border-color: var(--primary);
+    }
+
+    .filter-btn.active {
+      background: var(--primary);
+      color: white;
+      border-color: var(--primary);
     }
 
     .loading {
@@ -440,8 +502,10 @@ import { ToastService } from '../../../services/toast.service';
 export class MyRequests implements OnInit {
   currentUser: User | null = null;
   requests: Booking[] = [];
+  filteredRequests: Booking[] = [];
   isLoading = true;
   selectedRequest: Booking | null = null;
+  activeFilter: 'all' | 'pending' | 'approved' | 'rejected' = 'all';
 
   constructor(
     private bookingService: BookingService,
@@ -459,15 +523,10 @@ export class MyRequests implements OnInit {
     if (this.currentUser) {
       this.bookingService.getBookingsByUser(this.currentUser.id).subscribe({
         next: (bookings) => {
-          console.log('All requests received:', bookings);
           this.requests = bookings
-            .filter(booking => 
-              booking.status === 'Pending' || 
-              booking.status === 'Rejected'
-            )
             .sort((a, b) => new Date(b.startTime).getTime() - new Date(a.startTime).getTime());
           
-          console.log('Filtered pending/rejected requests:', this.requests);
+          this.applyFilter();
           this.isLoading = false;
         },
         error: (error) => {
@@ -541,6 +600,26 @@ export class MyRequests implements OnInit {
       // For now, we'll just show a success message
       this.toastService.success('Suggestion Accepted', 'Room suggestion accepted. Your booking will be updated.');
       this.loadRequests();
+    }
+  }
+
+  setFilter(filter: 'all' | 'pending' | 'approved' | 'rejected'): void {
+    this.activeFilter = filter;
+    this.applyFilter();
+  }
+
+  applyFilter(): void {
+    if (this.activeFilter === 'all') {
+      this.filteredRequests = this.requests;
+    } else {
+      const statusMap = {
+        'pending': 'Pending',
+        'approved': 'Approved',
+        'rejected': 'Rejected'
+      };
+      this.filteredRequests = this.requests.filter(request => 
+        request.status === statusMap[this.activeFilter as keyof typeof statusMap]
+      );
     }
   }
 }

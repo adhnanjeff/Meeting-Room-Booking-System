@@ -65,7 +65,6 @@ import { Router } from '@angular/router';
               <option value="">Select Role</option>
               <option value="Employee">Employee</option>
               <option value="Manager">Manager</option>
-              <option value="Admin">Admin</option>
             </select>
           </div>
 

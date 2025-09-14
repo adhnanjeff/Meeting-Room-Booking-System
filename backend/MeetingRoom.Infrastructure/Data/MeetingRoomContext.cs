@@ -117,5 +117,22 @@ public partial class MeetingRoomContext : IdentityDbContext<AppUser, IdentityRol
                 .HasForeignKey(e => e.ApproverId)
                 .OnDelete(DeleteBehavior.Restrict);
         });
+
+        // Seed admin user
+        var hasher = new PasswordHasher<AppUser>();
+        modelBuilder.Entity<AppUser>().HasData(new AppUser
+        {
+            Id = 1,
+            UserName = "admin",
+            NormalizedUserName = "ADMIN",
+            Email = "admin@example.com",
+            NormalizedEmail = "ADMIN@EXAMPLE.COM",
+            EmailConfirmed = true,
+            PasswordHash = hasher.HashPassword(null, "Aa@123"),
+            SecurityStamp = Guid.NewGuid().ToString(),
+            Department = "Admin",
+            Role = UserRole.Admin,
+            ManagerId = null
+        });
     }
 }

@@ -109,44 +109,11 @@ import { ToastService } from '../../../services/toast.service';
             </div>
 
             <div class="booking-actions">
-              <button 
-                class="action-btn view-btn"
-                (click)="viewBooking(booking)"
-              >
-                <i class="pi pi-eye"></i> View
-              </button>
-              
-              <button 
-                *ngIf="canEdit(booking)"
-                class="action-btn edit-btn"
-                (click)="editBooking(booking)"
-              >
-                <i class="pi pi-pencil"></i> Edit
-              </button>
-              
-              <button 
-                *ngIf="canCancel(booking)"
-                class="action-btn cancel-btn"
-                (click)="cancelBooking(booking)"
-              >
-                <i class="pi pi-times"></i> Cancel
-              </button>
-              
-              <button 
-                *ngIf="canEndEarly(booking)"
-                class="action-btn end-btn"
-                (click)="endEarly(booking)"
-              >
-                <i class="pi pi-stop"></i> End Early
-              </button>
-              
-              <button 
-                *ngIf="canExtend(booking)"
-                class="action-btn extend-btn"
-                (click)="extendMeeting(booking)"
-              >
-                <i class="pi pi-clock"></i> Extend
-              </button>
+              <button class="btn-round btn-primary" (click)="viewBooking(booking)"><i class="pi pi-search"></i></button>
+              <button *ngIf="canEdit(booking)" class="btn-round btn-secondary" (click)="editBooking(booking)"><i class="pi pi-bookmark"></i></button>
+              <button *ngIf="canCancel(booking)" class="btn-round btn-danger" (click)="cancelBooking(booking)"><i class="pi pi-times"></i></button>
+              <button *ngIf="canEndEarly(booking)" class="btn-round btn-warning" (click)="endEarly(booking)"><i class="pi pi-bell"></i></button>
+              <button *ngIf="canExtend(booking)" class="btn-round btn-success" (click)="extendMeeting(booking)"><i class="pi pi-check"></i></button>
             </div>
           </div>
         </div>

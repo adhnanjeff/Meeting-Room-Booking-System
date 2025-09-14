@@ -54,6 +54,10 @@ import { ThemeToggle } from '../../../components/theme-toggle';
             <i class="pi pi-envelope nav-icon"></i>
             <span>Invitations</span>
           </a>
+          <a routerLink="scheduled-meetings" routerLinkActive="active" class="nav-item">
+            <i class="pi pi-calendar-check nav-icon"></i>
+            <span>Scheduled Meetings</span>
+          </a>
           <a routerLink="profile" routerLinkActive="active" class="nav-item">
             <i class="pi pi-user nav-icon"></i>
             <span>Profile</span>
@@ -61,6 +65,10 @@ import { ThemeToggle } from '../../../components/theme-toggle';
         </div>
         
         <div class="sidebar-footer">
+          <div class="role-badge manager">
+            <i class="pi pi-users"></i>
+            <span>Manager</span>
+          </div>
           <button class="logout-btn" (click)="logout()">
             <i class="pi pi-sign-out nav-icon"></i>
             <span>Logout</span>
@@ -90,11 +98,29 @@ import { ThemeToggle } from '../../../components/theme-toggle';
       left: 0;
       height: 100vh;
       overflow-y: auto;
+      scrollbar-width: none;
+      -ms-overflow-style: none;
+      box-shadow: 0 0 25px rgba(0, 0, 0, 0.1);
+    }
+
+    .sidebar::-webkit-scrollbar {
+      display: none;
+    }
+
+    [data-theme="dark"] .sidebar {
+      background: linear-gradient(135deg, #3b4650 0%, #2f3349 100%);
+      border-right: none;
     }
 
     .sidebar-header {
       padding: 1.5rem;
       border-bottom: 1px solid var(--border);
+      background: var(--background);
+    }
+
+    [data-theme="dark"] .sidebar-header {
+      border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+      background: rgba(0, 0, 0, 0.1);
     }
 
     .header-top {
@@ -111,6 +137,10 @@ import { ThemeToggle } from '../../../components/theme-toggle';
       margin: 0;
     }
 
+    [data-theme="dark"] .sidebar-header h2 {
+      color: #ffffff;
+    }
+
     .user-info {
       display: flex;
       align-items: center;
@@ -120,7 +150,7 @@ import { ThemeToggle } from '../../../components/theme-toggle';
     .user-avatar {
       width: 40px;
       height: 40px;
-      background: var(--secondary);
+      background: linear-gradient(135deg, var(--primary), var(--secondary));
       color: white;
       border-radius: 50%;
       display: flex;
@@ -128,6 +158,7 @@ import { ThemeToggle } from '../../../components/theme-toggle';
       justify-content: center;
       font-weight: 600;
       font-size: 0.875rem;
+      box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
     }
 
     .user-details {
@@ -140,9 +171,17 @@ import { ThemeToggle } from '../../../components/theme-toggle';
       font-size: 0.875rem;
     }
 
+    [data-theme="dark"] .user-name {
+      color: #ffffff;
+    }
+
     .user-role {
       font-size: 0.75rem;
       color: var(--text-light);
+    }
+
+    [data-theme="dark"] .user-role {
+      color: #b9c7d4;
     }
 
     .nav-menu {
@@ -157,28 +196,48 @@ import { ThemeToggle } from '../../../components/theme-toggle';
       padding: 0.75rem 1.5rem;
       color: var(--text-light);
       text-decoration: none;
-      transition: all 0.2s ease;
+      transition: all 0.3s ease;
       border-left: 3px solid transparent;
+      position: relative;
+      margin: 2px 0;
+    }
+
+    [data-theme="dark"] .nav-item {
+      color: #b9c7d4;
     }
 
     .nav-item:hover {
       background: var(--background);
       color: var(--text);
+      border-left-color: var(--primary);
+    }
+
+    [data-theme="dark"] .nav-item:hover {
+      background: rgba(255, 255, 255, 0.1);
+      color: #ffffff;
     }
 
     .nav-item.active {
-      background: var(--background);
-      color: var(--secondary);
-      border-left-color: var(--secondary);
+      background: rgba(64, 153, 255, 0.15);
+      color: var(--primary);
+      border-left-color: var(--primary);
+      box-shadow: inset 0 0 10px rgba(64, 153, 255, 0.1);
     }
 
     .nav-item.highlight {
-      background: rgba(16, 185, 129, 0.1);
+      background: rgba(46, 216, 182, 0.15);
       color: var(--secondary);
+      animation: pulse 2s infinite;
+    }
+
+    @keyframes pulse {
+      0%, 100% { background: rgba(46, 216, 182, 0.15); }
+      50% { background: rgba(46, 216, 182, 0.25); }
     }
 
     .nav-item.highlight.active {
       border-left-color: var(--secondary);
+      background: rgba(46, 216, 182, 0.2);
     }
 
     .nav-icon {
@@ -190,6 +249,12 @@ import { ThemeToggle } from '../../../components/theme-toggle';
     .sidebar-footer {
       padding: 1rem;
       border-top: 1px solid var(--border);
+      background: var(--background);
+    }
+
+    [data-theme="dark"] .sidebar-footer {
+      border-top: 1px solid rgba(255, 255, 255, 0.1);
+      background: rgba(0, 0, 0, 0.1);
     }
 
     .logout-btn {
@@ -202,13 +267,18 @@ import { ThemeToggle } from '../../../components/theme-toggle';
       border: none;
       color: var(--text-light);
       cursor: pointer;
-      border-radius: 8px;
-      transition: all 0.2s ease;
+      border-radius: var(--border-radius);
+      transition: all 0.3s ease;
+    }
+
+    [data-theme="dark"] .logout-btn {
+      color: #b9c7d4;
     }
 
     .logout-btn:hover {
-      background: var(--background);
+      background: rgba(255, 83, 112, 0.15);
       color: var(--error);
+      transform: translateX(5px);
     }
 
     .main-content {
@@ -216,6 +286,20 @@ import { ThemeToggle } from '../../../components/theme-toggle';
       background: var(--background);
       overflow-y: auto;
       margin-left: 280px;
+    }
+
+    .role-badge {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 0.5rem;
+      padding: 0.5rem;
+      margin-bottom: 0.5rem;
+      background: linear-gradient(135deg, var(--secondary), #00d4aa);
+      color: white;
+      border-radius: 20px;
+      font-size: 0.75rem;
+      font-weight: 600;
     }
 
     @media (max-width: 768px) {
@@ -232,6 +316,8 @@ import { ThemeToggle } from '../../../components/theme-toggle';
       .main-content {
         margin-left: 0;
       }
+
+
     }
   `]
 })
