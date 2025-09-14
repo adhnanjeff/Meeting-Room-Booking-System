@@ -1,0 +1,190 @@
+<div class="admin-dashboard">
+  <h1>Admin Dashboard</h1>
+  
+  <!-- Navigation Tabs -->
+  <div class="tabs">
+    <button [class.active]="activeTab === 'rooms'" (click)="setActiveTab('rooms')">Meeting Rooms</button>
+    <button [class.active]="activeTab === 'users'" (click)="setActiveTab('users')">Users</button>
+    <button [class.active]="activeTab === 'bookings'" (click)="setActiveTab('bookings')">Bookings</button>
+  </div>
+
+  <!-- Meeting Rooms Tab -->
+  <div *ngIf="activeTab === 'rooms'" class="tab-content">
+    <div class="section-header">
+      <h2>Meeting Rooms</h2>
+      <div class="controls">
+        <input type="text" [(ngModel)]="roomFilter" (input)="filterRooms()" placeholder="Search rooms...">
+        <button class="btn-primary" (click)="showAddRoom = true">Add Room</button>
+      </div>
+    </div>
+
+    <!-- Add Room Form -->
+    <div *ngIf="showAddRoom" class="form-modal">
+      <div class="form-content">
+        <h3>Add New Room</h3>
+        <input type="text" [(ngModel)]="newRoom.roomName" placeholder="Room Name">
+        <input type="number" [(ngModel)]="newRoom.capacity" placeholder="Capacity">
+        <input type="text" [(ngModel)]="newRoom.amenities" placeholder="Amenities">
+        <label>
+          <input type="checkbox" [(ngModel)]="newRoom.isAvailable"> Available
+        </label>
+        <div class="form-actions">
+          <button class="btn-primary" (click)="addRoom()">Add</button>
+          <button class="btn-secondary" (click)="showAddRoom = false; resetNewRoom()">Cancel</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- Rooms Cards -->
+    <div *ngIf="rooms.length === 0" class="loading">Loading rooms...</div>
+    <div *ngIf="rooms.length > 0" class="cards-container">
+      <div *ngFor="let room of filteredRooms" class="card">
+        <div class="card-header">
+          <h3>{{ room.roomName }}</h3>
+          <span [class]="room.isAvailable ? 'status-available' : 'status-unavailable'">
+            {{ room.isAvailable ? 'Available' : 'Unavailable' }}
+          </span>
+        </div>
+        <div class="card-body">
+          <div class="detail-row">
+            <strong>Capacity:</strong> {{ room.capacity }} people
+          </div>
+          <div class="detail-row">
+            <strong>Amenities:</strong> {{ room.amenities }}
+          </div>
+          <div class="detail-row">
+            <strong>Room ID:</strong> {{ room.id }}
+          </div>
+        </div>
+        <div class="card-actions">
+          <button class="btn-edit" (click)="editRoom(room)">Edit</button>
+          <button class="btn-delete" (click)="deleteRoom(room.id)">Delete</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- Edit Room Modal -->
+    <div *ngIf="editingRoom" class="form-modal">
+      <div class="form-content">
+        <h3>Edit Room</h3>
+        <input type="text" [(ngModel)]="editingRoom.roomName" placeholder="Room Name">
+        <input type="number" [(ngModel)]="editingRoom.capacity" placeholder="Capacity">
+        <input type="text" [(ngModel)]="editingRoom.amenities" placeholder="Amenities">
+        <label>
+          <input type="checkbox" [(ngModel)]="editingRoom.isAvailable"> Available
+        </label>
+        <div class="form-actions">
+          <button class="btn-primary" (click)="updateRoom()">Update</button>
+          <button class="btn-secondary" (click)="editingRoom = null">Cancel</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Users Tab -->
+  <div *ngIf="activeTab === 'users'" class="tab-content">
+    <div class="section-header">
+      <h2>Users</h2>
+      <div class="controls">
+        <select [(ngModel)]="departmentFilter" (change)="filterUsers()">
+          <option value="">All Departments</option>
+          <option *ngFor="let dept of departments" [value]="dept">{{ dept }}</option>
+        </select>
+      </div>
+    </div>
+
+    <!-- Users Cards -->
+    <div *ngIf="users.length === 0" class="loading">Loading users...</div>
+    <div *ngIf="users.length > 0" class="cards-container">
+      <div *ngFor="let user of filteredUsers" class="card">
+        <div class="card-header">
+          <h3>{{ user.userName }}</h3>
+          <span class="role-badge role-{{ (user.roles[0] || 'User').toLowerCase() }}">{{ user.roles[0] || 'User' }}</span>
+        </div>
+        <div class="card-body">
+          <div class="detail-row">
+            <strong>User ID:</strong> {{ user.id }}
+          </div>
+          <div class="detail-row">
+            <strong>Email:</strong> {{ user.email }}
+          </div>
+          <div class="detail-row">
+            <strong>Department:</strong> {{ user.department }}
+          </div>
+          <div class="detail-row" *ngIf="user.managerId">
+            <strong>Manager ID:</strong> {{ user.managerId }}
+          </div>
+        </div>
+        <div class="card-actions">
+          <button class="btn-edit" (click)="editUser(user)">Edit</button>
+          <button class="btn-delete" (click)="deleteUser(user.id)">Delete</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- Edit User Modal -->
+    <div *ngIf="editingUser" class="form-modal">
+      <div class="form-content">
+        <h3>Edit User</h3>
+        <input type="text" [(ngModel)]="editingUser.userName" placeholder="Username">
+        <input type="email" [(ngModel)]="editingUser.email" placeholder="Email">
+        <input type="text" [(ngModel)]="editingUser.department" placeholder="Department">
+        <select [(ngModel)]="editingUser.role">
+          <option value="Employee">Employee</option>
+          <option value="Manager">Manager</option>
+          <option value="Admin">Admin</option>
+        </select>
+        <div class="form-actions">
+          <button class="btn-primary" (click)="updateUser()">Update</button>
+          <button class="btn-secondary" (click)="editingUser = null">Cancel</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Bookings Tab -->
+  <div *ngIf="activeTab === 'bookings'" class="tab-content">
+    <div class="section-header">
+      <h2>Bookings</h2>
+      <div class="controls">
+        <select [(ngModel)]="bookingFilter" (change)="filterBookings()">
+          <option value="all">All Bookings</option>
+          <option value="past">Past</option>
+          <option value="current">Current</option>
+          <option value="upcoming">Upcoming</option>
+        </select>
+      </div>
+    </div>
+
+    <!-- Bookings Cards -->
+    <div *ngIf="bookings.length === 0" class="loading">Loading bookings...</div>
+    <div *ngIf="bookings.length > 0" class="cards-container">
+      <div *ngFor="let booking of filteredBookings" class="card booking-card">
+        <div class="card-header">
+          <h3>{{ booking.roomName }}</h3>
+          <span class="status-badge status-{{ booking.status.toLowerCase() }}">{{ booking.status }}</span>
+        </div>
+        <div class="card-body">
+          <div class="detail-row">
+            <strong>Booking ID:</strong> {{ booking.bookingId }}
+          </div>
+          <div class="detail-row">
+            <strong>Organizer:</strong> {{ booking.userName }}
+          </div>
+          <div class="detail-row">
+            <strong>Purpose:</strong> {{ booking.purpose }}
+          </div>
+          <div class="detail-row">
+            <strong>Start Time:</strong> {{ booking.startTime | date:'medium' }}
+          </div>
+          <div class="detail-row">
+            <strong>End Time:</strong> {{ booking.endTime | date:'medium' }}
+          </div>
+          <div class="detail-row">
+            <strong>Created:</strong> {{ booking.createdAt | date:'short' }}
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>

@@ -1,0 +1,1 @@
+export { BookRoom } from './book-room';

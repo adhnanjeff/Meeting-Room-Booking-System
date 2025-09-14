@@ -1,0 +1,1 @@
+export { ManagerLayout } from './manager-layout';

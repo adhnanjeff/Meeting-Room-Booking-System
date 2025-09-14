@@ -1,0 +1,1 @@
+export { ManagerHome } from './manager-home';

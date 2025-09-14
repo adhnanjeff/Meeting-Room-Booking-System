@@ -1,0 +1,13 @@
+C:\Users\adhnjeff\source\repos\DontnetTraining\Capstone\backend\MeetingRoom.Core\bin\Debug\net8.0\MeetingRoom.Core.deps.json
+C:\Users\adhnjeff\source\repos\DontnetTraining\Capstone\backend\MeetingRoom.Core\bin\Debug\net8.0\MeetingRoom.Core.dll
+C:\Users\adhnjeff\source\repos\DontnetTraining\Capstone\backend\MeetingRoom.Core\bin\Debug\net8.0\MeetingRoom.Core.pdb
+C:\Users\adhnjeff\source\repos\DontnetTraining\Capstone\backend\MeetingRoom.Core\obj\Debug\net8.0\MeetingRoom.Core.csproj.AssemblyReference.cache
+C:\Users\adhnjeff\source\repos\DontnetTraining\Capstone\backend\MeetingRoom.Core\obj\Debug\net8.0\MeetingRoom.Core.GeneratedMSBuildEditorConfig.editorconfig
+C:\Users\adhnjeff\source\repos\DontnetTraining\Capstone\backend\MeetingRoom.Core\obj\Debug\net8.0\MeetingRoom.Core.AssemblyInfoInputs.cache
+C:\Users\adhnjeff\source\repos\DontnetTraining\Capstone\backend\MeetingRoom.Core\obj\Debug\net8.0\MeetingRoom.Core.AssemblyInfo.cs
+C:\Users\adhnjeff\source\repos\DontnetTraining\Capstone\backend\MeetingRoom.Core\obj\Debug\net8.0\MeetingRoom.Core.csproj.CoreCompileInputs.cache
+C:\Users\adhnjeff\source\repos\DontnetTraining\Capstone\backend\MeetingRoom.Core\obj\Debug\net8.0\MeetingRoom.Core.sourcelink.json
+C:\Users\adhnjeff\source\repos\DontnetTraining\Capstone\backend\MeetingRoom.Core\obj\Debug\net8.0\MeetingRoom.Core.dll
+C:\Users\adhnjeff\source\repos\DontnetTraining\Capstone\backend\MeetingRoom.Core\obj\Debug\net8.0\refint\MeetingRoom.Core.dll
+C:\Users\adhnjeff\source\repos\DontnetTraining\Capstone\backend\MeetingRoom.Core\obj\Debug\net8.0\MeetingRoom.Core.pdb
+C:\Users\adhnjeff\source\repos\DontnetTraining\Capstone\backend\MeetingRoom.Core\obj\Debug\net8.0\ref\MeetingRoom.Core.dll
