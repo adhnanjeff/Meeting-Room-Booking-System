@@ -7,10 +7,12 @@ import { AuthService, User } from '../../../services/auth.service';
 import { ToastService } from '../../../services/toast.service';
 import { BookingService, BookingRequest } from '../../../services/booking.service';
 import { UserService } from '../../../services/user.service';
+import { NotificationService } from '../../../services/notification.service';
 
 interface AttendeeTag {
   id: number;
   name: string;
+  role: string;
 }
 
 interface DateOption {
@@ -133,6 +135,26 @@ interface MeetingRequest {
           <div class="attendee-tags" *ngIf="attendeeTags.length > 0">
             <div *ngFor="let attendee of attendeeTags; let i = index" class="attendee-tag">
               <span class="attendee-info">{{ attendee.name }} (ID: {{ attendee.id }})</span>
+              <div class="role-selector">
+                <div class="role-badge" [class]="'role-' + attendee.role.toLowerCase().replace(' ', '-')" (click)="toggleRoleDropdown(i)">
+                  {{ attendee.role }}
+                  <i class="pi pi-chevron-down"></i>
+                </div>
+                <div class="role-dropdown" *ngIf="activeRoleDropdown === i">
+                  <div class="role-option" [class.active]="attendee.role === 'Participant'" (click)="selectRole(attendee, 'Participant', i)">
+                    <i class="pi pi-user"></i> Participant
+                  </div>
+                  <div class="role-option" [class.active]="attendee.role === 'Presenter'" (click)="selectRole(attendee, 'Presenter', i)">
+                    <i class="pi pi-microphone"></i> Presenter
+                  </div>
+                  <div class="role-option" [class.active]="attendee.role === 'Note Taker'" (click)="selectRole(attendee, 'Note Taker', i)">
+                    <i class="pi pi-file-edit"></i> Note Taker
+                  </div>
+                  <div class="role-option" [class.active]="attendee.role === 'Moderator'" (click)="selectRole(attendee, 'Moderator', i)">
+                    <i class="pi pi-shield"></i> Moderator
+                  </div>
+                </div>
+              </div>
               <button class="tag-remove" (click)="removeAttendee(i)">×</button>
             </div>
           </div>
@@ -411,6 +433,88 @@ interface MeetingRequest {
       align-items: center;
       gap: 0.5rem;
       font-size: 0.9rem;
+      position: relative;
+    }
+
+    .role-selector {
+      position: relative;
+    }
+
+    .role-badge {
+      background: var(--primary);
+      color: white;
+      padding: 0.25rem 0.75rem;
+      border-radius: 20px;
+      font-size: 0.75rem;
+      font-weight: 500;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+      transition: all 0.2s ease;
+      min-width: 90px;
+      justify-content: space-between;
+    }
+
+    .role-badge:hover {
+      transform: translateY(-1px);
+      box-shadow: 0 2px 8px rgba(0,0,0,0.15);
+    }
+
+    .role-badge.role-participant {
+      background: #3B82F6;
+    }
+
+    .role-badge.role-presenter {
+      background: #F59E0B;
+    }
+
+    .role-badge.role-note-taker {
+      background: #6B7280;
+    }
+
+    .role-badge.role-moderator {
+      background: #10B981;
+    }
+
+    .role-dropdown {
+      position: absolute;
+      top: 100%;
+      left: 0;
+      background: white;
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+      z-index: 1000;
+      overflow: hidden;
+      margin-top: 0.25rem;
+      min-width: 140px;
+      white-space: nowrap;
+    }
+
+    .role-option {
+      padding: 0.75rem 1rem;
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+      cursor: pointer;
+      transition: background-color 0.2s;
+      font-size: 0.875rem;
+      color: var(--text);
+    }
+
+    .role-option:hover {
+      background: var(--background);
+    }
+
+    .role-option.active {
+      background: var(--primary-light, rgba(59, 130, 246, 0.1));
+      color: var(--primary);
+    }
+
+    .role-option i {
+      font-size: 0.875rem;
+      width: 1rem;
     }
 
     .attendee-info {
@@ -677,6 +781,7 @@ export class BookRoom implements OnInit {
   isLoading = false;
   error = '';
   success = '';
+  activeRoleDropdown: number | null = null;
 
 
   holidays = {
@@ -702,6 +807,7 @@ export class BookRoom implements OnInit {
     private toastService: ToastService,
     private bookingService: BookingService,
     private userService: UserService,
+    private notificationService: NotificationService,
     private router: Router
   ) {}
 
@@ -792,11 +898,14 @@ export class BookRoom implements OnInit {
     if (userId && !this.attendeeTags.some(a => a.id === userId)) {
       this.userService.getUserById(userId).subscribe({
         next: (user) => {
-          this.attendeeTags.push({ id: user.id, name: user.userName });
+          this.attendeeTags.push({ id: user.id, name: user.userName, role: 'Participant' });
           this.meetingRequest.attendeeIds.push(user.id);
           this.meetingRequest.attendeeNames.push(user.userName);
           this.newAttendeeId = '';
-          this.toastService.success('Attendee Added', `${user.userName} added to meeting`);
+          const message = userId === this.currentUser?.id ? 
+            `${user.userName} added as attendee (no invitation will be sent to organizer)` :
+            `${user.userName} added to meeting as Participant`;
+          this.toastService.success('Attendee Added', message);
         },
         error: (error) => {
           this.toastService.error('User Not Found', `No user found with ID ${userId}`);
@@ -805,6 +914,41 @@ export class BookRoom implements OnInit {
     } else if (this.attendeeTags.some(a => a.id === userId)) {
       this.toastService.warning('Duplicate User', 'This user is already added as an attendee');
     }
+  }
+
+  toggleRoleDropdown(index: number): void {
+    this.activeRoleDropdown = this.activeRoleDropdown === index ? null : index;
+  }
+
+  selectRole(attendee: AttendeeTag, role: string, index: number): void {
+    attendee.role = role;
+    this.activeRoleDropdown = null;
+    this.onRoleChange(attendee);
+  }
+
+  onRoleChange(attendee: AttendeeTag): void {
+    this.toastService.info('Role Updated', `${attendee.name}'s role changed to ${attendee.role}`);
+    
+    // Skip notification if attendee is the organizer
+    if (attendee.id === this.currentUser?.id) {
+      console.log('Skipping notification for organizer');
+      return;
+    }
+    
+    // Send notification to the attendee about role change
+    this.notificationService.createNotification({
+      title: 'Meeting Role Updated',
+      message: `Your role in the meeting "${this.meetingRequest.title}" has been changed to ${attendee.role}`,
+      fromUser: this.currentUser?.userName || 'System',
+      userId: attendee.id
+    }).subscribe({
+      next: () => {
+        console.log('Role change notification sent to', attendee.name);
+      },
+      error: (error) => {
+        console.error('Failed to send role change notification:', error);
+      }
+    });
   }
 
   removeAttendee(index: number): void {
@@ -816,12 +960,34 @@ export class BookRoom implements OnInit {
   }
 
   selectRoom(room: MeetingRoom): void {
-    if (room.isAvailable) {
-      this.meetingRequest.roomId = room.id;
-      this.toastService.info('Room Selected', `${room.roomName} selected for your meeting`);
-    } else {
+    if (!room.isAvailable) {
       this.toastService.warning('Room Unavailable', `${room.roomName} is not available for booking`);
+      return;
     }
+    
+    if (!this.startTime || !this.endTime) {
+      this.toastService.warning('Time Required', 'Please select start and end time first');
+      return;
+    }
+    
+    // Check room availability for selected time slot
+    const startDateTime = `${this.meetingDate}T${this.startTime}:00`;
+    const endDateTime = `${this.meetingDate}T${this.endTime}:00`;
+    
+    this.bookingService.checkRoomAvailability(startDateTime, endDateTime, room.id).subscribe({
+      next: (result) => {
+        if (result.isAvailable) {
+          this.meetingRequest.roomId = room.id;
+          this.toastService.success('Room Selected', `${room.roomName} is available and selected`);
+        } else {
+          this.toastService.error('Room Conflict', `${room.roomName} is already booked for this time slot`);
+        }
+      },
+      error: (error) => {
+        console.error('Error checking availability:', error);
+        this.toastService.error('Error', 'Failed to check room availability');
+      }
+    });
   }
 
   isFormValid(): boolean {
@@ -834,17 +1000,29 @@ export class BookRoom implements OnInit {
   }
 
   requestApproval(): void {
-    console.log('🔍 Form validation check:', {
-      title: this.meetingRequest.title,
-      startTime: this.startTime,
-      endTime: this.endTime,
-      roomId: this.meetingRequest.roomId,
-      attendeeCount: this.meetingRequest.attendeeCount,
-      isValid: this.isFormValid()
-    });
-
     if (!this.isFormValid()) {
       this.toastService.error('Validation Error', 'Please fill in all required fields including attendee count');
+      return;
+    }
+
+    // Validate time logic
+    if (this.startTime >= this.endTime) {
+      this.toastService.error('Invalid Time', 'End time must be after start time');
+      return;
+    }
+
+    // Check minimum meeting duration (15 minutes)
+    const start = new Date(`${this.meetingDate}T${this.startTime}:00`);
+    const end = new Date(`${this.meetingDate}T${this.endTime}:00`);
+    const durationMinutes = (end.getTime() - start.getTime()) / (1000 * 60);
+    
+    if (durationMinutes < 15) {
+      this.toastService.error('Invalid Duration', 'Meeting must be at least 15 minutes long');
+      return;
+    }
+
+    if (durationMinutes > 480) { // 8 hours
+      this.toastService.error('Invalid Duration', 'Meeting cannot exceed 8 hours');
       return;
     }
 
@@ -866,24 +1044,70 @@ export class BookRoom implements OnInit {
       refreshmentRequests: this.meetingRequest.refreshmentRequests
     };
 
-    console.log('📤 Sending booking request:', bookingRequest);
+    // Final availability check before submission
+    this.bookingService.checkRoomAvailability(startDateTime, endDateTime, this.meetingRequest.roomId).subscribe({
+      next: (availabilityResult) => {
+        if (!availabilityResult.isAvailable) {
+          this.toastService.error('Room Conflict', 'Selected room is no longer available for this time slot');
+          this.isLoading = false;
+          return;
+        }
 
-    this.bookingService.createBookingRequest(bookingRequest).subscribe({
-      next: (response) => {
-        console.log('✅ Booking request successful:', response);
-        this.toastService.success(
-          'Request Submitted!', 
-          `Your meeting request "${this.meetingRequest.title}" has been submitted successfully.`
-        );
-        this.resetForm();
-        this.isLoading = false;
-        setTimeout(() => {
-          this.router.navigate(['/employee/my-bookings']);
-        }, 1500);
+        // Check for conflicts with attendees
+        this.bookingService.checkConflicts(bookingRequest).subscribe({
+          next: (conflictResult) => {
+            if (conflictResult.hasConflicts) {
+              this.toastService.warning('Attendee Conflicts', 
+                `Some attendees have conflicting meetings: ${conflictResult.conflicts.join(', ')}`);
+            }
+
+            // Proceed with booking
+            this.bookingService.createBookingRequest(bookingRequest).subscribe({
+              next: (response) => {
+                this.toastService.success(
+                  'Request Submitted!', 
+                  `Your meeting request "${this.meetingRequest.title}" has been submitted successfully.`
+                );
+                this.resetForm();
+                this.isLoading = false;
+                setTimeout(() => {
+                  this.router.navigate(['/employee/my-bookings']);
+                }, 1500);
+              },
+              error: (error) => {
+                console.error('❌ Booking request failed:', error);
+                this.error = error.error?.message || 'Failed to submit meeting request';
+                this.isLoading = false;
+              }
+            });
+          },
+          error: (error) => {
+            console.error('Error checking conflicts:', error);
+            // Proceed anyway if conflict check fails
+            this.bookingService.createBookingRequest(bookingRequest).subscribe({
+              next: (response) => {
+                this.toastService.success(
+                  'Request Submitted!', 
+                  `Your meeting request "${this.meetingRequest.title}" has been submitted successfully.`
+                );
+                this.resetForm();
+                this.isLoading = false;
+                setTimeout(() => {
+                  this.router.navigate(['/employee/my-bookings']);
+                }, 1500);
+              },
+              error: (error) => {
+                console.error('❌ Booking request failed:', error);
+                this.error = error.error?.message || 'Failed to submit meeting request';
+                this.isLoading = false;
+              }
+            });
+          }
+        });
       },
       error: (error) => {
-        console.error('❌ Booking request failed:', error);
-        this.error = error.error?.message || 'Failed to submit meeting request';
+        console.error('Error checking availability:', error);
+        this.toastService.error('Error', 'Failed to verify room availability');
         this.isLoading = false;
       }
     });

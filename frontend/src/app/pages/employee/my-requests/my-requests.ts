@@ -5,6 +5,7 @@ import { Router } from '@angular/router';
 import { BookingService, Booking } from '../../../services/booking.service';
 import { AuthService, User } from '../../../services/auth.service';
 import { ToastService } from '../../../services/toast.service';
+import { NotificationService } from '../../../services/notification.service';
 
 @Component({
   selector: 'app-my-requests',
@@ -147,9 +148,28 @@ import { ToastService } from '../../../services/toast.service';
           <div class="detail-section" *ngIf="selectedRequest.attendees.length > 0">
             <h4><i class="pi pi-users"></i> Attendees ({{ selectedRequest.attendees.length }})</h4>
             <div class="attendees-list">
-              <div *ngFor="let attendee of selectedRequest.attendees" class="attendee-item">
+              <div *ngFor="let attendee of selectedRequest.attendees; let i = index" class="attendee-item">
                 <span class="attendee-name">{{ attendee.userName }}</span>
-                <span class="attendee-role">{{ attendee.roleInMeeting }}</span>
+                <div class="role-selector">
+                  <div class="role-badge" [class]="'role-' + attendee.roleInMeeting.toLowerCase().replace(' ', '-')" (click)="toggleRoleDropdown(i)">
+                    {{ attendee.roleInMeeting }}
+                    <i class="pi pi-chevron-down"></i>
+                  </div>
+                  <div class="role-dropdown" *ngIf="activeRoleDropdown === i">
+                    <div class="role-option" [class.active]="attendee.roleInMeeting === 'Participant'" (click)="selectRole(attendee, 'Participant', i)">
+                      <i class="pi pi-user"></i> Participant
+                    </div>
+                    <div class="role-option" [class.active]="attendee.roleInMeeting === 'Presenter'" (click)="selectRole(attendee, 'Presenter', i)">
+                      <i class="pi pi-microphone"></i> Presenter
+                    </div>
+                    <div class="role-option" [class.active]="attendee.roleInMeeting === 'Note Taker'" (click)="selectRole(attendee, 'Note Taker', i)">
+                      <i class="pi pi-file-edit"></i> Note Taker
+                    </div>
+                    <div class="role-option" [class.active]="attendee.roleInMeeting === 'Moderator'" (click)="selectRole(attendee, 'Moderator', i)">
+                      <i class="pi pi-shield"></i> Moderator
+                    </div>
+                  </div>
+                </div>
               </div>
             </div>
           </div>
@@ -293,11 +313,11 @@ import { ToastService } from '../../../services/toast.service';
     }
 
     .request-card {
-      background: #E6F3FF !important;
+      background: white !important;
       border-radius: 12px;
       padding: 1.5rem;
       box-shadow: var(--shadow);
-      border: 1px solid #87CEEB;
+      border: 1px solid var(--border);
       border-left: 4px solid #1E40AF;
       transition: all 0.2s ease;
     }
@@ -312,6 +332,14 @@ import { ToastService } from '../../../services/toast.service';
     }
 
     .request-card.status-approved {
+      border-left-color: var(--success);
+    }
+
+    .request-card.status-cancelled {
+      border-left-color: var(--error);
+    }
+
+    .request-card.status-scheduled {
       border-left-color: var(--success);
     }
 
@@ -510,6 +538,7 @@ import { ToastService } from '../../../services/toast.service';
       padding: 0.5rem;
       background: var(--background);
       border-radius: 6px;
+      position: relative;
     }
 
     .attendee-name {
@@ -519,6 +548,87 @@ import { ToastService } from '../../../services/toast.service';
     .attendee-role {
       font-size: 0.875rem;
       color: var(--text-light);
+    }
+
+    .role-selector {
+      position: relative;
+    }
+
+    .role-badge {
+      background: var(--primary);
+      color: white;
+      padding: 0.25rem 0.75rem;
+      border-radius: 20px;
+      font-size: 0.75rem;
+      font-weight: 500;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+      transition: all 0.2s ease;
+      min-width: 100px;
+      justify-content: space-between;
+    }
+
+    .role-badge:hover {
+      transform: translateY(-1px);
+      box-shadow: 0 2px 8px rgba(0,0,0,0.15);
+    }
+
+    .role-badge.role-participant {
+      background: #3B82F6;
+    }
+
+    .role-badge.role-presenter {
+      background: #F59E0B;
+    }
+
+    .role-badge.role-note-taker {
+      background: #6B7280;
+    }
+
+    .role-badge.role-moderator {
+      background: #10B981;
+    }
+
+    .role-dropdown {
+      position: absolute;
+      top: 100%;
+      left: 0;
+      background: white;
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+      z-index: 1000;
+      overflow: hidden;
+      margin-top: 0.25rem;
+      min-width: 140px;
+      white-space: nowrap;
+    }
+
+    .role-option {
+      padding: 0.75rem 1rem;
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+      cursor: pointer;
+      transition: background-color 0.2s;
+      font-size: 0.875rem;
+      color: var(--text);
+    }
+
+    .role-option:hover {
+      background: var(--background);
+    }
+
+    .role-option.active {
+      background: var(--primary-light, rgba(59, 130, 246, 0.1));
+      color: var(--primary);
+    }
+
+    .role-option i {
+      font-size: 0.875rem;
+      width: 1rem;
     }
 
     @media (max-width: 768px) {
@@ -559,12 +669,14 @@ export class MyRequests implements OnInit {
   selectedRequest: Booking | null = null;
   activeFilter: 'all' | 'pending' | 'approved' | 'rejected' = 'all';
   searchTerm = '';
+  activeRoleDropdown: number | null = null;
 
   constructor(
     private bookingService: BookingService,
     private authService: AuthService,
     private router: Router,
-    private toastService: ToastService
+    private toastService: ToastService,
+    private notificationService: NotificationService
   ) {}
 
   ngOnInit(): void {
@@ -661,6 +773,43 @@ export class MyRequests implements OnInit {
   setFilter(filter: 'all' | 'pending' | 'approved' | 'rejected'): void {
     this.activeFilter = filter;
     this.applyFilter();
+  }
+
+  toggleRoleDropdown(index: number): void {
+    this.activeRoleDropdown = this.activeRoleDropdown === index ? null : index;
+  }
+
+  selectRole(attendee: any, role: string, index: number): void {
+    attendee.roleInMeeting = role;
+    this.activeRoleDropdown = null;
+    this.updateAttendeeRole(attendee, index);
+  }
+
+  updateAttendeeRole(attendee: any, index: number): void {
+    if (!this.selectedRequest) return;
+    
+    this.toastService.success('Role Updated', `${attendee.userName}'s role changed to ${attendee.roleInMeeting}`);
+    
+    // Skip notification if attendee is the organizer
+    if (attendee.userId === this.currentUser?.id) {
+      console.log('Skipping notification for organizer');
+      return;
+    }
+    
+    // Send notification to the attendee about role change
+    this.notificationService.createNotification({
+      title: 'Meeting Role Updated',
+      message: `Your role in the meeting "${this.selectedRequest.title}" has been changed to ${attendee.roleInMeeting}`,
+      fromUser: this.currentUser?.userName || 'Meeting Organizer',
+      userId: attendee.userId
+    }).subscribe({
+      next: () => {
+        console.log('Role change notification sent to', attendee.userName);
+      },
+      error: (error) => {
+        console.error('Failed to send role change notification:', error);
+      }
+    });
   }
 
   applyFilter(): void {

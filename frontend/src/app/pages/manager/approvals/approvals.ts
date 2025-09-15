@@ -49,7 +49,7 @@ import { ToastService } from '../../../services/toast.service';
         </div>
 
         <div *ngIf="filteredRequests.length > 0" class="requests-grid">
-          <div *ngFor="let request of filteredRequests" class="request-card">
+          <div *ngFor="let request of filteredRequests" class="request-card" [class]="'status-' + getStatusText(request.status).toLowerCase()">
             <div class="request-header">
               <h3>{{ request.bookingTitle }}</h3>
               <span class="status-badge" [ngClass]="getStatusClass(request.status)">{{ getStatusText(request.status) }}</span>
@@ -83,13 +83,13 @@ import { ToastService } from '../../../services/toast.service';
             </div>
             
             <div class="approval-actions">
-              <button class="btn-round btn-primary" (click)="showAlternativeRooms(request)">
+              <button class="btn-round btn-primary" (click)="showAlternativeRooms(request)" title="View Other Rooms">
                 <i class="pi pi-search"></i>
               </button>
-              <button class="btn-round btn-success" (click)="approveRequest(request)">
+              <button class="btn-round btn-success" (click)="approveRequest(request)" title="Approve Request">
                 <i class="pi pi-check"></i>
               </button>
-              <button class="btn-round btn-danger" (click)="rejectRequest(request)">
+              <button class="btn-round btn-danger" (click)="rejectRequest(request)" title="Reject Request">
                 <i class="pi pi-times"></i>
               </button>
             </div>
@@ -276,6 +276,25 @@ import { ToastService } from '../../../services/toast.service';
       padding: 1.5rem;
       box-shadow: 0 2px 8px rgba(0,0,0,0.1);
       border: 1px solid var(--border);
+      border-left: 4px solid #f59e0b;
+      transition: all 0.2s ease;
+    }
+
+    .request-card:hover {
+      box-shadow: var(--shadow-lg);
+      transform: translateY(-2px);
+    }
+
+    .request-card.status-pending {
+      border-left-color: #f59e0b;
+    }
+
+    .request-card.status-approved {
+      border-left-color: #10b981;
+    }
+
+    .request-card.status-rejected {
+      border-left-color: #ef4444;
     }
 
     .request-header {
@@ -368,7 +387,8 @@ import { ToastService } from '../../../services/toast.service';
       width: 40px;
       height: 40px;
       border-radius: 50%;
-      border: none;
+      border: 2px solid;
+      background: transparent;
       cursor: pointer;
       display: flex;
       align-items: center;
@@ -378,16 +398,34 @@ import { ToastService } from '../../../services/toast.service';
     }
 
     .btn-primary {
+      border-color: var(--primary);
+      color: var(--primary);
+      background: transparent;
+    }
+
+    .btn-success {
+      border-color: var(--success, #10b981);
+      color: var(--success, #10b981);
+      background: transparent;
+    }
+
+    .btn-danger {
+      border-color: var(--error, #ef4444);
+      color: var(--error, #ef4444);
+      background: transparent;
+    }
+
+    .btn-primary:hover {
       background: var(--primary);
       color: white;
     }
 
-    .btn-success {
+    .btn-success:hover {
       background: var(--success, #10b981);
       color: white;
     }
 
-    .btn-danger {
+    .btn-danger:hover {
       background: var(--error, #ef4444);
       color: white;
     }

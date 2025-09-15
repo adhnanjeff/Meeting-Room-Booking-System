@@ -111,11 +111,11 @@ import { ToastService } from '../../../services/toast.service';
             </div>
 
             <div class="booking-actions">
-              <button class="btn-round btn-primary" (click)="viewBooking(booking)"><i class="pi pi-search"></i></button>
-              <button *ngIf="canEdit(booking)" class="btn-round btn-secondary" (click)="editBooking(booking)"><i class="pi pi-bookmark"></i></button>
-              <button *ngIf="canCancel(booking)" class="btn-round btn-danger" (click)="cancelBooking(booking)"><i class="pi pi-times"></i></button>
-              <button *ngIf="canEndEarly(booking)" class="btn-round btn-warning" (click)="endEarly(booking)"><i class="pi pi-bell"></i></button>
-              <button *ngIf="canExtend(booking)" class="btn-round btn-success" (click)="extendMeeting(booking)"><i class="pi pi-check"></i></button>
+              <button class="btn-round btn-primary" (click)="viewBooking(booking)" title="View Details"><i class="pi pi-search"></i></button>
+              <button *ngIf="canEdit(booking)" class="btn-round btn-secondary" (click)="editBooking(booking)" title="Edit Booking"><i class="pi pi-file-edit"></i></button>
+              <button *ngIf="canCancel(booking)" class="btn-round btn-danger" (click)="cancelBooking(booking)" title="Cancel Booking"><i class="pi pi-trash"></i></button>
+              <button *ngIf="canEndEarly(booking)" class="btn-round btn-warning" (click)="endEarly(booking)" title="End Early"><i class="pi pi-stop"></i></button>
+              <button *ngIf="canExtend(booking)" class="btn-round btn-success" (click)="extendMeeting(booking)" title="Extend Meeting"><i class="pi pi-plus"></i></button>
             </div>
           </div>
         </div>
@@ -295,6 +295,7 @@ import { ToastService } from '../../../services/toast.service';
       padding: 1.5rem;
       box-shadow: var(--shadow);
       border: 1px solid var(--border);
+      border-left: 4px solid var(--primary);
       transition: all 0.2s ease;
     }
 

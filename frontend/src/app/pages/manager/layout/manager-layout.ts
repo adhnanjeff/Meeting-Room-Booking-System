@@ -375,4 +375,11 @@ export class ManagerLayout {
   }
 
   getUserInitials(): string {
-    if (!t
+    if (!this.currentUser?.userName) return 'M';
+    return this.currentUser.userName.split(' ').map(n => n[0]).join('').toUpperCase();
+  }
+
+  logout(): void {
+    this.authService.logout();
+  }
+}

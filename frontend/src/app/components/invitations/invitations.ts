@@ -17,7 +17,6 @@ interface Invitation {
 }
 
 
-
 @Component({
   selector: 'app-invitations',
   standalone: true,
@@ -217,6 +216,13 @@ interface Invitation {
       padding: 1.5rem;
       box-shadow: var(--shadow);
       border: 1px solid var(--border);
+      border-left: 4px solid #f59e0b;
+      transition: all 0.2s ease;
+    }
+
+    .invitation-card:hover {
+      box-shadow: var(--shadow-lg);
+      transform: translateY(-2px);
     }
 
     .invitation-header {
