@@ -125,6 +125,15 @@ interface CalendarDay {
                   </div>
                 </div>
               </div>
+              
+              <!-- Show all meetings for the day at the bottom -->
+              <div class="all-meetings-section" *ngIf="selectedDayForView && selectedDayForView.meetings.length > 0">
+                <h5>All Meetings for This Day:</h5>
+                <div *ngFor="let meeting of selectedDayForView.meetings" class="meeting-summary">
+                  <strong>{{ meeting.title }}</strong> - {{ meeting.startTime }} to {{ meeting.endTime }}
+                  <br><small>Organizer: {{ meeting.organizer }} | Status: {{ meeting.status }}</small>
+                </div>
+              </div>
             </div>
           </div>
         </div>
@@ -664,6 +673,32 @@ interface CalendarDay {
       word-wrap: break-word;
     }
 
+    .all-meetings-section {
+      margin-top: 2rem;
+      padding: 1rem;
+      background: var(--background);
+      border-radius: 8px;
+      border: 1px solid var(--border);
+    }
+
+    .all-meetings-section h5 {
+      margin: 0 0 1rem 0;
+      color: var(--text);
+      font-size: 1rem;
+    }
+
+    .meeting-summary {
+      padding: 0.75rem;
+      margin-bottom: 0.5rem;
+      background: var(--surface);
+      border-radius: 6px;
+      border-left: 4px solid var(--primary);
+    }
+
+    .meeting-summary:last-child {
+      margin-bottom: 0;
+    }
+
     @media (max-width: 768px) {
       .calendar-container {
         padding: 1rem;
@@ -793,16 +828,16 @@ export class CalendarComponent implements OnInit {
     const startDate = new Date(booking.startTime);
     const endDate = new Date(booking.endTime);
     
-    // Subtract one day to fix date display issue
-    const correctedDate = new Date(startDate);
-    correctedDate.setDate(correctedDate.getDate() - 1);
+    // Subtract one day to show meetings on the previous day
+    const displayDate = new Date(startDate);
+    displayDate.setDate(displayDate.getDate() - 1);
     
     return {
       id: booking.bookingId,
       title: booking.title,
-      startTime: startDate.toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit' }),
-      endTime: endDate.toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit' }),
-      date: correctedDate.toISOString().split('T')[0],
+      startTime: startDate.toLocaleTimeString('en-IN', { hour: '2-digit', minute: '2-digit', timeZone: 'Asia/Kolkata' }),
+      endTime: endDate.toLocaleTimeString('en-IN', { hour: '2-digit', minute: '2-digit', timeZone: 'Asia/Kolkata' }),
+      date: displayDate.toISOString().split('T')[0],
       status: this.mapBookingStatus(booking.status),
       attendees: booking.attendees.map(a => a.userName),
       organizer: booking.organizerName
@@ -881,7 +916,7 @@ export class CalendarComponent implements OnInit {
       if (meeting.date !== dateStr) return false;
       const meetingStart = parseInt(meeting.startTime.split(':')[0]);
       const slotHour = parseInt(hour.split(':')[0]);
-      return meetingStart === slotHour;
+      return meetingStart >= slotHour && meetingStart < slotHour + 1;
     });
   }
 

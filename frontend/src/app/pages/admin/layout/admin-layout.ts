@@ -10,10 +10,18 @@ import { ThemeToggle } from '../../../components/theme-toggle';
   imports: [CommonModule, RouterOutlet, RouterLink, RouterLinkActive, ThemeToggle],
   template: `
     <div class="layout">
-      <nav class="sidebar">
+      <div class="mobile-header">
+        <button class="burger-menu" (click)="toggleSidebar()">
+          <i class="pi pi-bars"></i>
+        </button>
+        <h2>SynerRoom</h2>
+        <app-theme-toggle></app-theme-toggle>
+      </div>
+      
+      <nav class="sidebar" [class.open]="sidebarOpen">
         <div class="sidebar-header">
           <div class="header-top">
-            <h2><i class="pi pi-building"></i> Meeting Rooms</h2>
+            <h2>SynerRoom</h2>
             <app-theme-toggle></app-theme-toggle>
           </div>
           <div class="user-info">
@@ -193,11 +201,58 @@ import { ThemeToggle } from '../../../components/theme-toggle';
       color: var(--error);
     }
 
+    .mobile-header {
+      display: none;
+      justify-content: space-between;
+      align-items: center;
+      padding: 1rem;
+      background: var(--surface);
+      border-bottom: 1px solid var(--border);
+      position: fixed;
+      top: 0;
+      left: 0;
+      right: 0;
+      z-index: 1001;
+    }
+
+    .burger-menu {
+      background: none;
+      border: none;
+      font-size: 1.5rem;
+      color: var(--text);
+      cursor: pointer;
+    }
+
     .main-content {
       flex: 1;
       background: var(--background);
       overflow-y: auto;
       margin-left: 280px;
+    }
+
+    @media (max-width: 768px) {
+      .mobile-header {
+        display: flex;
+      }
+
+      .sidebar {
+        transform: translateX(-100%);
+        transition: transform 0.3s ease;
+        z-index: 1000;
+      }
+
+      .sidebar.open {
+        transform: translateX(0);
+      }
+
+      .main-content {
+        margin-left: 0;
+        padding-top: 70px;
+      }
+
+      .sidebar-header .header-top {
+        display: none;
+      }
     }
 
     .role-badge {
@@ -217,9 +272,14 @@ import { ThemeToggle } from '../../../components/theme-toggle';
 })
 export class AdminLayout {
   currentUser: User | null = null;
+  sidebarOpen = false;
 
   constructor(private authService: AuthService) {
     this.currentUser = this.authService.getCurrentUser();
+  }
+
+  toggleSidebar(): void {
+    this.sidebarOpen = !this.sidebarOpen;
   }
 
   getUserInitials(): string {

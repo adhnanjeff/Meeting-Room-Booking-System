@@ -1,5 +1,6 @@
 import { Component, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
+import { FormsModule } from '@angular/forms';
 import { AuthService, User } from '../../services/auth.service';
 import { InvitationService, InvitationResponse } from '../../services/invitation.service';
 import { BookingService } from '../../services/booking.service';
@@ -16,12 +17,57 @@ interface ScheduledMeeting {
 @Component({
   selector: 'app-scheduled-meetings',
   standalone: true,
-  imports: [CommonModule],
+  imports: [CommonModule, FormsModule],
   template: `
     <div class="container">
-      <div class="page-header">
-        <h1><i class="pi pi-calendar-check"></i> Scheduled Meetings</h1>
-        <p>Your upcoming meetings from accepted invitations</p>
+      <div class="page-header-card">
+        <div class="page-header">
+          <h1><i class="pi pi-calendar-check"></i> Scheduled Meetings</h1>
+          <p>Your upcoming meetings from accepted invitations</p>
+        </div>
+      </div>
+
+      <div class="filters">
+        <div class="filter-buttons">
+          <button 
+            class="filter-btn"
+            [class.active]="activeFilter === 'all'"
+            (click)="setFilter('all')"
+          >
+            All Meetings
+          </button>
+          <button 
+            class="filter-btn"
+            [class.active]="activeFilter === 'today'"
+            (click)="setFilter('today')"
+          >
+            Today
+          </button>
+          <button 
+            class="filter-btn"
+            [class.active]="activeFilter === 'upcoming'"
+            (click)="setFilter('upcoming')"
+          >
+            Upcoming
+          </button>
+          <button 
+            class="filter-btn"
+            [class.active]="activeFilter === 'past'"
+            (click)="setFilter('past')"
+          >
+            Past
+          </button>
+        </div>
+        
+        <div class="search-box">
+          <input 
+            type="text" 
+            placeholder="Search meetings..."
+            [(ngModel)]="searchTerm"
+            (input)="applyFilter()"
+          >
+          <span class="search-icon"><i class="pi pi-search"></i></span>
+        </div>
       </div>
 
       <div class="meetings-container">
@@ -30,14 +76,14 @@ interface ScheduledMeeting {
           <p>Loading scheduled meetings...</p>
         </div>
 
-        <div *ngIf="!isLoading && scheduledMeetings.length === 0" class="empty-state">
+        <div *ngIf="!isLoading && filteredMeetings.length === 0" class="empty-state">
           <div class="empty-icon">📭</div>
           <h3>No scheduled meetings</h3>
-          <p>You don't have any upcoming meetings.</p>
+          <p>You don't have any meetings matching the current filter.</p>
         </div>
 
-        <div class="meetings-grid" *ngIf="!isLoading && scheduledMeetings.length > 0">
-          <div *ngFor="let meeting of scheduledMeetings" class="meeting-card">
+        <div class="meetings-grid" *ngIf="!isLoading && filteredMeetings.length > 0">
+          <div *ngFor="let meeting of filteredMeetings" class="meeting-card">
             <div class="meeting-header">
               <h3>{{ meeting.title }}</h3>
               <div class="meeting-time">{{ formatTimeRange(meeting.startTime, meeting.endTime) }}</div>
@@ -70,6 +116,15 @@ interface ScheduledMeeting {
       font-family: 'Inter', sans-serif;
     }
 
+    .page-header-card {
+      background: var(--surface);
+      border-radius: 12px;
+      padding: 2rem;
+      box-shadow: var(--shadow);
+      border: 1px solid var(--border);
+      margin-bottom: 2rem;
+    }
+
     .page-header h1 {
       font-size: 2rem;
       font-weight: 700;
@@ -79,6 +134,7 @@ interface ScheduledMeeting {
 
     .page-header p {
       color: var(--text-light);
+      margin: 0;
     }
 
     .loading {
@@ -113,9 +169,63 @@ interface ScheduledMeeting {
       margin-bottom: 1rem;
     }
 
+    .filters {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 2rem;
+      gap: 1rem;
+    }
+
+    .filter-buttons {
+      display: flex;
+      gap: 0.5rem;
+    }
+
+    .filter-btn {
+      padding: 0.5rem 1rem;
+      border: 1px solid var(--border);
+      background: var(--surface);
+      color: var(--text);
+      border-radius: 8px;
+      cursor: pointer;
+      transition: all 0.2s ease;
+    }
+
+    .filter-btn:hover {
+      border-color: var(--primary);
+    }
+
+    .filter-btn.active {
+      background: var(--primary);
+      color: white;
+      border-color: var(--primary);
+    }
+
+    .search-box {
+      position: relative;
+    }
+
+    .search-box input {
+      padding: 0.5rem 2.5rem 0.5rem 1rem;
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      width: 250px;
+      background: var(--surface);
+      color: var(--text);
+    }
+
+    .search-icon {
+      position: absolute;
+      right: 0.75rem;
+      top: 50%;
+      transform: translateY(-50%);
+      color: var(--text-light);
+    }
+
     .meetings-grid {
       display: grid;
-      grid-template-columns: repeat(auto-fit, minmax(400px, 1fr));
+      grid-template-columns: repeat(3, 1fr);
       gap: 1.5rem;
     }
 
@@ -164,12 +274,36 @@ interface ScheduledMeeting {
       font-size: 1rem;
       width: 1rem;
     }
+
+    @media (max-width: 768px) {
+      .filters {
+        flex-direction: column;
+        align-items: stretch;
+      }
+
+      .search-box input {
+        width: 100%;
+      }
+
+      .meetings-grid {
+        grid-template-columns: 1fr;
+      }
+    }
+
+    @media (max-width: 1024px) {
+      .meetings-grid {
+        grid-template-columns: repeat(2, 1fr);
+      }
+    }
   `]
 })
 export class ScheduledMeetings implements OnInit {
   currentUser: User | null = null;
   scheduledMeetings: ScheduledMeeting[] = [];
+  filteredMeetings: ScheduledMeeting[] = [];
   isLoading = true;
+  activeFilter: 'all' | 'today' | 'upcoming' | 'past' = 'all';
+  searchTerm = '';
 
   constructor(
     private authService: AuthService,
@@ -184,9 +318,10 @@ export class ScheduledMeetings implements OnInit {
 
   loadScheduledMeetings(): void {
     if (this.currentUser) {
-      this.invitationService.getUserInvitations(this.currentUser.id).subscribe({
-        next: (invitations) => {
-          this.processScheduledMeetings(invitations);
+      // Get accepted invitations using the proper endpoint
+      this.invitationService.getInvitationsByStatus(this.currentUser.id, 'Accepted').subscribe({
+        next: (acceptedInvitations) => {
+          this.processScheduledMeetings(acceptedInvitations);
           this.isLoading = false;
         },
         error: (error) => {
@@ -199,32 +334,28 @@ export class ScheduledMeetings implements OnInit {
   }
 
   processScheduledMeetings(invitations: InvitationResponse[]): void {
-    const now = new Date();
-    const acceptedInvitations = invitations.filter(inv => inv.status === 1);
-    
-    const bookingPromises = acceptedInvitations.map(inv => 
+    const bookingPromises = invitations.map(inv => 
       this.bookingService.getAllBookings().toPromise().then(bookings => {
         const booking = bookings?.find(b => b.bookingId === inv.bookingId);
-        if (booking && new Date(booking.startTime) > now) {
-          return {
-            bookingId: inv.bookingId,
-            title: inv.bookingTitle,
-            organizer: booking.organizerName || 'Unknown',
-            startTime: booking.startTime,
-            endTime: booking.endTime,
-            roomName: booking.roomName || 'Unknown Room'
-          } as ScheduledMeeting;
-        }
-        return null;
+        return {
+          bookingId: inv.bookingId,
+          title: inv.bookingTitle,
+          organizer: booking?.organizerName || 'Unknown',
+          startTime: booking?.startTime || '',
+          endTime: booking?.endTime || '',
+          roomName: booking?.roomName || 'Unknown Room'
+        } as ScheduledMeeting;
       })
     );
 
     Promise.all(bookingPromises).then(processedMeetings => {
       this.scheduledMeetings = processedMeetings
-        .filter(meeting => meeting !== null)
-        .sort((a, b) => new Date(a!.startTime).getTime() - new Date(b!.startTime).getTime()) as ScheduledMeeting[];
+        .sort((a, b) => new Date(a.startTime).getTime() - new Date(b.startTime).getTime());
+      this.applyFilter();
     });
   }
+
+
 
   formatDate(dateString: string): string {
     return new Date(dateString).toLocaleDateString('en-US', {
@@ -247,5 +378,41 @@ export class ScheduledMeetings implements OnInit {
       hour12: true
     });
     return `${start} - ${end}`;
+  }
+
+  setFilter(filter: 'all' | 'today' | 'upcoming' | 'past'): void {
+    this.activeFilter = filter;
+    this.applyFilter();
+  }
+
+  applyFilter(): void {
+    let filtered = [...this.scheduledMeetings];
+    const now = new Date();
+    const today = new Date(now.getFullYear(), now.getMonth(), now.getDate());
+    const tomorrow = new Date(today.getTime() + 24 * 60 * 60 * 1000);
+
+    // Apply time filter
+    if (this.activeFilter === 'today') {
+      filtered = filtered.filter(meeting => {
+        const meetingDate = new Date(meeting.startTime);
+        return meetingDate >= today && meetingDate < tomorrow;
+      });
+    } else if (this.activeFilter === 'upcoming') {
+      filtered = filtered.filter(meeting => new Date(meeting.startTime) > now);
+    } else if (this.activeFilter === 'past') {
+      filtered = filtered.filter(meeting => new Date(meeting.endTime) < now);
+    }
+
+    // Apply search filter
+    if (this.searchTerm) {
+      const term = this.searchTerm.toLowerCase();
+      filtered = filtered.filter(meeting =>
+        meeting.title.toLowerCase().includes(term) ||
+        meeting.roomName.toLowerCase().includes(term) ||
+        meeting.organizer.toLowerCase().includes(term)
+      );
+    }
+
+    this.filteredMeetings = filtered;
   }
 }

@@ -12,9 +12,11 @@ import { ToastService } from '../../../services/toast.service';
   imports: [CommonModule, FormsModule],
   template: `
     <div class="container">
-      <div class="page-header">
-        <h1><i class="pi pi-clock"></i> My Requests</h1>
-        <p>Track your pending and processed booking requests</p>
+      <div class="page-header-card">
+        <div class="page-header">
+          <h1><i class="pi pi-clock"></i> My Requests</h1>
+          <p>Track your pending and processed booking requests</p>
+        </div>
       </div>
 
       <div class="filters">
@@ -47,6 +49,16 @@ import { ToastService } from '../../../services/toast.service';
           >
             Rejected
           </button>
+        </div>
+        
+        <div class="search-box">
+          <input 
+            type="text" 
+            placeholder="Search requests..."
+            [(ngModel)]="searchTerm"
+            (input)="applyFilter()"
+          >
+          <span class="search-icon"><i class="pi pi-search"></i></span>
         </div>
       </div>
 
@@ -103,15 +115,9 @@ import { ToastService } from '../../../services/toast.service';
             </div>
 
             <div class="request-actions">
-              <button class="action-btn view-btn" (click)="viewRequest(request)">
-                <i class="pi pi-eye"></i> View
-              </button>
-              <button *ngIf="request.status === 'Pending'" class="action-btn cancel-btn" (click)="cancelRequest(request)">
-                <i class="pi pi-times"></i> Cancel
-              </button>
-              <button *ngIf="getSuggestedRoom(request)" class="action-btn accept-btn" (click)="acceptSuggestion(request)">
-                <i class="pi pi-check"></i> Accept Suggestion
-              </button>
+              <button class="btn-round btn-primary" (click)="viewRequest(request)"><i class="pi pi-search"></i></button>
+              <button *ngIf="request.status === 'Pending'" class="btn-round btn-danger" (click)="cancelRequest(request)"><i class="pi pi-times"></i></button>
+              <button *ngIf="getSuggestedRoom(request)" class="btn-round btn-success" (click)="acceptSuggestion(request)"><i class="pi pi-check"></i></button>
             </div>
           </div>
         </div>
@@ -172,7 +178,12 @@ import { ToastService } from '../../../services/toast.service';
       font-family: 'Inter', sans-serif;
     }
 
-    .page-header {
+    .page-header-card {
+      background: var(--surface);
+      border-radius: 12px;
+      padding: 2rem;
+      box-shadow: var(--shadow);
+      border: 1px solid var(--border);
       margin-bottom: 2rem;
     }
 
@@ -185,15 +196,41 @@ import { ToastService } from '../../../services/toast.service';
 
     .page-header p {
       color: var(--text-light);
+      margin: 0;
     }
 
     .filters {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
       margin-bottom: 2rem;
+      gap: 1rem;
     }
 
     .filter-buttons {
       display: flex;
       gap: 0.5rem;
+    }
+
+    .search-box {
+      position: relative;
+    }
+
+    .search-box input {
+      padding: 0.5rem 2.5rem 0.5rem 1rem;
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      width: 250px;
+      background: var(--surface);
+      color: var(--text);
+    }
+
+    .search-icon {
+      position: absolute;
+      right: 0.75rem;
+      top: 50%;
+      transform: translateY(-50%);
+      color: var(--text-light);
     }
 
     .filter-btn {
@@ -251,17 +288,17 @@ import { ToastService } from '../../../services/toast.service';
 
     .requests-grid {
       display: grid;
-      grid-template-columns: repeat(auto-fit, minmax(350px, 1fr));
+      grid-template-columns: repeat(3, 1fr);
       gap: 1.5rem;
     }
 
     .request-card {
-      background: var(--surface);
+      background: #E6F3FF !important;
       border-radius: 12px;
       padding: 1.5rem;
       box-shadow: var(--shadow);
-      border: 1px solid var(--border);
-      border-left: 4px solid var(--warning);
+      border: 1px solid #87CEEB;
+      border-left: 4px solid #1E40AF;
       transition: all 0.2s ease;
     }
 
@@ -362,8 +399,8 @@ import { ToastService } from '../../../services/toast.service';
     }
 
     .status-pending {
-      background: var(--warning-bg, #fef3c7);
-      color: var(--warning-text, #92400e);
+      background: #E6F3FF;
+      color: #1E40AF;
     }
 
     .status-approved {
@@ -489,12 +526,27 @@ import { ToastService } from '../../../services/toast.service';
         padding: 1rem;
       }
 
+      .filters {
+        flex-direction: column;
+        align-items: stretch;
+      }
+
+      .search-box input {
+        width: 100%;
+      }
+
       .request-actions {
         justify-content: center;
       }
 
       .requests-grid {
         grid-template-columns: 1fr;
+      }
+    }
+
+    @media (max-width: 1024px) {
+      .requests-grid {
+        grid-template-columns: repeat(2, 1fr);
       }
     }
   `]
@@ -506,6 +558,7 @@ export class MyRequests implements OnInit {
   isLoading = true;
   selectedRequest: Booking | null = null;
   activeFilter: 'all' | 'pending' | 'approved' | 'rejected' = 'all';
+  searchTerm = '';
 
   constructor(
     private bookingService: BookingService,
@@ -523,7 +576,9 @@ export class MyRequests implements OnInit {
     if (this.currentUser) {
       this.bookingService.getBookingsByUser(this.currentUser.id).subscribe({
         next: (bookings) => {
+          // Only show bookings where current user is the organizer (their own requests)
           this.requests = bookings
+            .filter(booking => booking.organizerId === this.currentUser!.id)
             .sort((a, b) => new Date(b.startTime).getTime() - new Date(a.startTime).getTime());
           
           this.applyFilter();
@@ -609,17 +664,33 @@ export class MyRequests implements OnInit {
   }
 
   applyFilter(): void {
-    if (this.activeFilter === 'all') {
-      this.filteredRequests = this.requests;
-    } else {
+    let filtered = [...this.requests];
+    
+    // Apply status filter
+    if (this.activeFilter !== 'all') {
       const statusMap = {
         'pending': 'Pending',
         'approved': 'Approved',
         'rejected': 'Rejected'
       };
-      this.filteredRequests = this.requests.filter(request => 
-        request.status === statusMap[this.activeFilter as keyof typeof statusMap]
+      filtered = filtered.filter(request => {
+        const status = request.status;
+        const targetStatus = statusMap[this.activeFilter as keyof typeof statusMap];
+        return status === targetStatus || 
+               (this.activeFilter === 'approved' && status === 'Scheduled') ||
+               (this.activeFilter === 'rejected' && status === 'Cancelled');
+      });
+    }
+    
+    // Apply search filter
+    if (this.searchTerm) {
+      const term = this.searchTerm.toLowerCase();
+      filtered = filtered.filter(request =>
+        request.title.toLowerCase().includes(term) ||
+        request.roomName.toLowerCase().includes(term)
       );
     }
+    
+    this.filteredRequests = filtered;
   }
 }

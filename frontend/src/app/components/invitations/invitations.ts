@@ -24,9 +24,11 @@ interface Invitation {
   imports: [CommonModule],
   template: `
     <div class="container">
-      <div class="page-header">
-        <h1><i class="pi pi-envelope"></i> Meeting Invitations</h1>
-        <p>Respond to meeting invitations you've received</p>
+      <div class="page-header-card">
+        <div class="page-header">
+          <h1><i class="pi pi-envelope"></i> Meeting Invitations</h1>
+          <p>Respond to meeting invitations you've received</p>
+        </div>
       </div>
 
       <div class="filters">
@@ -119,6 +121,15 @@ interface Invitation {
       font-family: 'Inter', sans-serif;
     }
 
+    .page-header-card {
+      background: var(--surface);
+      border-radius: 12px;
+      padding: 2rem;
+      box-shadow: var(--shadow);
+      border: 1px solid var(--border);
+      margin-bottom: 2rem;
+    }
+
     .page-header h1 {
       font-size: 2rem;
       font-weight: 700;
@@ -128,6 +139,7 @@ interface Invitation {
 
     .page-header p {
       color: var(--text-light);
+      margin: 0;
     }
 
     .filters {
@@ -195,7 +207,7 @@ interface Invitation {
 
     .invitations-grid {
       display: grid;
-      grid-template-columns: repeat(auto-fit, minmax(400px, 1fr));
+      grid-template-columns: repeat(3, 1fr);
       gap: 1.5rem;
     }
 
@@ -292,6 +304,18 @@ interface Invitation {
     .btn-decline:hover {
       background: #dc2626;
     }
+
+    @media (max-width: 768px) {
+      .invitations-grid {
+        grid-template-columns: 1fr;
+      }
+    }
+
+    @media (max-width: 1024px) {
+      .invitations-grid {
+        grid-template-columns: repeat(2, 1fr);
+      }
+    }
   `]
 })
 export class Invitations implements OnInit {
@@ -310,7 +334,7 @@ export class Invitations implements OnInit {
 
   ngOnInit(): void {
     this.currentUser = this.authService.getCurrentUser();
-    this.loadInvitations();
+    this.loadFilteredInvitations();
   }
 
   loadInvitations(): void {
@@ -347,28 +371,52 @@ export class Invitations implements OnInit {
     );
 
     Promise.all(bookingPromises).then(processedInvitations => {
-      this.invitations = processedInvitations;
-      this.applyFilter();
+      this.filteredInvitations = processedInvitations;
     });
   }
 
   setFilter(filter: 'all' | 'pending' | 'accepted' | 'declined'): void {
     this.activeFilter = filter;
-    this.applyFilter();
+    this.loadFilteredInvitations();
   }
 
-  applyFilter(): void {
+  loadFilteredInvitations(): void {
+    if (!this.currentUser) return;
+    
+    this.isLoading = true;
+    
     if (this.activeFilter === 'all') {
-      this.filteredInvitations = this.invitations;
+      this.invitationService.getUserInvitations(this.currentUser.id).subscribe({
+        next: (invitations) => {
+          this.processInvitations(invitations);
+          this.isLoading = false;
+        },
+        error: (error) => {
+          console.error('Error loading invitations:', error);
+          this.invitations = [];
+          this.filteredInvitations = [];
+          this.isLoading = false;
+        }
+      });
     } else {
       const statusMap = {
-        'pending': 'Pending',
-        'accepted': 'Accepted', 
-        'declined': 'Declined'
+        'pending': 'Pending' as const,
+        'accepted': 'Accepted' as const,
+        'declined': 'Declined' as const
       };
-      this.filteredInvitations = this.invitations.filter(inv => 
-        inv.status === statusMap[this.activeFilter as keyof typeof statusMap]
-      );
+      
+      this.invitationService.getInvitationsByStatus(this.currentUser.id, statusMap[this.activeFilter]).subscribe({
+        next: (invitations) => {
+          this.processInvitations(invitations);
+          this.isLoading = false;
+        },
+        error: (error) => {
+          console.error('Error loading filtered invitations:', error);
+          this.invitations = [];
+          this.filteredInvitations = [];
+          this.isLoading = false;
+        }
+      });
     }
   }
 
@@ -400,9 +448,8 @@ export class Invitations implements OnInit {
   acceptInvitation(invitation: Invitation): void {
     this.invitationService.acceptInvitation(invitation.attendeeId).subscribe({
       next: () => {
-        invitation.status = 'Accepted';
-        this.applyFilter();
         this.toastService.success('Invitation Accepted', `You've accepted the invitation for "${invitation.title}"`);
+        this.loadFilteredInvitations(); // Reload to get fresh data
       },
       error: (error) => {
         console.error('Error accepting invitation:', error);
@@ -414,9 +461,8 @@ export class Invitations implements OnInit {
   declineInvitation(invitation: Invitation): void {
     this.invitationService.declineInvitation(invitation.attendeeId).subscribe({
       next: () => {
-        invitation.status = 'Declined';
-        this.applyFilter();
         this.toastService.info('Invitation Declined', `You've declined the invitation for "${invitation.title}"`);
+        this.loadFilteredInvitations(); // Reload to get fresh data
       },
       error: (error) => {
         console.error('Error declining invitation:', error);

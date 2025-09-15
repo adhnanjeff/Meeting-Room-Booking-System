@@ -9,14 +9,31 @@ import { AdminService, User } from '../../../services/admin.service';
   imports: [CommonModule, FormsModule],
   template: `
     <div class="container">
-      <div class="page-header">
-        <h1>👥 User Management</h1>
-        <p>Manage users and their roles</p>
+      <div class="page-header-card">
+        <div class="page-header">
+          <h1>👥 User Management</h1>
+          <p>Manage users and their roles</p>
+        </div>
+      </div>
+
+      <div class="controls">
+        <div class="search-box">
+          <input 
+            type="text" 
+            placeholder="Search users..."
+            [(ngModel)]="searchTerm"
+            (input)="filterUsers()"
+          >
+          <span class="search-icon"><i class="pi pi-search"></i></span>
+        </div>
+        <button class="btn-add" (click)="addUser()" title="Add User">
+          <i class="pi pi-plus"></i>
+        </button>
       </div>
 
       <div class="cards-grid">
         <div 
-          *ngFor="let user of users" 
+          *ngFor="let user of filteredUsers" 
           class="user-card"
           [class.admin]="user.roles.includes('Admin')"
           [class.manager]="user.roles.includes('Manager')"
@@ -52,8 +69,9 @@ import { AdminService, User } from '../../../services/admin.service';
           </div>
           
           <div class="user-actions">
-            <button class="btn-edit" (click)="editUser(user)">Edit</button>
-            <button class="btn-delete" (click)="deleteUser(user.id)">Delete</button>
+            <button class="btn-round btn-primary" (click)="viewUserBookings(user.id)" title="View Bookings"><i class="pi pi-search"></i></button>
+            <button class="btn-round btn-secondary" (click)="editUser(user)" title="Edit User"><i class="pi pi-file-edit"></i></button>
+            <button class="btn-round btn-danger" (click)="deleteUser(user.id)" title="Delete User"><i class="pi pi-trash"></i></button>
           </div>
         </div>
       </div>
@@ -102,6 +120,15 @@ import { AdminService, User } from '../../../services/admin.service';
       margin: 0 auto;
     }
 
+    .page-header-card {
+      background: var(--surface);
+      border-radius: 12px;
+      padding: 2rem;
+      box-shadow: var(--shadow);
+      border: 1px solid var(--border);
+      margin-bottom: 2rem;
+    }
+
     .page-header h1 {
       font-size: 2rem;
       font-weight: 700;
@@ -111,7 +138,59 @@ import { AdminService, User } from '../../../services/admin.service';
 
     .page-header p {
       color: var(--text-light);
+      margin: 0;
+    }
+
+    .controls {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
       margin-bottom: 2rem;
+      gap: 1rem;
+    }
+
+    .search-box {
+      position: relative;
+      flex: 1;
+      max-width: 400px;
+    }
+
+    .search-box input {
+      width: 100%;
+      padding: 0.75rem 2.5rem 0.75rem 1rem;
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      background: var(--surface);
+      color: var(--text);
+      font-size: 1rem;
+    }
+
+    .search-icon {
+      position: absolute;
+      right: 0.75rem;
+      top: 50%;
+      transform: translateY(-50%);
+      color: var(--text-light);
+    }
+
+    .btn-add {
+      width: 48px;
+      height: 48px;
+      border-radius: 50%;
+      border: none;
+      background: #f59e0b;
+      color: white;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 1.2rem;
+      transition: all 0.2s ease;
+    }
+
+    .btn-add:hover {
+      transform: scale(1.1);
+      box-shadow: 0 4px 8px rgba(0,0,0,0.2);
     }
 
     .cards-grid {
@@ -121,10 +200,10 @@ import { AdminService, User } from '../../../services/admin.service';
     }
 
     .user-card {
-      background: white;
+      background: var(--surface);
       border-radius: 12px;
       padding: 1.5rem;
-      box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+      box-shadow: var(--shadow);
       border: 2px solid transparent;
       transition: all 0.3s ease;
       display: flex;
@@ -135,17 +214,29 @@ import { AdminService, User } from '../../../services/admin.service';
 
     .user-card.admin {
       border-color: #dc2626;
-      background: linear-gradient(135deg, #fef2f2 0%, #ffffff 100%);
+      background: linear-gradient(135deg, #fef2f2 0%, var(--surface) 100%);
     }
 
     .user-card.manager {
       border-color: #f59e0b;
-      background: linear-gradient(135deg, #fffbeb 0%, #ffffff 100%);
+      background: linear-gradient(135deg, #fffbeb 0%, var(--surface) 100%);
     }
 
     .user-card.employee {
       border-color: #3b82f6;
-      background: linear-gradient(135deg, #eff6ff 0%, #ffffff 100%);
+      background: linear-gradient(135deg, #eff6ff 0%, var(--surface) 100%);
+    }
+
+    [data-theme="dark"] .user-card.admin {
+      background: linear-gradient(135deg, rgba(220, 38, 38, 0.1) 0%, var(--surface) 100%);
+    }
+
+    [data-theme="dark"] .user-card.manager {
+      background: linear-gradient(135deg, rgba(245, 158, 11, 0.1) 0%, var(--surface) 100%);
+    }
+
+    [data-theme="dark"] .user-card.employee {
+      background: linear-gradient(135deg, rgba(59, 130, 246, 0.1) 0%, var(--surface) 100%);
     }
 
     .user-header {
@@ -206,32 +297,37 @@ import { AdminService, User } from '../../../services/admin.service';
       margin-top: 1rem;
     }
 
-    .btn-edit, .btn-delete {
-      padding: 0.5rem 1rem;
+    .btn-round {
+      width: 36px;
+      height: 36px;
+      border-radius: 50%;
       border: none;
-      border-radius: 6px;
-      font-size: 0.8rem;
-      font-weight: 500;
       cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 0.9rem;
       transition: all 0.2s ease;
     }
 
-    .btn-edit {
-      background: #3b82f6;
+    .btn-primary {
+      background: var(--primary);
       color: white;
     }
 
-    .btn-edit:hover {
-      background: #2563eb;
+    .btn-secondary {
+      background: #6b7280;
+      color: white;
     }
 
-    .btn-delete {
+    .btn-danger {
       background: #ef4444;
       color: white;
     }
 
-    .btn-delete:hover {
-      background: #dc2626;
+    .btn-round:hover {
+      transform: scale(1.1);
+      box-shadow: 0 4px 8px rgba(0,0,0,0.2);
     }
 
     .modal-overlay {
@@ -248,12 +344,27 @@ import { AdminService, User } from '../../../services/admin.service';
     }
 
     .modal-card {
-      background: white;
+      background: var(--surface);
       border-radius: 12px;
       padding: 2rem;
       width: 90%;
       max-width: 500px;
       box-shadow: 0 10px 25px rgba(0, 0, 0, 0.2);
+    }
+
+    @media (max-width: 768px) {
+      .container {
+        padding: 1rem;
+      }
+
+      .cards-grid {
+        grid-template-columns: 1fr;
+      }
+
+      .modal-card {
+        width: 95%;
+        padding: 1.5rem;
+      }
     }
 
     .modal-header {
@@ -324,6 +435,8 @@ import { AdminService, User } from '../../../services/admin.service';
 })
 export class Users implements OnInit {
   users: User[] = [];
+  filteredUsers: User[] = [];
+  searchTerm = '';
   showEditModal = false;
   editingUser: User = { id: 0, userName: '', email: '', department: '', roles: [] };
   selectedRole = 'Employee';
@@ -340,6 +453,7 @@ export class Users implements OnInit {
       next: (users) => {
         console.log('Users loaded successfully:', users);
         this.users = users;
+        this.filterUsers();
       },
       error: (error) => {
         console.error('Error loading users:', error);
@@ -349,8 +463,27 @@ export class Users implements OnInit {
           { id: 2, userName: 'Jane Smith', email: 'jane.smith@company.com', department: 'HR', roles: ['Manager'] },
           { id: 3, userName: 'Bob Johnson', email: 'bob.johnson@company.com', department: 'IT', roles: ['Employee'] }
         ];
+        this.filterUsers();
       }
     });
+  }
+
+  filterUsers() {
+    if (!this.searchTerm) {
+      this.filteredUsers = this.users;
+    } else {
+      const term = this.searchTerm.toLowerCase();
+      this.filteredUsers = this.users.filter(user =>
+        user.userName.toLowerCase().includes(term) ||
+        user.email.toLowerCase().includes(term) ||
+        user.department.toLowerCase().includes(term)
+      );
+    }
+  }
+
+  addUser() {
+    console.log('Add new user');
+    alert('Add User functionality\n\nThis will open a form to create a new user.');
   }
 
   editUser(user: User) {
@@ -379,6 +512,12 @@ export class Users implements OnInit {
         console.error('Error updating user:', error);
       }
     });
+  }
+
+  viewUserBookings(userId: number) {
+    // TODO: Implement viewBookingByUserId functionality
+    console.log('View bookings for user:', userId);
+    alert(`View booking history for User ID: ${userId}\n\nThis feature will show all bookings made by this user.`);
   }
 
   deleteUser(userId: number) {

@@ -9,14 +9,31 @@ import { MeetingRoomService, MeetingRoom } from '../../../services/meetingroom.s
   imports: [CommonModule, FormsModule],
   template: `
     <div class="container">
-      <div class="page-header">
-        <h1>🏢 Room Management</h1>
-        <p>Configure and manage meeting rooms</p>
+      <div class="page-header-card">
+        <div class="page-header">
+          <h1>🏢 Room Management</h1>
+          <p>Configure and manage meeting rooms</p>
+        </div>
+      </div>
+
+      <div class="controls">
+        <div class="search-box">
+          <input 
+            type="text" 
+            placeholder="Search rooms..."
+            [(ngModel)]="searchTerm"
+            (input)="filterRooms()"
+          >
+          <span class="search-icon"><i class="pi pi-search"></i></span>
+        </div>
+        <button class="btn-add" (click)="addRoom()" title="Add Room">
+          <i class="pi pi-plus"></i>
+        </button>
       </div>
 
       <div class="cards-grid">
         <div 
-          *ngFor="let room of rooms" 
+          *ngFor="let room of filteredRooms" 
           class="room-card"
           [class.available]="room.isAvailable"
           [class.booked]="!room.isAvailable"
@@ -46,8 +63,9 @@ import { MeetingRoomService, MeetingRoom } from '../../../services/meetingroom.s
           </div>
           
           <div class="room-actions">
-            <button class="btn-edit" (click)="editRoom(room)">Edit</button>
-            <button class="btn-delete" (click)="deleteRoom(room.id)">Delete</button>
+            <button class="btn-round btn-primary" (click)="viewRoomBookings(room.id)" title="View Bookings"><i class="pi pi-search"></i></button>
+            <button class="btn-round btn-secondary" (click)="editRoom(room)" title="Edit Room"><i class="pi pi-file-edit"></i></button>
+            <button class="btn-round btn-danger" (click)="deleteRoom(room.id)" title="Delete Room"><i class="pi pi-trash"></i></button>
           </div>
         </div>
       </div>
@@ -56,7 +74,7 @@ import { MeetingRoomService, MeetingRoom } from '../../../services/meetingroom.s
       <div class="modal-overlay" *ngIf="showEditModal" (click)="closeModal()">
         <div class="modal-card" (click)="$event.stopPropagation()">
           <div class="modal-header">
-            <h3>Edit Room</h3>
+            <h3>{{ editingRoom.id === 0 ? 'Add Room' : 'Edit Room' }}</h3>
             <button class="close-btn" (click)="closeModal()">×</button>
           </div>
           <div class="modal-body">
@@ -73,15 +91,13 @@ import { MeetingRoomService, MeetingRoom } from '../../../services/meetingroom.s
               <input type="text" [(ngModel)]="editingRoom.amenities" class="form-input">
             </div>
             <div class="form-group">
-              <label>
-                <input type="checkbox" [(ngModel)]="editingRoom.isAvailable">
-                Available
-              </label>
+              <label>Available</label>
+              <input type="checkbox" [(ngModel)]="editingRoom.isAvailable" class="form-checkbox">
             </div>
           </div>
           <div class="modal-actions">
             <button class="btn-cancel" (click)="closeModal()">Cancel</button>
-            <button class="btn-save" (click)="saveRoom()">Save</button>
+            <button class="btn-save" (click)="saveRoom()">{{ editingRoom.id === 0 ? 'Create' : 'Save' }}</button>
           </div>
         </div>
       </div>
@@ -94,6 +110,15 @@ import { MeetingRoomService, MeetingRoom } from '../../../services/meetingroom.s
       margin: 0 auto;
     }
 
+    .page-header-card {
+      background: var(--surface);
+      border-radius: 12px;
+      padding: 2rem;
+      box-shadow: var(--shadow);
+      border: 1px solid var(--border);
+      margin-bottom: 2rem;
+    }
+
     .page-header h1 {
       font-size: 2rem;
       font-weight: 700;
@@ -103,7 +128,59 @@ import { MeetingRoomService, MeetingRoom } from '../../../services/meetingroom.s
 
     .page-header p {
       color: var(--text-light);
+      margin: 0;
+    }
+
+    .controls {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
       margin-bottom: 2rem;
+      gap: 1rem;
+    }
+
+    .search-box {
+      position: relative;
+      flex: 1;
+      max-width: 400px;
+    }
+
+    .search-box input {
+      width: 100%;
+      padding: 0.75rem 2.5rem 0.75rem 1rem;
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      background: var(--surface);
+      color: var(--text);
+      font-size: 1rem;
+    }
+
+    .search-icon {
+      position: absolute;
+      right: 0.75rem;
+      top: 50%;
+      transform: translateY(-50%);
+      color: var(--text-light);
+    }
+
+    .btn-add {
+      width: 48px;
+      height: 48px;
+      border-radius: 50%;
+      border: none;
+      background: #f59e0b;
+      color: white;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 1.2rem;
+      transition: all 0.2s ease;
+    }
+
+    .btn-add:hover {
+      transform: scale(1.1);
+      box-shadow: 0 4px 8px rgba(0,0,0,0.2);
     }
 
     .cards-grid {
@@ -113,26 +190,24 @@ import { MeetingRoomService, MeetingRoom } from '../../../services/meetingroom.s
     }
 
     .room-card {
-      background: white;
+      background: var(--surface);
       border-radius: 12px;
       padding: 1.5rem;
-      box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+      box-shadow: var(--shadow);
       border: 2px solid transparent;
       transition: all 0.3s ease;
       display: flex;
       flex-direction: column;
       justify-content: space-between;
-      min-height: 200px;
+      min-height: 220px;
     }
 
     .room-card.available {
       border-color: #10b981;
-      background: linear-gradient(135deg, #f0fdf4 0%, #ffffff 100%);
     }
 
     .room-card.booked {
       border-color: #ef4444;
-      background: linear-gradient(135deg, #fef2f2 0%, #ffffff 100%);
     }
 
     .room-header {
@@ -155,16 +230,15 @@ import { MeetingRoomService, MeetingRoom } from '../../../services/meetingroom.s
       font-size: 0.75rem;
       font-weight: 500;
       text-transform: uppercase;
+      color: white;
     }
 
     .status-badge.available {
       background: #10b981;
-      color: white;
     }
 
     .status-badge.booked {
       background: #ef4444;
-      color: white;
     }
 
     .room-details {
@@ -190,32 +264,37 @@ import { MeetingRoomService, MeetingRoom } from '../../../services/meetingroom.s
       margin-top: 1rem;
     }
 
-    .btn-edit, .btn-delete {
-      padding: 0.5rem 1rem;
+    .btn-round {
+      width: 36px;
+      height: 36px;
+      border-radius: 50%;
       border: none;
-      border-radius: 6px;
-      font-size: 0.8rem;
-      font-weight: 500;
       cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 0.9rem;
       transition: all 0.2s ease;
     }
 
-    .btn-edit {
-      background: #3b82f6;
+    .btn-primary {
+      background: var(--primary);
       color: white;
     }
 
-    .btn-edit:hover {
-      background: #2563eb;
+    .btn-secondary {
+      background: #6b7280;
+      color: white;
     }
 
-    .btn-delete {
+    .btn-danger {
       background: #ef4444;
       color: white;
     }
 
-    .btn-delete:hover {
-      background: #dc2626;
+    .btn-round:hover {
+      transform: scale(1.1);
+      box-shadow: 0 4px 8px rgba(0,0,0,0.2);
     }
 
     .modal-overlay {
@@ -232,12 +311,27 @@ import { MeetingRoomService, MeetingRoom } from '../../../services/meetingroom.s
     }
 
     .modal-card {
-      background: white;
+      background: var(--surface);
       border-radius: 12px;
       padding: 2rem;
       width: 90%;
       max-width: 500px;
       box-shadow: 0 10px 25px rgba(0, 0, 0, 0.2);
+    }
+
+    @media (max-width: 768px) {
+      .container {
+        padding: 1rem;
+      }
+
+      .cards-grid {
+        grid-template-columns: 1fr;
+      }
+
+      .modal-card {
+        width: 95%;
+        padding: 1.5rem;
+      }
     }
 
     .modal-header {
@@ -275,9 +369,21 @@ import { MeetingRoomService, MeetingRoom } from '../../../services/meetingroom.s
     .form-input {
       width: 100%;
       padding: 0.75rem;
-      border: 1px solid #ddd;
+      border: 1px solid var(--border);
       border-radius: 6px;
       font-size: 1rem;
+      background: var(--background);
+      color: var(--text);
+    }
+
+    .form-input:focus {
+      outline: none;
+      border-color: var(--primary);
+    }
+
+    .form-checkbox {
+      width: auto;
+      margin-left: 0.5rem;
     }
 
     .modal-actions {
@@ -296,8 +402,13 @@ import { MeetingRoomService, MeetingRoom } from '../../../services/meetingroom.s
     }
 
     .btn-cancel {
-      background: #f3f4f6;
+      background: var(--background);
       color: var(--text);
+      border: 1px solid var(--border);
+    }
+
+    .btn-cancel:hover {
+      background: var(--surface);
     }
 
     .btn-save {
@@ -308,6 +419,8 @@ import { MeetingRoomService, MeetingRoom } from '../../../services/meetingroom.s
 })
 export class Rooms implements OnInit {
   rooms: MeetingRoom[] = [];
+  filteredRooms: MeetingRoom[] = [];
+  searchTerm = '';
   showEditModal = false;
   editingRoom: MeetingRoom = { id: 0, roomName: '', capacity: 0, amenities: '', isAvailable: true };
 
@@ -323,6 +436,7 @@ export class Rooms implements OnInit {
       next: (rooms) => {
         console.log('Rooms loaded successfully:', rooms);
         this.rooms = rooms;
+        this.filterRooms();
       },
       error: (error) => {
         console.error('Error loading rooms:', error);
@@ -337,8 +451,26 @@ export class Rooms implements OnInit {
           { id: 2, roomName: 'Meeting Room B', capacity: 6, amenities: 'TV Screen, Phone', isAvailable: false },
           { id: 3, roomName: 'Board Room', capacity: 12, amenities: 'Video Conference, Projector', isAvailable: true }
         ];
+        this.filterRooms();
       }
     });
+  }
+
+  filterRooms() {
+    if (!this.searchTerm) {
+      this.filteredRooms = this.rooms;
+    } else {
+      const term = this.searchTerm.toLowerCase();
+      this.filteredRooms = this.rooms.filter(room =>
+        room.roomName.toLowerCase().includes(term) ||
+        room.amenities.toLowerCase().includes(term)
+      );
+    }
+  }
+
+  addRoom() {
+    this.editingRoom = { id: 0, roomName: '', capacity: 0, amenities: '', isAvailable: true };
+    this.showEditModal = true;
   }
 
   editRoom(room: MeetingRoom) {
@@ -351,23 +483,44 @@ export class Rooms implements OnInit {
   }
 
   saveRoom() {
-    const updatedRoom = {
+    const roomData = {
       roomName: this.editingRoom.roomName,
       capacity: this.editingRoom.capacity,
       amenities: this.editingRoom.amenities,
       isAvailable: this.editingRoom.isAvailable
     };
     
-    this.meetingRoomService.updateRoom(this.editingRoom.id, updatedRoom).subscribe({
-      next: () => {
-        console.log('Room updated successfully');
-        this.loadRooms();
-        this.closeModal();
-      },
-      error: (error) => {
-        console.error('Error updating room:', error);
-      }
-    });
+    if (this.editingRoom.id === 0) {
+      // Create new room
+      this.meetingRoomService.createRoom(roomData).subscribe({
+        next: () => {
+          console.log('Room created successfully');
+          this.loadRooms();
+          this.closeModal();
+        },
+        error: (error) => {
+          console.error('Error creating room:', error);
+        }
+      });
+    } else {
+      // Update existing room
+      this.meetingRoomService.updateRoom(this.editingRoom.id, roomData).subscribe({
+        next: () => {
+          console.log('Room updated successfully');
+          this.loadRooms();
+          this.closeModal();
+        },
+        error: (error) => {
+          console.error('Error updating room:', error);
+        }
+      });
+    }
+  }
+
+  viewRoomBookings(roomId: number) {
+    // TODO: Implement viewBookingByRoomId functionality
+    console.log('View bookings for room:', roomId);
+    alert(`View booking history for Room ID: ${roomId}\n\nThis feature will show all bookings made for this room.`);
   }
 
   deleteRoom(roomId: number) {

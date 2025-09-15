@@ -12,9 +12,11 @@ import { ToastService } from '../../../services/toast.service';
   imports: [CommonModule, FormsModule],
   template: `
     <div class="container">
-      <div class="page-header">
-        <h1><i class="pi pi-calendar"></i> My Bookings</h1>
-        <p>Manage your confirmed meeting room reservations</p>
+      <div class="page-header-card">
+        <div class="page-header">
+          <h1><i class="pi pi-calendar"></i> My Bookings</h1>
+          <p>Manage your confirmed meeting room reservations</p>
+        </div>
       </div>
 
       <div class="filters">
@@ -144,10 +146,10 @@ import { ToastService } from '../../../services/toast.service';
             <h4><i class="pi pi-users"></i> Attendees ({{ selectedBooking.attendees.length }})</h4>
             <div class="attendees-list">
               <div *ngFor="let attendee of selectedBooking.attendees" class="attendee-item">
-                <span class="attendee-name">{{ attendee.userName }}</span>
-                <span class="attendee-role">{{ attendee.roleInMeeting }}</span>
-                <span class="attendee-status" [class]="'status-' + attendee.status.toLowerCase()">
-                  {{ attendee.status }}
+                <span class="attendee-name">{{ getAttendeeName(attendee) }}</span>
+                <span class="attendee-role">{{ attendee.roleInMeeting || 'Attendee' }}</span>
+                <span class="attendee-status" [class]="'status-' + (attendee.status || 'pending').toLowerCase()">
+                  {{ attendee.status || 'Pending' }}
                 </span>
               </div>
             </div>
@@ -171,11 +173,14 @@ import { ToastService } from '../../../services/toast.service';
       font-family: 'Inter', sans-serif;
     }
 
-    .page-header {
-      margin-bottom: 3rem;
+    .page-header-card {
+      background: var(--surface);
+      border-radius: 12px;
+      padding: 2rem;
+      box-shadow: var(--shadow);
+      border: 1px solid var(--border);
+      margin-bottom: 2rem;
     }
-
-
 
     .page-header h1 {
       font-size: 2rem;
@@ -186,6 +191,7 @@ import { ToastService } from '../../../services/toast.service';
 
     .page-header p {
       color: var(--text-light);
+      margin: 0;
     }
 
     .filters {
@@ -279,7 +285,7 @@ import { ToastService } from '../../../services/toast.service';
 
     .bookings-grid {
       display: grid;
-      grid-template-columns: repeat(auto-fit, minmax(350px, 1fr));
+      grid-template-columns: repeat(3, 1fr);
       gap: 1.5rem;
     }
 
@@ -545,6 +551,12 @@ import { ToastService } from '../../../services/toast.service';
         grid-template-columns: 1fr;
       }
     }
+
+    @media (max-width: 1024px) {
+      .bookings-grid {
+        grid-template-columns: repeat(2, 1fr);
+      }
+    }
   `]
 })
 export class MyBookings implements OnInit {
@@ -575,7 +587,9 @@ export class MyBookings implements OnInit {
       this.bookingService.getBookingsByUser(this.currentUser.id).subscribe({
         next: (bookings) => {
           console.log('All bookings received:', bookings);
+          // Only show bookings where current user is the organizer (their own bookings)
           this.allBookings = bookings
+            .filter(booking => booking.organizerId === this.currentUser!.id)
             .sort((a, b) => new Date(b.startTime).getTime() - new Date(a.startTime).getTime());
           
           console.log('Filtered bookings:', this.allBookings);
@@ -758,5 +772,9 @@ export class MyBookings implements OnInit {
 
   saveCancelledBookings(): void {
     localStorage.setItem(`cancelledBookings_${this.currentUser?.id}`, JSON.stringify(this.cancelledBookings));
+  }
+
+  getAttendeeName(attendee: any): string {
+    return attendee.userName || attendee.name || attendee || 'Unknown';
   }
 }

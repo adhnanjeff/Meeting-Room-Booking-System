@@ -13,9 +13,11 @@ import { ToastService } from '../../../services/toast.service';
   imports: [CommonModule, FormsModule],
   template: `
     <div class="container">
-      <div class="page-header">
-        <h1><i class="pi pi-clipboard"></i> Meeting Approvals</h1>
-        <p>Review and approve meeting requests from your team</p>
+      <div class="page-header-card">
+        <div class="page-header">
+          <h1><i class="pi pi-clipboard"></i> Meeting Approvals</h1>
+          <p>Review and approve meeting requests from your team</p>
+        </div>
       </div>
 
 
@@ -26,6 +28,16 @@ import { ToastService } from '../../../services/toast.service';
           <button class="filter-btn" [class.active]="activeFilter === 'pending'" (click)="setFilter('pending')">Pending</button>
           <button class="filter-btn" [class.active]="activeFilter === 'approved'" (click)="setFilter('approved')">Approved</button>
           <button class="filter-btn" [class.active]="activeFilter === 'rejected'" (click)="setFilter('rejected')">Rejected</button>
+        </div>
+        
+        <div class="search-box">
+          <input 
+            type="text" 
+            placeholder="Search approvals..."
+            [(ngModel)]="searchTerm"
+            (input)="filterRequests()"
+          >
+          <span class="search-icon"><i class="pi pi-search"></i></span>
         </div>
       </div>
 
@@ -71,14 +83,14 @@ import { ToastService } from '../../../services/toast.service';
             </div>
             
             <div class="approval-actions">
-              <button class="btn-view-rooms" (click)="showAlternativeRooms(request)">
-                <i class="pi pi-search"></i> View Other Rooms
+              <button class="btn-round btn-primary" (click)="showAlternativeRooms(request)">
+                <i class="pi pi-search"></i>
               </button>
-              <button class="btn-approve" (click)="approveRequest(request)">
-                <i class="pi pi-check"></i> Approve
+              <button class="btn-round btn-success" (click)="approveRequest(request)">
+                <i class="pi pi-check"></i>
               </button>
-              <button class="btn-reject" (click)="rejectRequest(request)">
-                <i class="pi pi-times"></i> Reject
+              <button class="btn-round btn-danger" (click)="rejectRequest(request)">
+                <i class="pi pi-times"></i>
               </button>
             </div>
             
@@ -161,6 +173,15 @@ import { ToastService } from '../../../services/toast.service';
       margin: 0 auto;
     }
 
+    .page-header-card {
+      background: var(--surface);
+      border-radius: 12px;
+      padding: 2rem;
+      box-shadow: var(--shadow);
+      border: 1px solid var(--border);
+      margin-bottom: 2rem;
+    }
+
     .page-header h1 {
       font-size: 2rem;
       font-weight: 700;
@@ -170,6 +191,7 @@ import { ToastService } from '../../../services/toast.service';
 
     .page-header p {
       color: var(--text-light);
+      margin: 0;
     }
 
     .empty-state {
@@ -190,8 +212,10 @@ import { ToastService } from '../../../services/toast.service';
 
     .filters {
       display: flex;
-      justify-content: flex-start;
+      justify-content: space-between;
+      align-items: center;
       margin-bottom: 2rem;
+      gap: 1rem;
     }
 
     .filter-buttons {
@@ -219,40 +243,30 @@ import { ToastService } from '../../../services/toast.service';
       border-color: var(--primary);
     }
 
-    .filters {
-      display: flex;
-      justify-content: flex-start;
-      margin-bottom: 2rem;
+    .search-box {
+      position: relative;
     }
 
-    .filter-buttons {
-      display: flex;
-      gap: 0.5rem;
-    }
-
-    .filter-btn {
-      padding: 0.5rem 1rem;
+    .search-box input {
+      padding: 0.5rem 2.5rem 0.5rem 1rem;
       border: 1px solid var(--border);
+      border-radius: 8px;
+      width: 250px;
       background: var(--surface);
       color: var(--text);
-      border-radius: 8px;
-      cursor: pointer;
-      transition: all 0.2s ease;
     }
 
-    .filter-btn:hover {
-      border-color: var(--primary);
-    }
-
-    .filter-btn.active {
-      background: var(--primary);
-      color: white;
-      border-color: var(--primary);
+    .search-icon {
+      position: absolute;
+      right: 0.75rem;
+      top: 50%;
+      transform: translateY(-50%);
+      color: var(--text-light);
     }
 
     .requests-grid {
       display: grid;
-      grid-template-columns: repeat(auto-fill, minmax(400px, 1fr));
+      grid-template-columns: repeat(3, 1fr);
       gap: 1.5rem;
     }
 
@@ -350,37 +364,37 @@ import { ToastService } from '../../../services/toast.service';
       margin-bottom: 1rem;
     }
 
-    .btn-view-rooms {
+    .btn-round {
+      width: 40px;
+      height: 40px;
+      border-radius: 50%;
+      border: none;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 1rem;
+      transition: all 0.2s ease;
+    }
+
+    .btn-primary {
       background: var(--primary);
       color: white;
-      border: none;
-      border-radius: 6px;
-      padding: 0.5rem 1rem;
-      cursor: pointer;
-      font-size: 0.8rem;
-      flex: 1;
     }
 
-    .btn-approve {
+    .btn-success {
       background: var(--success, #10b981);
       color: white;
-      border: none;
-      border-radius: 6px;
-      padding: 0.5rem 1rem;
-      cursor: pointer;
-      font-size: 0.8rem;
-      flex: 1;
     }
 
-    .btn-reject {
+    .btn-danger {
       background: var(--error, #ef4444);
       color: white;
-      border: none;
-      border-radius: 6px;
-      padding: 0.5rem 1rem;
-      cursor: pointer;
-      font-size: 0.8rem;
-      flex: 1;
+    }
+
+    .btn-round:hover {
+      transform: scale(1.1);
+      box-shadow: 0 4px 8px rgba(0,0,0,0.2);
     }
 
     .request-footer {
@@ -591,12 +605,34 @@ import { ToastService } from '../../../services/toast.service';
     .btn-reject-confirm:hover {
       background: #dc2626;
     }
+
+    @media (max-width: 768px) {
+      .filters {
+        flex-direction: column;
+        align-items: stretch;
+      }
+
+      .search-box input {
+        width: 100%;
+      }
+
+      .requests-grid {
+        grid-template-columns: 1fr;
+      }
+    }
+
+    @media (max-width: 1024px) {
+      .requests-grid {
+        grid-template-columns: repeat(2, 1fr);
+      }
+    }
   `]
 })
 export class Approvals implements OnInit {
   allRequests: Approval[] = [];
   filteredRequests: Approval[] = [];
   activeFilter: 'all' | 'pending' | 'approved' | 'rejected' = 'all';
+  searchTerm = '';
   showRoomsModal = false;
   showRejectModal = false;
   selectedRequest: Approval | null = null;
@@ -641,15 +677,28 @@ export class Approvals implements OnInit {
   }
 
   filterRequests(): void {
-    if (this.activeFilter === 'all') {
-      this.filteredRequests = this.allRequests;
-    } else if (this.activeFilter === 'pending') {
-      this.filteredRequests = this.allRequests.filter(r => (r.status as any) === 0 || r.status === 'Pending');
+    let filtered = [...this.allRequests];
+    
+    // Apply status filter
+    if (this.activeFilter === 'pending') {
+      filtered = filtered.filter(r => (r.status as any) === 0 || r.status === 'Pending');
     } else if (this.activeFilter === 'approved') {
-      this.filteredRequests = this.allRequests.filter(r => (r.status as any) === 1 || r.status === 'Approved');
+      filtered = filtered.filter(r => (r.status as any) === 1 || r.status === 'Approved');
     } else if (this.activeFilter === 'rejected') {
-      this.filteredRequests = this.allRequests.filter(r => (r.status as any) === 2 || r.status === 'Rejected');
+      filtered = filtered.filter(r => (r.status as any) === 2 || r.status === 'Rejected');
     }
+    
+    // Apply search filter
+    if (this.searchTerm) {
+      const term = this.searchTerm.toLowerCase();
+      filtered = filtered.filter(request =>
+        request.bookingTitle.toLowerCase().includes(term) ||
+        request.roomName.toLowerCase().includes(term) ||
+        request.requesterName.toLowerCase().includes(term)
+      );
+    }
+    
+    this.filteredRequests = filtered;
   }
 
 

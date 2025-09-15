@@ -11,13 +11,13 @@ import { AuthService, User } from '../../../services/auth.service';
   template: `
     <div class="container">
       <div class="page-header">
-        <h1>👋 Welcome back, {{ currentUser?.userName }}!</h1>
+        <h1><i class="pi pi-user"></i> Welcome back, {{ currentUser?.userName }}!</h1>
         <p>Here's what's happening with your meetings today</p>
       </div>
 
       <div class="stats-grid">
         <div class="stat-card">
-          <div class="stat-icon">📅</div>
+          <div class="stat-icon"><i class="pi pi-calendar"></i></div>
           <div class="stat-content">
             <div class="stat-number">{{ upcomingBookings.length }}</div>
             <div class="stat-label">Upcoming Meetings</div>
@@ -25,7 +25,7 @@ import { AuthService, User } from '../../../services/auth.service';
         </div>
         
         <div class="stat-card">
-          <div class="stat-icon">⏳</div>
+          <div class="stat-icon"><i class="pi pi-clock"></i></div>
           <div class="stat-content">
             <div class="stat-number">{{ pendingRequests }}</div>
             <div class="stat-label">Pending Requests</div>
@@ -33,7 +33,7 @@ import { AuthService, User } from '../../../services/auth.service';
         </div>
         
         <div class="stat-card">
-          <div class="stat-icon">🏢</div>
+          <div class="stat-icon"><i class="pi pi-building"></i></div>
           <div class="stat-content">
             <div class="stat-number">{{ availableRooms }}</div>
             <div class="stat-label">Available Rooms</div>
@@ -44,11 +44,11 @@ import { AuthService, User } from '../../../services/auth.service';
       <div class="content-grid">
         <div class="card">
           <div class="card-header">
-            <h3>📅 Today's Schedule</h3>
+            <h3><i class="pi pi-calendar"></i> Today's Schedule</h3>
           </div>
           <div class="card-content">
             <div *ngIf="todayBookings.length === 0" class="empty-state">
-              <div class="empty-icon">📭</div>
+              <div class="empty-icon"><i class="pi pi-inbox"></i></div>
               <p>No meetings scheduled for today</p>
             </div>
             
@@ -58,7 +58,7 @@ import { AuthService, User } from '../../../services/auth.service';
               </div>
               <div class="booking-details">
                 <div class="booking-title">{{ booking.title }}</div>
-                <div class="booking-room">🏢 {{ booking.roomName }}</div>
+                <div class="booking-room"><i class="pi pi-building"></i> {{ booking.roomName }}</div>
               </div>
               <div class="booking-status">
                 <span class="status-badge" [class]="'status-' + booking.status.toLowerCase()">
@@ -71,12 +71,12 @@ import { AuthService, User } from '../../../services/auth.service';
 
         <div class="card">
           <div class="card-header">
-            <h3>🚀 Quick Actions</h3>
+            <h3><i class="pi pi-bolt"></i> Quick Actions</h3>
           </div>
           <div class="card-content">
             <div class="action-buttons">
               <a routerLink="../book-room" class="action-btn primary">
-                <span class="action-icon">📝</span>
+                <span class="action-icon"><i class="pi pi-plus"></i></span>
                 <div class="action-content">
                   <div class="action-title">Book a Room</div>
                   <div class="action-desc">Schedule a new meeting</div>
@@ -84,7 +84,7 @@ import { AuthService, User } from '../../../services/auth.service';
               </a>
               
               <a routerLink="../my-bookings" class="action-btn">
-                <span class="action-icon">📋</span>
+                <span class="action-icon"><i class="pi pi-list"></i></span>
                 <div class="action-content">
                   <div class="action-title">My Bookings</div>
                   <div class="action-desc">View all meetings</div>
@@ -92,7 +92,7 @@ import { AuthService, User } from '../../../services/auth.service';
               </a>
               
               <a routerLink="../my-requests" class="action-btn">
-                <span class="action-icon">📨</span>
+                <span class="action-icon"><i class="pi pi-inbox"></i></span>
                 <div class="action-content">
                   <div class="action-title">My Requests</div>
                   <div class="action-desc">Check approval status</div>

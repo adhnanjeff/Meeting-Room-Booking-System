@@ -10,10 +10,18 @@ import { ThemeToggle } from '../../../components/theme-toggle';
   imports: [CommonModule, RouterOutlet, RouterLink, RouterLinkActive, ThemeToggle],
   template: `
     <div class="layout">
-      <nav class="sidebar">
+      <div class="mobile-header">
+        <button class="burger-menu" (click)="toggleSidebar()">
+          <i class="pi pi-bars"></i>
+        </button>
+        <h2>SynerRoom</h2>
+        <app-theme-toggle></app-theme-toggle>
+      </div>
+      
+      <nav class="sidebar" [class.open]="sidebarOpen">
         <div class="sidebar-header">
           <div class="header-top">
-            <h2><i class="pi pi-building"></i> Meeting Rooms</h2>
+            <h2>SynerRoom</h2>
             <app-theme-toggle></app-theme-toggle>
           </div>
           <div class="user-info">
@@ -55,8 +63,12 @@ import { ThemeToggle } from '../../../components/theme-toggle';
             <span>Invitations</span>
           </a>
           <a routerLink="scheduled-meetings" routerLinkActive="active" class="nav-item">
-            <i class="pi pi-calendar-check nav-icon"></i>
+            <i class="pi pi-calendar-times nav-icon"></i>
             <span>Scheduled Meetings</span>
+          </a>
+          <a routerLink="notifications" routerLinkActive="active" class="nav-item">
+            <i class="pi pi-bell nav-icon"></i>
+            <span>Notifications</span>
           </a>
           <a routerLink="profile" routerLinkActive="active" class="nav-item">
             <i class="pi pi-user nav-icon"></i>
@@ -302,38 +314,65 @@ import { ThemeToggle } from '../../../components/theme-toggle';
       font-weight: 600;
     }
 
+    .mobile-header {
+      display: none;
+      justify-content: space-between;
+      align-items: center;
+      padding: 1rem;
+      background: var(--surface);
+      border-bottom: 1px solid var(--border);
+      position: fixed;
+      top: 0;
+      left: 0;
+      right: 0;
+      z-index: 1001;
+    }
+
+    .burger-menu {
+      background: none;
+      border: none;
+      font-size: 1.5rem;
+      color: var(--text);
+      cursor: pointer;
+    }
+
     @media (max-width: 768px) {
+      .mobile-header {
+        display: flex;
+      }
+
       .sidebar {
-        width: 100%;
-        position: fixed;
-        top: 0;
-        left: 0;
-        z-index: 1000;
         transform: translateX(-100%);
         transition: transform 0.3s ease;
+        z-index: 1000;
+      }
+
+      .sidebar.open {
+        transform: translateX(0);
       }
 
       .main-content {
         margin-left: 0;
+        padding-top: 70px;
       }
 
-
+      .sidebar-header .header-top {
+        display: none;
+      }
     }
   `]
 })
 export class ManagerLayout {
   currentUser: User | null = null;
+  sidebarOpen = false;
 
   constructor(private authService: AuthService) {
     this.currentUser = this.authService.getCurrentUser();
   }
 
-  getUserInitials(): string {
-    if (!this.currentUser?.userName) return 'M';
-    return this.currentUser.userName.split(' ').map(n => n[0]).join('').toUpperCase();
+  toggleSidebar(): void {
+    this.sidebarOpen = !this.sidebarOpen;
   }
 
-  logout(): void {
-    this.authService.logout();
-  }
-}
+  getUserInitials(): string {
+    if (!t
