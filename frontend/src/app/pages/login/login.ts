@@ -3,6 +3,7 @@ import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { RouterLink } from '@angular/router';
 import { AuthService, LoginRequest } from '../../services/auth.service';
+import { LoaderService } from '../../services/loader.service';
 import { Router } from '@angular/router';
 
 @Component({
@@ -20,7 +21,11 @@ export class Login {
   isLoading = false;
   error = '';
 
-  constructor(private authService: AuthService, private router: Router) {}
+  constructor(
+    private authService: AuthService, 
+    private router: Router,
+    private loaderService: LoaderService
+  ) {}
 
   onSubmit(): void {
     if (!this.credentials.userName || !this.credentials.password) {
@@ -28,7 +33,7 @@ export class Login {
       return;
     }
 
-    this.isLoading = true;
+    this.loaderService.show('Signing in...');
     this.error = '';
 
     this.authService.login(this.credentials.userName, this.credentials.password).subscribe({
@@ -43,13 +48,13 @@ export class Login {
           } else {
             console.error('No user or roles found');
           }
-          this.isLoading = false;
+          this.loaderService.hide();
         }, 100);
       },
       error: (error) => {
         console.error('Login error:', error);
         this.error = 'Invalid username or password';
-        this.isLoading = false;
+        this.loaderService.hide();
       }
     });
   }
@@ -69,4 +74,6 @@ export class Login {
     this.credentials = { userName: 'Admin', password: 'Admin@123' };
     this.onSubmit();
   }
+
+
 }

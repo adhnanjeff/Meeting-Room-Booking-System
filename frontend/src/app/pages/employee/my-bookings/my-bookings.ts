@@ -5,6 +5,7 @@ import { Router } from '@angular/router';
 import { BookingService, Booking } from '../../../services/booking.service';
 import { AuthService, User } from '../../../services/auth.service';
 import { ToastService } from '../../../services/toast.service';
+import { LoaderService } from '../../../services/loader.service';
 
 @Component({
   selector: 'app-my-bookings',
@@ -63,18 +64,15 @@ import { ToastService } from '../../../services/toast.service';
       </div>
 
       <div class="bookings-container">
-        <div *ngIf="isLoading" class="loading">
-          <div class="loading-spinner"></div>
-          <p>Loading your bookings...</p>
-        </div>
 
-        <div *ngIf="!isLoading && filteredBookings.length === 0" class="empty-state">
+
+        <div *ngIf="filteredBookings.length === 0" class="empty-state">
           <div class="empty-icon"><i class="pi pi-inbox"></i></div>
           <h3>No bookings found</h3>
           <p>You don't have any bookings matching the current filter.</p>
         </div>
 
-        <div class="bookings-grid" *ngIf="!isLoading && filteredBookings.length > 0">
+        <div class="bookings-grid" *ngIf="filteredBookings.length > 0">
           <div *ngFor="let booking of filteredBookings" class="booking-card">
             <div class="booking-header">
               <div class="booking-date">
@@ -140,6 +138,13 @@ import { ToastService } from '../../../services/toast.service';
           <div class="detail-section">
             <h4><i class="pi pi-building"></i> Room</h4>
             <p>{{ selectedBooking.roomName }}</p>
+          </div>
+          
+          <div class="detail-section" *ngIf="selectedBooking.teamsJoinUrl">
+            <h4><i class="pi pi-video"></i> Teams Meeting</h4>
+            <a [href]="selectedBooking.teamsJoinUrl" target="_blank" class="teams-link">
+              <i class="pi pi-external-link"></i> Join Teams Meeting
+            </a>
           </div>
           
           <div class="detail-section" *ngIf="selectedBooking.attendees.length > 0">
@@ -285,8 +290,20 @@ import { ToastService } from '../../../services/toast.service';
 
     .bookings-grid {
       display: grid;
-      grid-template-columns: repeat(3, 1fr);
+      grid-template-columns: repeat(auto-fit, minmax(350px, 1fr));
       gap: 1.5rem;
+    }
+
+    @media (min-width: 1200px) {
+      .bookings-grid {
+        grid-template-columns: repeat(3, 1fr);
+      }
+    }
+
+    @media (max-width: 1199px) and (min-width: 768px) {
+      .bookings-grid {
+        grid-template-columns: repeat(2, 1fr);
+      }
     }
 
     .booking-card {
@@ -478,6 +495,24 @@ import { ToastService } from '../../../services/toast.service';
       border-radius: 12px;
     }
 
+    .teams-link {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.5rem;
+      padding: 0.75rem 1rem;
+      background: #6264A7;
+      color: white;
+      text-decoration: none;
+      border-radius: 8px;
+      font-weight: 500;
+      transition: background-color 0.2s;
+    }
+
+    .teams-link:hover {
+      background: #5558A3;
+      color: white;
+    }
+
     .status-badge {
       padding: 0.25rem 0.75rem;
       border-radius: 20px;
@@ -544,18 +579,116 @@ import { ToastService } from '../../../services/toast.service';
         width: 100%;
       }
 
+      .booking-card {
+        padding: 1rem;
+        min-height: 140px;
+      }
+
+      .booking-header {
+        flex-direction: row;
+        justify-content: space-between;
+        align-items: flex-start;
+        margin-bottom: 0.75rem;
+      }
+
+      .date-day {
+        font-size: 0.9rem;
+        font-weight: 600;
+      }
+
+      .date-time {
+        font-size: 0.75rem;
+      }
+
+      .booking-title {
+        font-size: 1.1rem;
+        font-weight: 700;
+        text-align: center;
+        margin-bottom: 0.75rem;
+        color: var(--text);
+      }
+
+      .booking-details {
+        display: flex;
+        flex-direction: column;
+        gap: 0.5rem;
+        margin-bottom: 1rem;
+      }
+
+      .detail-item {
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+        font-size: 0.8rem;
+      }
+
       .booking-actions {
+        display: flex;
         justify-content: center;
+        gap: 0.5rem;
       }
 
-      .bookings-grid {
-        grid-template-columns: 1fr;
+      .btn-round {
+        width: 32px;
+        height: 32px;
+        border-radius: 50%;
+        border: none;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 0.9rem;
+        cursor: pointer;
+        transition: all 0.2s ease;
       }
-    }
 
-    @media (max-width: 1024px) {
-      .bookings-grid {
-        grid-template-columns: repeat(2, 1fr);
+      .btn-primary {
+        background: var(--primary);
+        color: white;
+      }
+
+      .btn-secondary {
+        background: var(--info);
+        color: white;
+      }
+
+      .btn-danger {
+        background: var(--error);
+        color: white;
+      }
+
+      .btn-warning {
+        background: var(--warning);
+        color: white;
+      }
+
+      .btn-success {
+        background: var(--success);
+        color: white;
+      }
+
+      .status-badge {
+        padding: 0.2rem 0.5rem;
+        font-size: 0.7rem;
+      }
+
+      .status-pending {
+        background: #fbbf24;
+        color: white;
+      }
+
+      .status-approved, .status-confirmed, .status-booked, .status-scheduled {
+        background: #10b981;
+        color: white;
+      }
+
+      .status-rejected, .status-cancelled {
+        background: #ef4444;
+        color: white;
+      }
+
+      .status-completed {
+        background: #6b7280;
+        color: white;
       }
     }
   `]
@@ -574,13 +707,25 @@ export class MyBookings implements OnInit {
     private bookingService: BookingService,
     private authService: AuthService,
     private router: Router,
-    private toastService: ToastService
+    private toastService: ToastService,
+    private loaderService: LoaderService
   ) {}
 
   ngOnInit(): void {
     this.currentUser = this.authService.getCurrentUser();
     this.loadCancelledBookings();
+    this.loaderService.show('Loading your bookings...');
     this.loadBookings();
+  }
+
+  private updateMeetingStatuses(bookings: Booking[]): Booking[] {
+    const now = new Date();
+    return bookings.map(booking => {
+      if (booking.status === 'Scheduled' && new Date(booking.endTime) < now) {
+        return { ...booking, status: 'Completed' as any };
+      }
+      return booking;
+    });
   }
 
   loadBookings(): void {
@@ -589,23 +734,26 @@ export class MyBookings implements OnInit {
         next: (bookings) => {
           console.log('All bookings received:', bookings);
           // Only show bookings where current user is the organizer (their own bookings)
-          this.allBookings = bookings
+          let filteredBookings = bookings
             .filter(booking => booking.organizerId === this.currentUser!.id)
             .sort((a, b) => new Date(b.startTime).getTime() - new Date(a.startTime).getTime());
           
+          // Update statuses for completed meetings
+          this.allBookings = this.updateMeetingStatuses(filteredBookings);
+          
           console.log('Filtered bookings:', this.allBookings);
           this.filterBookings();
-          this.isLoading = false;
+          this.loaderService.hide();
         },
         error: (error) => {
           console.error('Error loading bookings:', error);
           this.allBookings = [];
           this.filteredBookings = [];
-          this.isLoading = false;
+          this.loaderService.hide();
         }
       });
     } else {
-      this.isLoading = false;
+      this.loaderService.hide();
     }
   }
 

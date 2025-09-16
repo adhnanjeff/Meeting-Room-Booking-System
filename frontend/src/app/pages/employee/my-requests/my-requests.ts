@@ -6,6 +6,7 @@ import { BookingService, Booking } from '../../../services/booking.service';
 import { AuthService, User } from '../../../services/auth.service';
 import { ToastService } from '../../../services/toast.service';
 import { NotificationService } from '../../../services/notification.service';
+import { LoaderService } from '../../../services/loader.service';
 
 @Component({
   selector: 'app-my-requests',
@@ -64,18 +65,15 @@ import { NotificationService } from '../../../services/notification.service';
       </div>
 
       <div class="requests-container">
-        <div *ngIf="isLoading" class="loading">
-          <div class="loading-spinner"></div>
-          <p>Loading your requests...</p>
-        </div>
 
-        <div *ngIf="!isLoading && filteredRequests.length === 0" class="empty-state">
+
+        <div *ngIf="filteredRequests.length === 0" class="empty-state">
           <div class="empty-icon"><i class="pi pi-inbox"></i></div>
           <h3>No requests found</h3>
           <p>You don't have any requests matching the current filter.</p>
         </div>
 
-        <div class="requests-grid" *ngIf="!isLoading && filteredRequests.length > 0">
+        <div class="requests-grid" *ngIf="filteredRequests.length > 0">
           <div *ngFor="let request of filteredRequests" class="request-card" [class]="'status-' + request.status.toLowerCase()">
             <div class="request-header">
               <div class="request-date">
@@ -308,8 +306,20 @@ import { NotificationService } from '../../../services/notification.service';
 
     .requests-grid {
       display: grid;
-      grid-template-columns: repeat(3, 1fr);
+      grid-template-columns: repeat(auto-fit, minmax(350px, 1fr));
       gap: 1.5rem;
+    }
+
+    @media (min-width: 1200px) {
+      .requests-grid {
+        grid-template-columns: repeat(3, 1fr);
+      }
+    }
+
+    @media (max-width: 1199px) and (min-width: 768px) {
+      .requests-grid {
+        grid-template-columns: repeat(2, 1fr);
+      }
     }
 
     .request-card {
@@ -645,18 +655,106 @@ import { NotificationService } from '../../../services/notification.service';
         width: 100%;
       }
 
+      .request-card {
+        padding: 1rem;
+        min-height: 140px;
+      }
+
+      .request-header {
+        flex-direction: row;
+        justify-content: space-between;
+        align-items: flex-start;
+        margin-bottom: 0.75rem;
+      }
+
+      .date-day {
+        font-size: 0.9rem;
+        font-weight: 600;
+      }
+
+      .date-time {
+        font-size: 0.75rem;
+      }
+
+      .request-title {
+        font-size: 1.1rem;
+        font-weight: 700;
+        text-align: center;
+        margin-bottom: 0.75rem;
+        color: var(--text);
+      }
+
+      .request-details {
+        display: flex;
+        flex-direction: column;
+        gap: 0.5rem;
+        margin-bottom: 1rem;
+      }
+
+      .detail-item {
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+        font-size: 0.8rem;
+      }
+
       .request-actions {
+        display: flex;
         justify-content: center;
+        gap: 0.5rem;
       }
 
-      .requests-grid {
-        grid-template-columns: 1fr;
+      .btn-round {
+        width: 32px;
+        height: 32px;
+        border-radius: 50%;
+        border: none;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 0.9rem;
+        cursor: pointer;
+        transition: all 0.2s ease;
       }
-    }
 
-    @media (max-width: 1024px) {
-      .requests-grid {
-        grid-template-columns: repeat(2, 1fr);
+      .btn-primary {
+        background: var(--primary);
+        color: white;
+      }
+
+      .btn-danger {
+        background: var(--error);
+        color: white;
+      }
+
+      .btn-success {
+        background: var(--success);
+        color: white;
+      }
+
+      .status-badge {
+        padding: 0.2rem 0.5rem;
+        font-size: 0.7rem;
+      }
+
+      .status-pending {
+        background: #fbbf24;
+        color: white;
+      }
+
+      .status-approved {
+        background: #10b981;
+        color: white;
+      }
+
+      .status-rejected {
+        background: #ef4444;
+        color: white;
+      }
+
+      .status-completed {
+        background: #6b7280;
+        color: white;
       }
     }
   `]
@@ -676,12 +774,24 @@ export class MyRequests implements OnInit {
     private authService: AuthService,
     private router: Router,
     private toastService: ToastService,
-    private notificationService: NotificationService
+    private notificationService: NotificationService,
+    private loaderService: LoaderService
   ) {}
 
   ngOnInit(): void {
     this.currentUser = this.authService.getCurrentUser();
+    this.loaderService.show('Loading your requests...');
     this.loadRequests();
+  }
+
+  private updateMeetingStatuses(bookings: Booking[]): Booking[] {
+    const now = new Date();
+    return bookings.map(booking => {
+      if (booking.status === 'Scheduled' && new Date(booking.endTime) < now) {
+        return { ...booking, status: 'Completed' as any };
+      }
+      return booking;
+    });
   }
 
   loadRequests(): void {
@@ -689,21 +799,24 @@ export class MyRequests implements OnInit {
       this.bookingService.getBookingsByUser(this.currentUser.id).subscribe({
         next: (bookings) => {
           // Only show bookings where current user is the organizer (their own requests)
-          this.requests = bookings
+          let filteredBookings = bookings
             .filter(booking => booking.organizerId === this.currentUser!.id)
             .sort((a, b) => new Date(b.startTime).getTime() - new Date(a.startTime).getTime());
           
+          // Update statuses for completed meetings
+          this.requests = this.updateMeetingStatuses(filteredBookings);
+          
           this.applyFilter();
-          this.isLoading = false;
+          this.loaderService.hide();
         },
         error: (error) => {
           console.error('Error loading requests:', error);
           this.requests = [];
-          this.isLoading = false;
+          this.loaderService.hide();
         }
       });
     } else {
-      this.isLoading = false;
+      this.loaderService.hide();
     }
   }
 

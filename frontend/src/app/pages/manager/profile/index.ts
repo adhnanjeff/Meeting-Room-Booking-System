@@ -1,0 +1,1 @@
+export { ManagerProfile } from './profile';

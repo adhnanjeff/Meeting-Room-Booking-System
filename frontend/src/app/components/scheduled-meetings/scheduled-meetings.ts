@@ -4,6 +4,7 @@ import { FormsModule } from '@angular/forms';
 import { AuthService, User } from '../../services/auth.service';
 import { InvitationService, InvitationResponse } from '../../services/invitation.service';
 import { BookingService } from '../../services/booking.service';
+import { LoaderService } from '../../services/loader.service';
 
 interface ScheduledMeeting {
   bookingId: string;
@@ -12,6 +13,7 @@ interface ScheduledMeeting {
   startTime: string;
   endTime: string;
   roomName: string;
+  status?: string;
 }
 
 @Component({
@@ -71,18 +73,15 @@ interface ScheduledMeeting {
       </div>
 
       <div class="meetings-container">
-        <div *ngIf="isLoading" class="loading">
-          <div class="loading-spinner"></div>
-          <p>Loading scheduled meetings...</p>
-        </div>
 
-        <div *ngIf="!isLoading && filteredMeetings.length === 0" class="empty-state">
-          <div class="empty-icon">📭</div>
+
+        <div *ngIf="filteredMeetings.length === 0" class="empty-state">
+          <div class="empty-icon"><i class="pi pi-inbox"></i></div>
           <h3>No scheduled meetings</h3>
           <p>You don't have any meetings matching the current filter.</p>
         </div>
 
-        <div class="meetings-grid" *ngIf="!isLoading && filteredMeetings.length > 0">
+        <div class="meetings-grid" *ngIf="filteredMeetings.length > 0">
           <div *ngFor="let meeting of filteredMeetings" class="meeting-card">
             <div class="meeting-header">
               <h3>{{ meeting.title }}</h3>
@@ -130,6 +129,14 @@ interface ScheduledMeeting {
       font-weight: 700;
       color: var(--text);
       margin-bottom: 0.5rem;
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+    }
+
+    .page-header h1 i {
+      color: var(--primary);
+      font-size: 1.8rem;
     }
 
     .page-header p {
@@ -225,8 +232,20 @@ interface ScheduledMeeting {
 
     .meetings-grid {
       display: grid;
-      grid-template-columns: repeat(3, 1fr);
+      grid-template-columns: repeat(auto-fit, minmax(350px, 1fr));
       gap: 1.5rem;
+    }
+
+    @media (min-width: 1200px) {
+      .meetings-grid {
+        grid-template-columns: repeat(3, 1fr);
+      }
+    }
+
+    @media (max-width: 1199px) and (min-width: 768px) {
+      .meetings-grid {
+        grid-template-columns: repeat(2, 1fr);
+      }
     }
 
     .meeting-card {
@@ -285,14 +304,41 @@ interface ScheduledMeeting {
         width: 100%;
       }
 
-      .meetings-grid {
-        grid-template-columns: 1fr;
+      .meeting-card {
+        padding: 1rem;
+        min-height: 140px;
       }
-    }
 
-    @media (max-width: 1024px) {
-      .meetings-grid {
-        grid-template-columns: repeat(2, 1fr);
+      .meeting-header {
+        flex-direction: column;
+        align-items: center;
+        text-align: center;
+        margin-bottom: 0.75rem;
+      }
+
+      .meeting-header h3 {
+        font-size: 1.1rem;
+        font-weight: 700;
+        margin-bottom: 0.5rem;
+      }
+
+      .meeting-time {
+        font-size: 0.8rem;
+        color: var(--success);
+        font-weight: 600;
+      }
+
+      .meeting-details {
+        display: flex;
+        flex-direction: column;
+        gap: 0.5rem;
+      }
+
+      .detail-item {
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+        font-size: 0.8rem;
       }
     }
   `]
@@ -308,11 +354,13 @@ export class ScheduledMeetings implements OnInit {
   constructor(
     private authService: AuthService,
     private invitationService: InvitationService,
-    private bookingService: BookingService
+    private bookingService: BookingService,
+    private loaderService: LoaderService
   ) {}
 
   ngOnInit(): void {
     this.currentUser = this.authService.getCurrentUser();
+    this.loaderService.show('Loading scheduled meetings...');
     this.loadScheduledMeetings();
   }
 
@@ -322,12 +370,12 @@ export class ScheduledMeetings implements OnInit {
       this.invitationService.getInvitationsByStatus(this.currentUser.id, 'Accepted').subscribe({
         next: (acceptedInvitations) => {
           this.processScheduledMeetings(acceptedInvitations);
-          this.isLoading = false;
+          this.loaderService.hide();
         },
         error: (error) => {
           console.error('Error loading scheduled meetings:', error);
           this.scheduledMeetings = [];
-          this.isLoading = false;
+          this.loaderService.hide();
         }
       });
     }
@@ -337,14 +385,23 @@ export class ScheduledMeetings implements OnInit {
     const bookingPromises = invitations.map(inv => 
       this.bookingService.getAllBookings().toPromise().then(bookings => {
         const booking = bookings?.find(b => b.bookingId === inv.bookingId);
-        return {
+        let meeting = {
           bookingId: inv.bookingId,
           title: inv.bookingTitle,
           organizer: booking?.organizerName || 'Unknown',
           startTime: booking?.startTime || '',
           endTime: booking?.endTime || '',
-          roomName: booking?.roomName || 'Unknown Room'
-        } as ScheduledMeeting;
+          roomName: booking?.roomName || 'Unknown Room',
+          status: booking?.status || 'Scheduled'
+        } as ScheduledMeeting & { status: string };
+        
+        // Update status if meeting has ended
+        const now = new Date();
+        if (meeting.status === 'Scheduled' && new Date(meeting.endTime) < now) {
+          meeting.status = 'Completed';
+        }
+        
+        return meeting;
       })
     );
 

@@ -378,3 +378,16 @@ C:\Users\adhnjeff\OneDrive - EPS US, LLC\Desktop\Capstone\backend\MeetingRoom.AP
 C:\Users\adhnjeff\OneDrive - EPS US, LLC\Desktop\Capstone\backend\MeetingRoom.API\obj\Debug\net8.0\MeetingRoom.API.pdb
 C:\Users\adhnjeff\OneDrive - EPS US, LLC\Desktop\Capstone\backend\MeetingRoom.API\obj\Debug\net8.0\MeetingRoom.API.genruntimeconfig.cache
 C:\Users\adhnjeff\OneDrive - EPS US, LLC\Desktop\Capstone\backend\MeetingRoom.API\obj\Debug\net8.0\ref\MeetingRoom.API.dll
+C:\Users\adhnjeff\OneDrive - EPS US, LLC\Desktop\Capstone\backend\MeetingRoom.API\bin\Debug\net8.0\Microsoft.Bcl.Memory.dll
+C:\Users\adhnjeff\OneDrive - EPS US, LLC\Desktop\Capstone\backend\MeetingRoom.API\bin\Debug\net8.0\Microsoft.Graph.dll
+C:\Users\adhnjeff\OneDrive - EPS US, LLC\Desktop\Capstone\backend\MeetingRoom.API\bin\Debug\net8.0\Microsoft.Graph.Auth.dll
+C:\Users\adhnjeff\OneDrive - EPS US, LLC\Desktop\Capstone\backend\MeetingRoom.API\bin\Debug\net8.0\Microsoft.Graph.Core.dll
+C:\Users\adhnjeff\OneDrive - EPS US, LLC\Desktop\Capstone\backend\MeetingRoom.API\bin\Debug\net8.0\Microsoft.IdentityModel.Validators.dll
+C:\Users\adhnjeff\OneDrive - EPS US, LLC\Desktop\Capstone\backend\MeetingRoom.API\bin\Debug\net8.0\Microsoft.Kiota.Abstractions.dll
+C:\Users\adhnjeff\OneDrive - EPS US, LLC\Desktop\Capstone\backend\MeetingRoom.API\bin\Debug\net8.0\Microsoft.Kiota.Authentication.Azure.dll
+C:\Users\adhnjeff\OneDrive - EPS US, LLC\Desktop\Capstone\backend\MeetingRoom.API\bin\Debug\net8.0\Microsoft.Kiota.Http.HttpClientLibrary.dll
+C:\Users\adhnjeff\OneDrive - EPS US, LLC\Desktop\Capstone\backend\MeetingRoom.API\bin\Debug\net8.0\Microsoft.Kiota.Serialization.Form.dll
+C:\Users\adhnjeff\OneDrive - EPS US, LLC\Desktop\Capstone\backend\MeetingRoom.API\bin\Debug\net8.0\Microsoft.Kiota.Serialization.Json.dll
+C:\Users\adhnjeff\OneDrive - EPS US, LLC\Desktop\Capstone\backend\MeetingRoom.API\bin\Debug\net8.0\Microsoft.Kiota.Serialization.Multipart.dll
+C:\Users\adhnjeff\OneDrive - EPS US, LLC\Desktop\Capstone\backend\MeetingRoom.API\bin\Debug\net8.0\Microsoft.Kiota.Serialization.Text.dll
+C:\Users\adhnjeff\OneDrive - EPS US, LLC\Desktop\Capstone\backend\MeetingRoom.API\bin\Debug\net8.0\Std.UriTemplate.dll

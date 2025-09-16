@@ -27,7 +27,7 @@ interface ApprovalItem {
   template: `
     <div class="container">
       <div class="page-header">
-        <h1><i class="pi pi-user"></i> Welcome back, {{ currentUser?.userName }}!</h1>
+        <h1><i class="pi pi-user"></i> Welcome back, <span class="username-gradient">{{ currentUser?.userName }}</span>!</h1>
         <p>Manage your team and approve meeting requests</p>
       </div>
 
@@ -40,6 +40,14 @@ interface ApprovalItem {
           </div>
         </div>
         
+        <div class="stat-card teams">
+          <div class="stat-icon"><i class="pi pi-microsoft"></i></div>
+          <div class="stat-content">
+            <div class="stat-number">{{ teamMeetings }}</div>
+            <div class="stat-label">Teams Meetings</div>
+          </div>
+        </div>
+        
         <div class="stat-card">
           <div class="stat-icon"><i class="pi pi-users"></i></div>
           <div class="stat-content">
@@ -48,11 +56,11 @@ interface ApprovalItem {
           </div>
         </div>
         
-        <div class="stat-card">
-          <div class="stat-icon"><i class="pi pi-calendar"></i></div>
+        <div class="stat-card book-meeting" routerLink="../book-meeting">
+          <div class="stat-icon"><i class="pi pi-plus"></i></div>
           <div class="stat-content">
-            <div class="stat-number">{{ teamMeetings }}</div>
-            <div class="stat-label">Team Meetings Today</div>
+            <div class="stat-label">Book Meeting</div>
+            <div class="stat-sublabel">Schedule new meeting</div>
           </div>
         </div>
       </div>
@@ -70,33 +78,76 @@ interface ApprovalItem {
               <p class="empty-desc">All caught up! New requests will appear here.</p>
             </div>
             
-            <div *ngIf="approvalItems.length > 0" class="approval-list">
-              <div *ngFor="let approval of approvalItems.slice(0, 3)" class="approval-item" [class.emergency]="approval.isEmergency">
-                <div class="approval-header">
-                  <div class="approval-title">
-                    <span *ngIf="approval.isEmergency" class="emergency-badge"><i class="pi pi-exclamation-triangle"></i> EMERGENCY</span>
-                    {{ approval.meetingTitle }}
-                  </div>
-                  <div class="approval-time">{{ approval.requestedTime }}</div>
+            <div *ngIf="approvalItems.length > 0" class="approvals-table">
+              <table>
+                <thead>
+                  <tr>
+                    <th>Meeting</th>
+                    <th>Requester</th>
+                    <th>Date & Time</th>
+                    <th>Actions</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  <tr *ngFor="let approval of approvalItems.slice(0, 3)" 
+                      class="approval-row"
+                      [class.emergency]="approval.isEmergency"
+                      (mouseenter)="showApprovalTooltip($event, approval)"
+                      (mouseleave)="hideApprovalTooltip()">
+                    <td class="meeting-title">
+                      <span *ngIf="approval.isEmergency" class="emergency-badge"><i class="pi pi-exclamation-triangle"></i></span>
+                      {{ approval.meetingTitle }}
+                    </td>
+                    <td class="requester-name">{{ approval.requesterName }}</td>
+                    <td class="meeting-datetime">
+                      {{ formatFullDateTime(approval.meetingDate, approval.startTime, approval.endTime) }}
+                    </td>
+                    <td class="approval-actions">
+                      <button class="btn-round btn-success" (click)="approveRequest(approval)" title="Approve"><i class="pi pi-check"></i></button>
+                      <button class="btn-round btn-danger" (click)="rejectRequest(approval)" title="Reject"><i class="pi pi-times"></i></button>
+                    </td>
+                  </tr>
+                </tbody>
+              </table>
+            </div>
+
+            <!-- Approval Details Tooltip -->
+            <div class="approval-tooltip" 
+                 *ngIf="hoveredApproval" 
+                 [style.left.px]="approvalTooltipPosition.x" 
+                 [style.top.px]="approvalTooltipPosition.y">
+              <div class="tooltip-header">
+                <h4>{{ hoveredApproval.meetingTitle }}</h4>
+                <span *ngIf="hoveredApproval.isEmergency" class="emergency-indicator"><i class="pi pi-exclamation-triangle"></i> EMERGENCY</span>
+              </div>
+              <div class="tooltip-content">
+                <div class="tooltip-row">
+                  <span class="label">Requested by:</span>
+                  <span>{{ hoveredApproval.requesterName }}</span>
                 </div>
-                <div class="approval-details">
-                  <div class="detail-row">
-                    <span class="icon"><i class="pi pi-user"></i></span>
-                    <span>{{ approval.requesterName }}</span>
-                  </div>
-                  <div class="detail-row">
-                    <span class="icon"><i class="pi pi-calendar"></i></span>
-                    <span>{{ approval.meetingDate }} {{ approval.startTime }}-{{ approval.endTime }}</span>
-                  </div>
-                  <div class="detail-row" *ngIf="approval.suggestedRoom">
-                    <span class="icon"><i class="pi pi-building"></i></span>
-                    <span>Suggested: {{ approval.suggestedRoom }}</span>
-                  </div>
+                <div class="tooltip-row">
+                  <span class="label">Date:</span>
+                  <span>{{ formatDate(hoveredApproval.meetingDate) }}</span>
                 </div>
-                <div class="approval-actions">
-                  <button class="btn-round btn-success" (click)="approveRequest(approval)"><i class="pi pi-check"></i></button>
-                  <button *ngIf="approval.isEmergency" class="btn-round btn-secondary" (click)="suggestAlternative(approval)"><i class="pi pi-bookmark"></i></button>
-                  <button class="btn-round btn-danger" (click)="rejectRequest(approval)"><i class="pi pi-times"></i></button>
+                <div class="tooltip-row">
+                  <span class="label">Time:</span>
+                  <span>{{ formatTimeRange(hoveredApproval.startTime, hoveredApproval.endTime) }}</span>
+                </div>
+                <div class="tooltip-row">
+                  <span class="label">Status:</span>
+                  <span class="status-text">{{ hoveredApproval.status | titlecase }}</span>
+                </div>
+                <div class="tooltip-row">
+                  <span class="label">Requested:</span>
+                  <span>{{ hoveredApproval.requestedTime }}</span>
+                </div>
+                <div class="tooltip-row" *ngIf="hoveredApproval.suggestedRoom">
+                  <span class="label">Suggested Room:</span>
+                  <span>{{ hoveredApproval.suggestedRoom }}</span>
+                </div>
+                <div class="tooltip-row" *ngIf="hoveredApproval.isEmergency">
+                  <span class="label">Priority:</span>
+                  <span class="emergency-text">Emergency Request</span>
                 </div>
               </div>
             </div>
@@ -114,14 +165,66 @@ interface ApprovalItem {
               <p class="empty-desc">Your schedule is clear for today.</p>
             </div>
             
-            <div *ngIf="todaysMeetings.length > 0" class="meeting-list">
-              <div *ngFor="let meeting of todaysMeetings" class="meeting-item">
-                <div class="meeting-time">{{ formatTime(meeting.startTime) }}</div>
-                <div class="meeting-details">
-                  <div class="meeting-title">{{ meeting.title }}</div>
-                  <div class="meeting-room">{{ meeting.roomName }}</div>
-                </div>
-              </div>
+            <div *ngIf="todaysMeetings.length > 0" class="meetings-table">
+              <table>
+                <thead>
+                  <tr>
+                    <th>Title</th>
+                    <th>Time</th>
+                    <th>Location</th>
+                    <th>Status</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  <tr *ngFor="let meeting of todaysMeetings" 
+                      class="meeting-row"
+                      (mouseenter)="showMeetingTooltip($event, meeting)"
+                      (mouseleave)="hideMeetingTooltip()">
+                    <td class="meeting-title">{{ meeting.title }}</td>
+                    <td class="meeting-time">{{ formatTime(meeting.startTime) }} - {{ formatTime(meeting.endTime) }}</td>
+                    <td class="meeting-location">{{ meeting.roomName }}</td>
+                    <td><span class="status-badge" [ngClass]="getStatusClass(meeting.status)">{{ meeting.status }}</span></td>
+                  </tr>
+                </tbody>
+              </table>
+            </div>
+          </div>
+        </div>
+
+        <!-- Meeting Details Tooltip -->
+        <div class="meeting-tooltip" 
+             *ngIf="hoveredMeeting" 
+             [style.left.px]="tooltipPosition.x" 
+             [style.top.px]="tooltipPosition.y">
+          <div class="tooltip-header">
+            <h4>{{ hoveredMeeting.title }}</h4>
+          </div>
+          <div class="tooltip-content">
+            <div class="tooltip-row">
+              <span class="label">Time:</span>
+              <span>{{ formatTime(hoveredMeeting.startTime) }} - {{ formatTime(hoveredMeeting.endTime) }}</span>
+            </div>
+            <div class="tooltip-row">
+              <span class="label">Location:</span>
+              <span>{{ hoveredMeeting.roomName }}</span>
+            </div>
+            <div class="tooltip-row">
+              <span class="label">Organizer:</span>
+              <span>{{ hoveredMeeting.organizerName || 'N/A' }}</span>
+            </div>
+            <div class="tooltip-row" *ngIf="hoveredMeeting.attendees">
+              <span class="label">Attendees:</span>
+              <span>{{ formatAttendees(hoveredMeeting.attendees) }}</span>
+            </div>
+            <div class="tooltip-row" *ngIf="hoveredMeeting.description">
+              <span class="label">Description:</span>
+              <span>{{ hoveredMeeting.description }}</span>
+            </div>
+            <div class="tooltip-row" *ngIf="hoveredMeeting.teamsJoinUrl">
+              <span class="label">Teams:</span>
+              <a [href]="hoveredMeeting.teamsJoinUrl" target="_blank" class="teams-link">
+                <i class="pi pi-microsoft"></i> Join Meeting
+              </a>
             </div>
           </div>
         </div>
@@ -153,7 +256,7 @@ interface ApprovalItem {
 
     .stats-grid {
       display: grid;
-      grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+      grid-template-columns: repeat(4, 1fr);
       gap: 1.5rem;
       margin-bottom: 2rem;
     }
@@ -179,7 +282,7 @@ interface ApprovalItem {
       left: 0;
       right: 0;
       height: 4px;
-      background: linear-gradient(135deg, var(--primary), var(--secondary));
+      background: var(--primary);
     }
 
     .stat-card:hover {
@@ -187,22 +290,43 @@ interface ApprovalItem {
       transform: translateY(-4px);
     }
 
-    .stat-card.urgent {
-      border-color: var(--secondary);
-      background: linear-gradient(135deg, rgba(46, 216, 182, 0.1) 0%, var(--surface) 100%);
-    }
-
     .stat-card.urgent::before {
-      background: linear-gradient(135deg, var(--secondary), #00d4aa);
+      background: #f59e0b;
     }
 
     .stat-card.urgent .stat-icon {
-      background: linear-gradient(135deg, var(--secondary), #00d4aa);
+      background: #f59e0b;
+    }
+
+    .stat-card.teams::before {
+      background: #5865f2;
+    }
+
+    .stat-card.teams .stat-icon {
+      background: #5865f2;
+    }
+
+    .stat-card.book-meeting {
+      cursor: pointer;
+    }
+
+    .stat-card.book-meeting::before {
+      background: var(--primary);
+    }
+
+    .stat-card.book-meeting .stat-icon {
+      background: var(--primary);
+    }
+
+    .stat-sublabel {
+      font-size: 0.75rem;
+      color: var(--text-light);
+      margin-top: 0.25rem;
     }
 
     .stat-icon {
       font-size: 2rem;
-      background: linear-gradient(135deg, var(--primary), var(--secondary));
+      background: var(--primary);
       color: white;
       padding: 0.75rem;
       border-radius: var(--border-radius-lg);
@@ -281,147 +405,283 @@ interface ApprovalItem {
       margin-top: 0.5rem;
     }
 
-    .approval-list {
-      display: flex;
-      flex-direction: column;
-      gap: 1rem;
+    .approvals-table {
+      overflow-x: auto;
     }
 
-    .approval-item {
-      border: 1px solid var(--border);
-      border-radius: var(--border-radius);
-      padding: 1rem;
+    .approvals-table table {
+      width: 100%;
+      border-collapse: collapse;
+    }
+
+    .approvals-table th {
       background: var(--background);
-      transition: all 0.3s ease;
-      position: relative;
+      padding: 1rem 0.75rem;
+      text-align: left;
+      font-weight: 600;
+      color: var(--text);
+      border-bottom: 2px solid var(--border);
+      font-size: 0.875rem;
     }
 
-    .approval-item.emergency {
-      border-color: var(--error);
-      background: linear-gradient(135deg, var(--error-bg) 0%, var(--background) 100%);
+    .approvals-table th:last-child {
+      text-align: center;
+    }
+
+    .approvals-table td {
+      padding: 1rem 0.75rem;
+      border-bottom: 1px solid var(--border);
+      font-size: 0.875rem;
+      vertical-align: middle;
+    }
+
+    .approval-row {
+      transition: all 0.2s ease;
+      cursor: pointer;
+    }
+
+    .approval-row:hover {
+      background: var(--background);
+    }
+
+    .approval-row.emergency {
       border-left: 4px solid var(--error);
     }
 
-    .approval-header {
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      margin-bottom: 0.75rem;
-    }
-
-    .approval-title {
+    .meeting-title {
       font-weight: 600;
       color: var(--text);
+      max-width: 200px;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      white-space: nowrap;
     }
 
     .emergency-badge {
       background: var(--error);
       color: white;
-      padding: 0.25rem 0.5rem;
+      padding: 0.2rem 0.4rem;
       border-radius: 4px;
-      font-size: 0.75rem;
+      font-size: 0.7rem;
+      margin-right: 0.5rem;
+      display: inline-flex;
+      align-items: center;
+      gap: 0.2rem;
+    }
+
+    .requester-name {
+      color: var(--text-light);
+    }
+
+    .meeting-datetime {
+      font-weight: 500;
+      color: var(--text);
+      white-space: nowrap;
+      font-size: 0.85rem;
+    }
+
+    .approval-tooltip {
+      position: fixed;
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      box-shadow: 0 8px 24px rgba(0,0,0,0.15);
+      padding: 1rem;
+      z-index: 1000;
+      max-width: 300px;
+      pointer-events: none;
+    }
+
+    .approval-tooltip .tooltip-header {
+      margin-bottom: 0.75rem;
+    }
+
+    .approval-tooltip .tooltip-header h4 {
+      margin: 0 0 0.25rem 0;
+      color: var(--text);
+      font-size: 1rem;
+    }
+
+    .emergency-indicator {
+      background: var(--error);
+      color: white;
+      padding: 0.2rem 0.4rem;
+      border-radius: 4px;
+      font-size: 0.7rem;
+      display: inline-flex;
+      align-items: center;
+      gap: 0.2rem;
+    }
+
+    .approval-tooltip .tooltip-row {
+      display: flex;
+      margin-bottom: 0.5rem;
+      font-size: 0.875rem;
+    }
+
+    .approval-tooltip .tooltip-row .label {
+      font-weight: 600;
+      color: var(--text);
+      min-width: 80px;
       margin-right: 0.5rem;
     }
 
-    .approval-time {
-      font-size: 0.75rem;
+    .approval-tooltip .tooltip-row span:last-child {
       color: var(--text-light);
     }
 
-    .approval-details {
-      margin-bottom: 1rem;
+    .status-text {
+      font-weight: 500;
+      color: var(--warning);
     }
 
-    .detail-row {
-      display: flex;
-      align-items: center;
-      gap: 0.5rem;
-      margin-bottom: 0.25rem;
-      font-size: 0.875rem;
-      color: var(--text-light);
+    .emergency-text {
+      font-weight: 600;
+      color: var(--error);
     }
 
     .approval-actions {
       display: flex;
       gap: 0.5rem;
+      justify-content: center;
+      align-items: center;
     }
 
-    .btn-approve, .btn-suggest, .btn-reject {
-      padding: 0.5rem 1rem;
+    .btn-round {
+      width: 36px;
+      height: 36px;
       border: none;
-      border-radius: 6px;
-      font-size: 0.75rem;
-      font-weight: 500;
+      border-radius: 50%;
       cursor: pointer;
-      transition: all 0.2s;
+      transition: all 0.2s ease;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      margin: 0 0.25rem;
+      font-size: 1rem;
+      box-shadow: 0 2px 4px rgba(0,0,0,0.1);
     }
 
-    .btn-approve {
+    .btn-success {
       background: var(--success, #10b981);
       color: white;
     }
 
-    .btn-suggest {
-      background: var(--warning, #f59e0b);
-      color: white;
+    .btn-success:hover {
+      background: #059669;
+      transform: scale(1.1);
     }
 
-    .btn-reject {
+    .btn-danger {
       background: var(--error, #ef4444);
       color: white;
     }
 
-    .btn-approve:hover {
-      background: #059669;
-    }
-
-    .btn-suggest:hover {
-      background: #d97706;
-    }
-
-    .btn-reject:hover {
+    .btn-danger:hover {
       background: #dc2626;
+      transform: scale(1.1);
     }
 
-    .meeting-list {
-      display: flex;
-      flex-direction: column;
-      gap: 0.75rem;
+    .meetings-table {
+      overflow-x: auto;
     }
 
-    .meeting-item {
-      display: flex;
-      align-items: center;
-      gap: 1rem;
-      padding: 0.75rem;
-      border-radius: var(--border-radius);
-      border: 1px solid var(--border);
+    .meetings-table table {
+      width: 100%;
+      border-collapse: collapse;
+    }
+
+    .meetings-table th {
       background: var(--background);
-      transition: all 0.3s ease;
-      border-left: 4px solid var(--success);
-    }
-
-    .meeting-item:hover {
-      background: var(--surface);
-      transform: translateX(5px);
-    }
-
-    .meeting-time {
+      padding: 0.75rem;
+      text-align: left;
       font-weight: 600;
-      color: var(--primary);
+      color: var(--text);
+      border-bottom: 2px solid var(--border);
       font-size: 0.875rem;
-      min-width: 60px;
+    }
+
+    .meetings-table td {
+      padding: 0.75rem;
+      border-bottom: 1px solid var(--border);
+      font-size: 0.875rem;
+    }
+
+    .meeting-row {
+      transition: all 0.2s ease;
+      cursor: pointer;
+    }
+
+    .meeting-row:hover {
+      background: var(--background);
     }
 
     .meeting-title {
       font-weight: 500;
       color: var(--text);
-      margin-bottom: 0.25rem;
     }
 
-    .meeting-room {
-      font-size: 0.875rem;
+    .meeting-time {
+      color: var(--primary);
+      font-weight: 500;
+    }
+
+    .meeting-location {
       color: var(--text-light);
+    }
+
+    .meeting-tooltip {
+      position: fixed;
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      box-shadow: 0 8px 24px rgba(0,0,0,0.15);
+      padding: 1rem;
+      z-index: 1000;
+      max-width: 300px;
+      pointer-events: none;
+    }
+
+    .tooltip-header h4 {
+      margin: 0 0 0.75rem 0;
+      color: var(--text);
+      font-size: 1rem;
+    }
+
+    .tooltip-row {
+      display: flex;
+      margin-bottom: 0.5rem;
+      font-size: 0.875rem;
+    }
+
+    .tooltip-row .label {
+      font-weight: 600;
+      color: var(--text);
+      min-width: 80px;
+      margin-right: 0.5rem;
+    }
+
+    .tooltip-row span:last-child {
+      color: var(--text-light);
+    }
+
+    .teams-link {
+      color: #5865f2;
+      text-decoration: none;
+      display: flex;
+      align-items: center;
+      gap: 0.25rem;
+    }
+
+    .teams-link:hover {
+      text-decoration: underline;
+    }
+
+    .username-gradient {
+      background: linear-gradient(135deg, #3b82f6, #1d4ed8);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
     }
 
     @media (max-width: 768px) {
@@ -446,6 +706,10 @@ export class ManagerHome implements OnInit {
   teamMeetings = 0;
   approvalItems: ApprovalItem[] = [];
   todaysMeetings: any[] = [];
+  hoveredMeeting: any = null;
+  tooltipPosition = { x: 0, y: 0 };
+  hoveredApproval: ApprovalItem | null = null;
+  approvalTooltipPosition = { x: 0, y: 0 };
 
   constructor(
     private authService: AuthService,
@@ -468,14 +732,14 @@ export class ManagerHome implements OnInit {
         next: (approvals) => {
           this.approvalItems = approvals.map((approval: any) => ({
             id: approval.approvalId || approval.id || '',
-            meetingTitle: approval.meetingTitle || approval.title || 'Meeting',
-            requesterName: approval.requesterName || approval.requester || 'Unknown',
-            meetingDate: approval.meetingDate || new Date().toISOString().split('T')[0],
+            meetingTitle: approval.meetingTitle || approval.title || approval.bookingTitle || 'Untitled Meeting',
+            requesterName: approval.requesterName || approval.requester || approval.organizerName || 'Unknown',
+            meetingDate: approval.meetingDate || approval.date || new Date().toISOString().split('T')[0],
             startTime: approval.startTime || '00:00',
             endTime: approval.endTime || '00:00',
-            requestedTime: approval.requestedTime || 'Recently',
-            isEmergency: approval.isEmergency || false,
-            suggestedRoom: approval.suggestedRoom,
+            requestedTime: approval.requestedTime || approval.createdAt || 'Recently',
+            isEmergency: approval.isEmergency || approval.priority === 'high' || false,
+            suggestedRoom: approval.suggestedRoom || approval.roomName,
             status: approval.status || 'pending'
           }));
           this.pendingApprovals = this.approvalItems.length;
@@ -577,5 +841,99 @@ export class ManagerHome implements OnInit {
       minute: '2-digit',
       hour12: true
     });
+  }
+
+  showMeetingTooltip(event: MouseEvent, meeting: any): void {
+    this.hoveredMeeting = meeting;
+    this.tooltipPosition = {
+      x: event.clientX + 10,
+      y: event.clientY - 10
+    };
+  }
+
+  hideMeetingTooltip(): void {
+    this.hoveredMeeting = null;
+  }
+
+  getStatusClass(status: string): string {
+    switch (status?.toLowerCase()) {
+      case 'approved': return 'approved';
+      case 'scheduled': return 'approved';
+      case 'pending': return 'pending';
+      case 'rejected': return 'rejected';
+      default: return 'pending';
+    }
+  }
+
+  formatAttendees(attendees: any): string {
+    if (!attendees) return 'None';
+    if (typeof attendees === 'string') return attendees;
+    if (Array.isArray(attendees)) {
+      return attendees.map(a => typeof a === 'object' ? a.name || a.email || a.userName : a).join(', ');
+    }
+    if (typeof attendees === 'object') {
+      return attendees.name || attendees.email || attendees.userName || 'Unknown';
+    }
+    return String(attendees);
+  }
+
+  formatDate(dateString: string): string {
+    return new Date(dateString).toLocaleDateString('en-US', {
+      month: 'short',
+      day: 'numeric'
+    });
+  }
+
+  formatTimeRange(startTime: string, endTime: string): string {
+    // Handle both time-only format (HH:mm) and full datetime format
+    let startDate, endDate;
+    
+    if (startTime.includes('T') || startTime.includes(' ')) {
+      startDate = new Date(startTime);
+      endDate = new Date(endTime);
+    } else {
+      startDate = new Date(`2000-01-01T${startTime}`);
+      endDate = new Date(`2000-01-01T${endTime}`);
+    }
+    
+    const start = startDate.toLocaleTimeString('en-US', {
+      hour: 'numeric',
+      minute: '2-digit',
+      hour12: true
+    });
+    const end = endDate.toLocaleTimeString('en-US', {
+      hour: 'numeric',
+      minute: '2-digit',
+      hour12: true
+    });
+    return `${start} – ${end}`;
+  }
+
+  formatFullDateTime(dateString: string, startTime: string, endTime: string): string {
+    // Use startTime for date if it contains full datetime, otherwise use dateString
+    let dateToUse = dateString;
+    if (startTime.includes('T') || startTime.includes(' ')) {
+      dateToUse = startTime;
+    }
+    
+    const date = new Date(dateToUse).toLocaleDateString('en-US', {
+      month: 'short',
+      day: 'numeric',
+      year: 'numeric'
+    });
+    const timeRange = this.formatTimeRange(startTime, endTime);
+    return `${date} | ${timeRange}`;
+  }
+
+  showApprovalTooltip(event: MouseEvent, approval: ApprovalItem): void {
+    this.hoveredApproval = approval;
+    this.approvalTooltipPosition = {
+      x: event.clientX + 10,
+      y: event.clientY - 10
+    };
+  }
+
+  hideApprovalTooltip(): void {
+    this.hoveredApproval = null;
   }
 }

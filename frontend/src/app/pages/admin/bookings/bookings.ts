@@ -67,7 +67,7 @@ import { AdminService, MeetingRoom } from '../../../services/admin.service';
     
     .bento-grid {
       display: grid;
-      grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+      grid-template-columns: 1fr;
       gap: 1rem;
       margin-top: 1rem;
     }
@@ -176,8 +176,50 @@ import { AdminService, MeetingRoom } from '../../../services/admin.service';
     .empty-icon { font-size: 3rem; margin-bottom: 1rem; }
     
     @media (max-width: 768px) {
-      .room-card.medium, .room-card.large {
+      .room-card {
+        padding: 1rem;
+        min-height: 140px;
         grid-column: span 1;
+      }
+
+      .room-header {
+        flex-direction: column;
+        align-items: center;
+        text-align: center;
+        margin-bottom: 0.75rem;
+      }
+
+      .room-header h3 {
+        font-size: 1.1rem;
+        font-weight: 700;
+        margin-bottom: 0.5rem;
+      }
+
+      .capacity {
+        font-size: 0.8rem;
+      }
+
+      .room-amenities {
+        justify-content: center;
+        margin-bottom: 0.75rem;
+      }
+
+      .amenity-tag {
+        font-size: 0.7rem;
+        padding: 0.2rem 0.4rem;
+      }
+
+      .status-indicator {
+        padding: 0.2rem 0.5rem;
+        font-size: 0.7rem;
+      }
+
+      .status-indicator.available {
+        background: #10b981;
+      }
+
+      .status-indicator.unavailable {
+        background: #ef4444;
       }
     }
   `]

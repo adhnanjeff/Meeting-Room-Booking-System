@@ -15,5 +15,7 @@ namespace MeetingRoom.Core.DTOs
         public bool IsEmergency { get; set; }
         public DateTime CreatedAt { get; set; }
         public List<AttendeeResponseDTO> Attendees { get; set; } = new();
+        public string? TeamsEventId { get; set; }
+        public string? TeamsJoinUrl { get; set; }
     }
 }

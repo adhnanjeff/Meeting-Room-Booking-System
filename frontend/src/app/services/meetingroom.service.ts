@@ -8,6 +8,7 @@ export interface MeetingRoom {
   capacity: number;
   amenities: string;
   isAvailable: boolean;
+  totalBookings?: number;
 }
 
 @Injectable({

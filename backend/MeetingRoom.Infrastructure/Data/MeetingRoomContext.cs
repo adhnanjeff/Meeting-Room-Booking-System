@@ -18,6 +18,7 @@ public partial class MeetingRoomContext : IdentityDbContext<AppUser, IdentityRol
     public virtual DbSet<Booking> Bookings { get; set; }
     public virtual DbSet<MeetingRoomEntity> MeetingRooms { get; set; }
     public virtual DbSet<BookingApproval> BookingApprovals { get; set; }
+    public virtual DbSet<Notification> Notifications { get; set; }
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
@@ -27,6 +28,7 @@ public partial class MeetingRoomContext : IdentityDbContext<AppUser, IdentityRol
         modelBuilder.Entity<Booking>().ToTable("Bookings");
         modelBuilder.Entity<Attendee>().ToTable("Attendees");
         modelBuilder.Entity<MeetingRoomEntity>().ToTable("MeetingRooms");
+        modelBuilder.Entity<Notification>().ToTable("Notifications");
 
         // Configure Booking entity
         modelBuilder.Entity<Booking>(entity =>
@@ -116,6 +118,22 @@ public partial class MeetingRoomContext : IdentityDbContext<AppUser, IdentityRol
                 .WithMany(e => e.ProcessedApprovals)
                 .HasForeignKey(e => e.ApproverId)
                 .OnDelete(DeleteBehavior.Restrict);
+        });
+
+        // Configure Notification entity
+        modelBuilder.Entity<Notification>(entity =>
+        {
+            entity.HasKey(e => e.NotificationId);
+            entity.Property(e => e.Title).HasMaxLength(200);
+            entity.Property(e => e.Message).HasMaxLength(500);
+            entity.Property(e => e.FromUser).HasMaxLength(100);
+            entity.Property(e => e.CreatedAt).HasDefaultValueSql("(getutcdate())");
+            entity.Property(e => e.IsRead).HasDefaultValue(false);
+
+            entity.HasOne(e => e.User)
+                .WithMany()
+                .HasForeignKey(e => e.UserId)
+                .OnDelete(DeleteBehavior.Cascade);
         });
 
         // Seed admin user

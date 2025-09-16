@@ -37,13 +37,10 @@ interface CalendarDay {
           <h2>{{ currentMonthYear }}</h2>
           <button class="nav-btn" (click)="nextMonth()">›</button>
         </div>
-        <div class="view-toggle">
-          <button class="toggle-btn" [class.active]="viewMode === 'month'" (click)="viewMode = 'month'">Month</button>
-          <button class="toggle-btn" [class.active]="viewMode === 'week'" (click)="viewMode = 'week'">Week</button>
-        </div>
+
       </div>
 
-      <div class="calendar-grid" *ngIf="viewMode === 'month'">
+      <div class="calendar-grid">
         <div class="day-header" *ngFor="let day of weekDays">{{ day }}</div>
         <div *ngFor="let day of calendarDays" 
              class="calendar-day" 
@@ -73,21 +70,7 @@ interface CalendarDay {
         </div>
       </div>
 
-      <div class="week-view" *ngIf="viewMode === 'week'">
-        <div class="time-column">
-          <div class="time-slot" *ngFor="let hour of timeSlots">{{ hour }}</div>
-        </div>
-        <div class="week-days">
-          <div *ngFor="let day of weekDays" class="week-day-column">
-            <div class="week-day-header">{{ day }}</div>
-            <div class="time-slots">
-              <div *ngFor="let hour of timeSlots" class="time-slot-cell">
-                <!-- Meeting blocks would go here -->
-              </div>
-            </div>
-          </div>
-        </div>
-      </div>
+
 
       <!-- Day View Modal -->
       <div class="modal-overlay" *ngIf="showDayView" (click)="closeDayView()">
@@ -224,30 +207,7 @@ interface CalendarDay {
       color: var(--text);
     }
 
-    .view-toggle {
-      display: flex;
-      gap: 0.5rem;
-    }
 
-    .toggle-btn {
-      padding: 0.5rem 1rem;
-      border: 1px solid var(--border);
-      background: var(--background);
-      border-radius: 6px;
-      cursor: pointer;
-      color: var(--text);
-      transition: all 0.2s ease;
-    }
-
-    .toggle-btn:hover {
-      background: var(--surface);
-    }
-
-    .toggle-btn.active {
-      background: var(--primary);
-      color: white;
-      border-color: var(--primary);
-    }
 
     .calendar-grid {
       display: grid;
@@ -274,7 +234,7 @@ interface CalendarDay {
 
     .calendar-day {
       background: var(--surface);
-      min-height: 120px;
+      min-height: 90px;
       padding: 0.5rem;
       cursor: pointer;
       transition: background-color 0.2s;
@@ -354,62 +314,7 @@ interface CalendarDay {
       margin-top: 2px;
     }
 
-    .week-view {
-      display: flex;
-      border: 1px solid var(--border);
-      border-radius: 8px;
-      overflow: hidden;
-    }
 
-    .time-column {
-      width: 80px;
-      background: var(--background);
-      border-right: 1px solid var(--border);
-    }
-
-    .time-slot {
-      height: 60px;
-      padding: 0.5rem;
-      border-bottom: 1px solid var(--border);
-      font-size: 0.75rem;
-      color: var(--text-light);
-      display: flex;
-      align-items: center;
-    }
-
-    .week-days {
-      display: flex;
-      flex: 1;
-    }
-
-    .week-day-column {
-      flex: 1;
-      border-right: 1px solid var(--border);
-    }
-
-    .week-day-column:last-child {
-      border-right: none;
-    }
-
-    .week-day-header {
-      padding: 1rem;
-      text-align: center;
-      font-weight: 600;
-      background: var(--background);
-      border-bottom: 1px solid var(--border);
-      color: var(--text);
-    }
-
-    .time-slots {
-      display: flex;
-      flex-direction: column;
-    }
-
-    .time-slot-cell {
-      height: 60px;
-      border-bottom: 1px solid var(--border);
-      background: var(--surface);
-    }
 
     .modal-overlay {
       position: fixed;
@@ -587,7 +492,7 @@ interface CalendarDay {
     .time-slot-row {
       display: flex;
       background: var(--surface);
-      min-height: 60px;
+      min-height: 40px;
     }
 
     .time-label {
@@ -760,7 +665,7 @@ interface CalendarDay {
 export class CalendarComponent implements OnInit {
   currentDate = new Date();
   currentMonthYear = '';
-  viewMode: 'month' | 'week' = 'month';
+
   weekDays = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
   timeSlots = Array.from({length: 24}, (_, i) => `${i.toString().padStart(2, '0')}:00`);
   calendarDays: CalendarDay[] = [];

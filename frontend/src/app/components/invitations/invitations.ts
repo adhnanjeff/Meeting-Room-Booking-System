@@ -4,6 +4,7 @@ import { AuthService, User } from '../../services/auth.service';
 import { ToastService } from '../../services/toast.service';
 import { InvitationService, InvitationResponse } from '../../services/invitation.service';
 import { BookingService } from '../../services/booking.service';
+import { LoaderService } from '../../services/loader.service';
 
 interface Invitation {
   attendeeId: number;
@@ -64,18 +65,15 @@ interface Invitation {
       </div>
 
       <div class="invitations-container">
-        <div *ngIf="isLoading" class="loading">
-          <div class="loading-spinner"></div>
-          <p>Loading invitations...</p>
-        </div>
 
-        <div *ngIf="!isLoading && filteredInvitations.length === 0" class="empty-state">
+
+        <div *ngIf="filteredInvitations.length === 0" class="empty-state">
           <div class="empty-icon">📭</div>
           <h3>No invitations found</h3>
           <p>You don't have any invitations matching the current filter.</p>
         </div>
 
-        <div class="invitations-grid" *ngIf="!isLoading && filteredInvitations.length > 0">
+        <div class="invitations-grid" *ngIf="filteredInvitations.length > 0">
           <div *ngFor="let invitation of filteredInvitations" class="invitation-card">
             <div class="invitation-header">
               <h3>{{ invitation.title }}</h3>
@@ -206,8 +204,20 @@ interface Invitation {
 
     .invitations-grid {
       display: grid;
-      grid-template-columns: repeat(3, 1fr);
+      grid-template-columns: repeat(auto-fit, minmax(350px, 1fr));
       gap: 1.5rem;
+    }
+
+    @media (min-width: 1200px) {
+      .invitations-grid {
+        grid-template-columns: repeat(3, 1fr);
+      }
+    }
+
+    @media (max-width: 1199px) and (min-width: 768px) {
+      .invitations-grid {
+        grid-template-columns: repeat(2, 1fr);
+      }
     }
 
     .invitation-card {
@@ -312,14 +322,95 @@ interface Invitation {
     }
 
     @media (max-width: 768px) {
-      .invitations-grid {
-        grid-template-columns: 1fr;
+      .container {
+        padding: 1rem;
       }
-    }
 
-    @media (max-width: 1024px) {
-      .invitations-grid {
-        grid-template-columns: repeat(2, 1fr);
+      .filter-buttons {
+        flex-wrap: wrap;
+      }
+
+      .invitation-card {
+        padding: 1rem;
+        min-height: 140px;
+      }
+
+      .invitation-header {
+        flex-direction: row;
+        justify-content: space-between;
+        align-items: flex-start;
+        margin-bottom: 0.75rem;
+      }
+
+      .invitation-header h3 {
+        font-size: 1.1rem;
+        font-weight: 700;
+        text-align: center;
+        flex: 1;
+        margin-right: 0.5rem;
+      }
+
+      .invitation-details {
+        display: flex;
+        flex-direction: column;
+        gap: 0.5rem;
+        margin-bottom: 1rem;
+      }
+
+      .detail-item {
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+        font-size: 0.8rem;
+      }
+
+      .invitation-actions {
+        display: flex;
+        justify-content: center;
+        gap: 0.5rem;
+      }
+
+      .btn-round {
+        width: 32px;
+        height: 32px;
+        border-radius: 50%;
+        border: none;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 0.9rem;
+        cursor: pointer;
+        transition: all 0.2s ease;
+      }
+
+      .btn-success {
+        background: var(--success);
+        color: white;
+      }
+
+      .btn-danger {
+        background: var(--error);
+        color: white;
+      }
+
+      .status-badge {
+        padding: 0.2rem 0.5rem;
+        font-size: 0.7rem;
+      }
+
+      .status-pending {
+        background: #fbbf24;
+        color: white;
+      }
+
+      .status-accepted {
+        background: #10b981;
+        color: white;
+      }
+
+      .status-declined {
+        background: #ef4444;
+        color: white;
       }
     }
   `]
@@ -335,11 +426,13 @@ export class Invitations implements OnInit {
     private authService: AuthService,
     private toastService: ToastService,
     private invitationService: InvitationService,
-    private bookingService: BookingService
+    private bookingService: BookingService,
+    private loaderService: LoaderService
   ) {}
 
   ngOnInit(): void {
     this.currentUser = this.authService.getCurrentUser();
+    this.loaderService.show('Loading invitations...');
     this.loadFilteredInvitations();
   }
 
@@ -348,12 +441,12 @@ export class Invitations implements OnInit {
       this.invitationService.getUserInvitations(this.currentUser.id).subscribe({
         next: (invitations) => {
           this.processInvitations(invitations);
-          this.isLoading = false;
+          this.loaderService.hide();
         },
         error: (error) => {
           console.error('Error loading invitations:', error);
           this.invitations = [];
-          this.isLoading = false;
+          this.loaderService.hide();
         }
       });
     }
@@ -389,19 +482,19 @@ export class Invitations implements OnInit {
   loadFilteredInvitations(): void {
     if (!this.currentUser) return;
     
-    this.isLoading = true;
+    this.loaderService.show('Loading invitations...');
     
     if (this.activeFilter === 'all') {
       this.invitationService.getUserInvitations(this.currentUser.id).subscribe({
         next: (invitations) => {
           this.processInvitations(invitations);
-          this.isLoading = false;
+          this.loaderService.hide();
         },
         error: (error) => {
           console.error('Error loading invitations:', error);
           this.invitations = [];
           this.filteredInvitations = [];
-          this.isLoading = false;
+          this.loaderService.hide();
         }
       });
     } else {
@@ -414,13 +507,13 @@ export class Invitations implements OnInit {
       this.invitationService.getInvitationsByStatus(this.currentUser.id, statusMap[this.activeFilter]).subscribe({
         next: (invitations) => {
           this.processInvitations(invitations);
-          this.isLoading = false;
+          this.loaderService.hide();
         },
         error: (error) => {
           console.error('Error loading filtered invitations:', error);
           this.invitations = [];
           this.filteredInvitations = [];
-          this.isLoading = false;
+          this.loaderService.hide();
         }
       });
     }

@@ -1,14 +1,18 @@
-import { Component } from '@angular/core';
+import { Component, OnInit, OnDestroy } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { RouterOutlet, RouterLink, RouterLinkActive } from '@angular/router';
 import { AuthService, User } from '../../../services/auth.service';
+import { NotificationService } from '../../../services/notification.service';
+import { LoaderService } from '../../../services/loader.service';
 import { ThemeToggle } from '../../../components/theme-toggle';
 import { ToastComponent } from '../../../components/toast/toast.component';
+import { LoaderComponent } from '../../../components/loader/loader.component';
+import { interval, Subscription } from 'rxjs';
 
 @Component({
   selector: 'app-employee-layout',
   standalone: true,
-  imports: [CommonModule, RouterOutlet, RouterLink, RouterLinkActive, ThemeToggle, ToastComponent],
+  imports: [CommonModule, RouterOutlet, RouterLink, RouterLinkActive, ThemeToggle, ToastComponent, LoaderComponent],
   template: `
     <div class="layout">
       <div class="mobile-header">
@@ -35,39 +39,40 @@ import { ToastComponent } from '../../../components/toast/toast.component';
         </div>
         
         <div class="nav-menu">
-          <a routerLink="home" routerLinkActive="active" class="nav-item">
+          <a routerLink="home" routerLinkActive="active" class="nav-item" (click)="closeSidebarOnMobile()">
             <i class="pi pi-home nav-icon"></i>
             <span>Home</span>
           </a>
-          <a routerLink="book-room" routerLinkActive="active" class="nav-item">
+          <a routerLink="book-room" routerLinkActive="active" class="nav-item" (click)="closeSidebarOnMobile()">
             <i class="pi pi-calendar-plus nav-icon"></i>
             <span>Request Meeting</span>
           </a>
-          <a routerLink="my-bookings" routerLinkActive="active" class="nav-item">
+          <a routerLink="my-bookings" routerLinkActive="active" class="nav-item" (click)="closeSidebarOnMobile()">
             <i class="pi pi-list nav-icon"></i>
             <span>My Bookings</span>
           </a>
-          <a routerLink="my-requests" routerLinkActive="active" class="nav-item">
+          <a routerLink="my-requests" routerLinkActive="active" class="nav-item" (click)="closeSidebarOnMobile()">
             <i class="pi pi-inbox nav-icon"></i>
             <span>My Requests</span>
           </a>
-          <a routerLink="calendar" routerLinkActive="active" class="nav-item">
+          <a routerLink="calendar" routerLinkActive="active" class="nav-item" (click)="closeSidebarOnMobile()">
             <i class="pi pi-calendar nav-icon"></i>
             <span>Calendar</span>
           </a>
-          <a routerLink="invitations" routerLinkActive="active" class="nav-item">
+          <a routerLink="invitations" routerLinkActive="active" class="nav-item" (click)="closeSidebarOnMobile()">
             <i class="pi pi-envelope nav-icon"></i>
             <span>Invitations</span>
           </a>
-          <a routerLink="scheduled-meetings" routerLinkActive="active" class="nav-item">
+          <a routerLink="scheduled-meetings" routerLinkActive="active" class="nav-item" (click)="closeSidebarOnMobile()">
             <i class="pi pi-calendar-times nav-icon"></i>
             <span>Scheduled Meetings</span>
           </a>
-          <a routerLink="notifications" routerLinkActive="active" class="nav-item">
+          <a routerLink="notifications" routerLinkActive="active" class="nav-item" (click)="closeSidebarOnMobile()">
             <i class="pi pi-bell nav-icon"></i>
             <span>Notifications</span>
+            <div class="notification-badge" *ngIf="unreadCount > 0">{{ unreadCount }}</div>
           </a>
-          <a routerLink="profile" routerLinkActive="active" class="nav-item">
+          <a routerLink="profile" routerLinkActive="active" class="nav-item" (click)="closeSidebarOnMobile()">
             <i class="pi pi-user nav-icon"></i>
             <span>Profile</span>
           </a>
@@ -88,6 +93,7 @@ import { ToastComponent } from '../../../components/toast/toast.component';
       <main class="main-content">
         <router-outlet />
         <app-toast></app-toast>
+        <app-loader></app-loader>
       </main>
     </div>
   `,
@@ -318,6 +324,28 @@ import { ToastComponent } from '../../../components/toast/toast.component';
       cursor: pointer;
     }
 
+    .notification-badge {
+      position: absolute;
+      top: 8px;
+      right: 8px;
+      background: var(--error);
+      color: white;
+      border-radius: 50%;
+      width: 18px;
+      height: 18px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 0.7rem;
+      font-weight: 600;
+      animation: pulse-badge 2s infinite;
+    }
+
+    @keyframes pulse-badge {
+      0%, 100% { transform: scale(1); }
+      50% { transform: scale(1.1); }
+    }
+
     @media (max-width: 768px) {
       .mobile-header {
         display: flex;
@@ -344,16 +372,60 @@ import { ToastComponent } from '../../../components/toast/toast.component';
     }
   `]
 })
-export class EmployeeLayout {
+export class EmployeeLayout implements OnInit, OnDestroy {
   currentUser: User | null = null;
   sidebarOpen = false;
+  unreadCount = 0;
+  private pollSubscription?: Subscription;
 
-  constructor(private authService: AuthService) {
+  constructor(
+    private authService: AuthService,
+    private notificationService: NotificationService,
+    private loaderService: LoaderService
+  ) {
     this.currentUser = this.authService.getCurrentUser();
+  }
+
+  ngOnInit(): void {
+    this.loadUnreadCount();
+    // Poll for unread count every 30 seconds
+    this.pollSubscription = interval(30000).subscribe(() => {
+      this.loadUnreadCount();
+    });
+    // Listen for notification read events
+    window.addEventListener('notificationRead', () => {
+      this.loadUnreadCount();
+    });
+  }
+
+  ngOnDestroy(): void {
+    this.pollSubscription?.unsubscribe();
+    window.removeEventListener('notificationRead', () => {
+      this.loadUnreadCount();
+    });
+  }
+
+  loadUnreadCount(): void {
+    if (this.currentUser) {
+      this.notificationService.getUnreadCount(this.currentUser.id).subscribe({
+        next: (count) => {
+          this.unreadCount = count;
+        },
+        error: (error) => {
+          console.error('Error loading unread count:', error);
+        }
+      });
+    }
   }
 
   toggleSidebar(): void {
     this.sidebarOpen = !this.sidebarOpen;
+  }
+
+  closeSidebarOnMobile(): void {
+    if (window.innerWidth <= 768) {
+      this.sidebarOpen = false;
+    }
   }
 
   getUserInitials(): string {
@@ -362,6 +434,7 @@ export class EmployeeLayout {
   }
 
   logout(): void {
+    this.pollSubscription?.unsubscribe();
     this.authService.logout();
   }
 }

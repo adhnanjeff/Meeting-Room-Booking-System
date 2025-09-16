@@ -256,4 +256,16 @@ export class AuthService {
         break;
     }
   }
+
+  forgotPassword(email: string): Observable<any> {
+    return this.http.post(`${this.API_URL}/forgot-password`, { email });
+  }
+
+  resetPassword(email: string, token: string, newPassword: string): Observable<any> {
+    return this.http.post(`${this.API_URL}/reset-password`, { email, token, newPassword });
+  }
+
+  changePassword(currentPassword: string, newPassword: string): Observable<any> {
+    return this.http.post(`${this.API_URL}/change-password`, { currentPassword, newPassword });
+  }
 }

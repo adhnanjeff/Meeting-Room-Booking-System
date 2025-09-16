@@ -3,13 +3,12 @@ import { HttpClient } from '@angular/common/http';
 import { Observable } from 'rxjs';
 
 export interface Notification {
-  id: number;
+  notificationId: number;
   title: string;
   message: string;
-  timestamp: string;
+  createdAt: string;
   fromUser: string;
   isRead: boolean;
-  userId: number;
 }
 
 export interface CreateNotificationDto {
@@ -32,7 +31,11 @@ export class NotificationService {
   }
 
   markAsRead(notificationId: number): Observable<void> {
-    return this.http.put<void>(`${this.API_URL}/${notificationId}/read`, {});
+    return this.http.put<void>(`${this.API_URL}/${notificationId}/mark-read`, {});
+  }
+
+  getUnreadCount(userId: number): Observable<number> {
+    return this.http.get<number>(`${this.API_URL}/user/${userId}/unread-count`);
   }
 
   createNotification(notification: CreateNotificationDto): Observable<Notification> {

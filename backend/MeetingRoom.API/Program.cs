@@ -127,6 +127,7 @@ builder.Services.AddScoped<IAttendeeService, AttendeeService>();
 builder.Services.AddScoped<IAttendeeRepository, AttendeeRepository>();
 
 builder.Services.AddScoped<IApprovalService, ApprovalService>();
+builder.Services.AddScoped<IEmailService, EmailService>();
 
 var app = builder.Build();
 // Configure the HTTP request pipeline.

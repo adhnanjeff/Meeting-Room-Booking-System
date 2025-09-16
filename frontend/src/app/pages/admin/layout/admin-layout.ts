@@ -2,12 +2,14 @@ import { Component } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { RouterOutlet, RouterLink, RouterLinkActive } from '@angular/router';
 import { AuthService, User } from '../../../services/auth.service';
+import { LoaderService } from '../../../services/loader.service';
 import { ThemeToggle } from '../../../components/theme-toggle';
+import { LoaderComponent } from '../../../components/loader/loader.component';
 
 @Component({
   selector: 'app-admin-layout',
   standalone: true,
-  imports: [CommonModule, RouterOutlet, RouterLink, RouterLinkActive, ThemeToggle],
+  imports: [CommonModule, RouterOutlet, RouterLink, RouterLinkActive, ThemeToggle, LoaderComponent],
   template: `
     <div class="layout">
       <div class="mobile-header">
@@ -66,6 +68,7 @@ import { ThemeToggle } from '../../../components/theme-toggle';
       
       <main class="main-content">
         <router-outlet />
+        <app-loader></app-loader>
       </main>
     </div>
   `,
@@ -274,7 +277,10 @@ export class AdminLayout {
   currentUser: User | null = null;
   sidebarOpen = false;
 
-  constructor(private authService: AuthService) {
+  constructor(
+    private authService: AuthService,
+    private loaderService: LoaderService
+  ) {
     this.currentUser = this.authService.getCurrentUser();
   }
 

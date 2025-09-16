@@ -4,6 +4,8 @@ using MeetingRoom.Core.Entities;
 using MeetingRoom.Core.Enums;
 using MeetingRoom.Core.Exceptions;
 using MeetingRoom.Core.Interfaces;
+using System.Text.Json;
+using System.Text;
 
 namespace MeetingRoom.Application.Services
 {
@@ -424,6 +426,66 @@ namespace MeetingRoom.Application.Services
                 booking.UpdatedAt = now;
                 await _bookingRepository.UpdateAsync(booking);
             }
+        }
+
+        public async Task<(string eventId, string joinUrl)> CreateTeamsEventAsync(Booking booking)
+        {
+            try
+            {
+                var organizer = await _userRepository.GetByIdAsync(booking.OrganizerId);
+                var room = await _roomRepository.GetByIdAsync(booking.RoomId);
+                var attendees = new List<string>();
+
+                foreach (var attendee in booking.Attendees)
+                {
+                    var user = await _userRepository.GetByIdAsync(attendee.UserId);
+                    if (user != null && !string.IsNullOrEmpty(user.Email))
+                    {
+                        attendees.Add(user.Email);
+                    }
+                }
+
+                var teamsRequest = new
+                {
+                    Subject = booking.Title,
+                    Body = $"Meeting in {room?.RoomName}. Created via SynerRoom booking system.",
+                    StartDateTime = booking.StartTime.ToString("yyyy-MM-ddTHH:mm:ss.fffZ"),
+                    EndDateTime = booking.EndTime.ToString("yyyy-MM-ddTHH:mm:ss.fffZ"),
+                    TimeZone = "UTC",
+                    Location = room?.RoomName ?? "Meeting Room",
+                    Attendees = attendees,
+                    OrganizerEmail = organizer?.Email ?? "noreply@company.com"
+                };
+
+                using var httpClient = new HttpClient();
+                var json = JsonSerializer.Serialize(teamsRequest);
+                var content = new StringContent(json, Encoding.UTF8, "application/json");
+                
+                var response = await httpClient.PostAsync("https://localhost:7273/api/MicrosoftGraph/create-event", content);
+                
+                if (response.IsSuccessStatusCode)
+                {
+                    var responseContent = await response.Content.ReadAsStringAsync();
+                    var teamsResponse = JsonSerializer.Deserialize<TeamsEventResponse>(responseContent, new JsonSerializerOptions { PropertyNameCaseInsensitive = true });
+                    
+                    return (teamsResponse?.Id ?? "", teamsResponse?.JoinUrl ?? "");
+                }
+                
+                return ("", "");
+            }
+            catch (Exception ex)
+            {
+                // Log error but don't fail the booking
+                Console.WriteLine($"Failed to create Teams event: {ex.Message}");
+                return ("", "");
+            }
+        }
+
+        private class TeamsEventResponse
+        {
+            public string Id { get; set; } = "";
+            public string WebLink { get; set; } = "";
+            public string JoinUrl { get; set; } = "";
         }
     }
 }

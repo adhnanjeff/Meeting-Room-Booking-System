@@ -11,7 +11,7 @@ import { BookingService, BookingResponse } from '../../../services/booking.servi
   template: `
     <div class="container">
       <div class="page-header">
-        <h1>👥 Team Management</h1>
+        <h1><i class="pi pi-users"></i> Team Management</h1>
         <p>Manage your team members and their activities</p>
       </div>
 
@@ -66,7 +66,7 @@ import { BookingService, BookingResponse } from '../../../services/booking.servi
             
             <div class="member-actions">
               <button class="action-btn" (click)="viewMemberBookings(member)">
-                📅 View Bookings
+                <i class="pi pi-calendar"></i> View Bookings
               </button>
             </div>
           </div>
@@ -194,8 +194,20 @@ import { BookingService, BookingResponse } from '../../../services/booking.servi
 
     .team-grid {
       display: grid;
-      grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+      grid-template-columns: repeat(auto-fit, minmax(350px, 1fr));
       gap: 1.5rem;
+    }
+
+    @media (min-width: 1200px) {
+      .team-grid {
+        grid-template-columns: repeat(3, 1fr);
+      }
+    }
+
+    @media (max-width: 1199px) and (min-width: 768px) {
+      .team-grid {
+        grid-template-columns: repeat(2, 1fr);
+      }
     }
 
     .member-card {
@@ -423,13 +435,51 @@ import { BookingService, BookingResponse } from '../../../services/booking.servi
         grid-template-columns: 1fr;
       }
 
-      .team-grid {
-        grid-template-columns: 1fr;
+      .member-card {
+        padding: 1rem;
+        min-height: 140px;
+      }
+
+      .member-header {
+        flex-direction: column;
+        align-items: center;
+        text-align: center;
+        margin-bottom: 0.75rem;
+      }
+
+      .member-info h3 {
+        font-size: 1.1rem;
+        font-weight: 700;
+        margin-top: 0.5rem;
       }
 
       .member-stats {
-        flex-direction: column;
-        gap: 1rem;
+        flex-direction: row;
+        justify-content: space-around;
+        margin-bottom: 1rem;
+        padding: 0.75rem;
+      }
+
+      .stat-item {
+        text-align: center;
+      }
+
+      .stat-value {
+        font-size: 1.2rem;
+      }
+
+      .stat-text {
+        font-size: 0.7rem;
+      }
+
+      .member-actions {
+        display: flex;
+        justify-content: center;
+      }
+
+      .action-btn {
+        padding: 0.5rem 1rem;
+        font-size: 0.8rem;
       }
     }
   `]
@@ -472,11 +522,21 @@ export class Team implements OnInit {
   loadAllBookings(): void {
     this.bookingService.getAllBookings().subscribe({
       next: (bookings: BookingResponse[]) => {
-        this.allBookings = bookings;
+        this.allBookings = this.updateMeetingStatuses(bookings);
       },
       error: (error: any) => {
         console.error('Error loading bookings:', error);
       }
+    });
+  }
+
+  private updateMeetingStatuses(bookings: BookingResponse[]): BookingResponse[] {
+    const now = new Date();
+    return bookings.map(booking => {
+      if (booking.status === 'Scheduled' && new Date(booking.endTime) < now) {
+        return { ...booking, status: 'Completed' as any };
+      }
+      return booking;
     });
   }
 

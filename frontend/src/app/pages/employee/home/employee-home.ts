@@ -3,6 +3,7 @@ import { CommonModule } from '@angular/common';
 import { RouterLink } from '@angular/router';
 import { BookingService, Booking } from '../../../services/booking.service';
 import { AuthService, User } from '../../../services/auth.service';
+import { LoaderService } from '../../../services/loader.service';
 
 @Component({
   selector: 'app-employee-home',
@@ -11,12 +12,12 @@ import { AuthService, User } from '../../../services/auth.service';
   template: `
     <div class="container">
       <div class="page-header">
-        <h1><i class="pi pi-user"></i> Welcome back, {{ currentUser?.userName }}!</h1>
+        <h1><i class="pi pi-user"></i> Welcome back, <span class="username-gradient">{{ currentUser?.userName }}</span>!</h1>
         <p>Here's what's happening with your meetings today</p>
       </div>
 
       <div class="stats-grid">
-        <div class="stat-card">
+        <div class="stat-card red-strip">
           <div class="stat-icon"><i class="pi pi-calendar"></i></div>
           <div class="stat-content">
             <div class="stat-number">{{ upcomingBookings.length }}</div>
@@ -24,7 +25,7 @@ import { AuthService, User } from '../../../services/auth.service';
           </div>
         </div>
         
-        <div class="stat-card">
+        <div class="stat-card yellow-strip">
           <div class="stat-icon"><i class="pi pi-clock"></i></div>
           <div class="stat-content">
             <div class="stat-number">{{ pendingRequests }}</div>
@@ -32,7 +33,7 @@ import { AuthService, User } from '../../../services/auth.service';
           </div>
         </div>
         
-        <div class="stat-card">
+        <div class="stat-card green-strip">
           <div class="stat-icon"><i class="pi pi-building"></i></div>
           <div class="stat-content">
             <div class="stat-number">{{ availableRooms }}</div>
@@ -52,19 +53,66 @@ import { AuthService, User } from '../../../services/auth.service';
               <p>No meetings scheduled for today</p>
             </div>
             
-            <div *ngFor="let booking of todayBookings" class="booking-item">
-              <div class="booking-time">
-                {{ formatTime(booking.startTime) }} - {{ formatTime(booking.endTime) }}
-              </div>
-              <div class="booking-details">
-                <div class="booking-title">{{ booking.title }}</div>
-                <div class="booking-room"><i class="pi pi-building"></i> {{ booking.roomName }}</div>
-              </div>
-              <div class="booking-status">
-                <span class="status-badge" [class]="'status-' + booking.status.toLowerCase()">
-                  {{ booking.status }}
-                </span>
-              </div>
+            <div *ngIf="todayBookings.length > 0" class="meetings-table">
+              <table>
+                <thead>
+                  <tr>
+                    <th>Title</th>
+                    <th>Time</th>
+                    <th>Location</th>
+                    <th>Status</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  <tr *ngFor="let booking of todayBookings" 
+                      class="meeting-row"
+                      (mouseenter)="showMeetingTooltip($event, booking)"
+                      (mouseleave)="hideMeetingTooltip()">
+                    <td class="meeting-title">{{ booking.title }}</td>
+                    <td class="meeting-time">{{ formatTime(booking.startTime) }} - {{ formatTime(booking.endTime) }}</td>
+                    <td class="meeting-location">{{ booking.roomName }}</td>
+                    <td><span class="status-badge" [class]="'status-' + booking.status.toLowerCase()">{{ booking.status }}</span></td>
+                  </tr>
+                </tbody>
+              </table>
+            </div>
+          </div>
+        </div>
+
+        <!-- Meeting Details Tooltip -->
+        <div class="meeting-tooltip" 
+             *ngIf="hoveredMeeting" 
+             [style.left.px]="tooltipPosition.x" 
+             [style.top.px]="tooltipPosition.y">
+          <div class="tooltip-header">
+            <h4>{{ hoveredMeeting.title }}</h4>
+          </div>
+          <div class="tooltip-content">
+            <div class="tooltip-row">
+              <span class="label">Time:</span>
+              <span>{{ formatTime(hoveredMeeting.startTime) }} - {{ formatTime(hoveredMeeting.endTime) }}</span>
+            </div>
+            <div class="tooltip-row">
+              <span class="label">Location:</span>
+              <span>{{ hoveredMeeting.roomName }}</span>
+            </div>
+            <div class="tooltip-row">
+              <span class="label">Organizer:</span>
+              <span>{{ hoveredMeeting.organizerName || currentUser?.userName || 'You' }}</span>
+            </div>
+            <div class="tooltip-row" *ngIf="hoveredMeeting.attendees">
+              <span class="label">Attendees:</span>
+              <span>{{ formatAttendees(hoveredMeeting.attendees) }}</span>
+            </div>
+            <div class="tooltip-row" *ngIf="hoveredMeeting.description">
+              <span class="label">Description:</span>
+              <span>{{ hoveredMeeting.description }}</span>
+            </div>
+            <div class="tooltip-row" *ngIf="hoveredMeeting.teamsJoinUrl">
+              <span class="label">Teams:</span>
+              <a [href]="hoveredMeeting.teamsJoinUrl" target="_blank" class="teams-link">
+                <i class="pi pi-microsoft"></i> Join Meeting
+              </a>
             </div>
           </div>
         </div>
@@ -143,6 +191,47 @@ import { AuthService, User } from '../../../services/auth.service';
       display: flex;
       align-items: center;
       gap: 1rem;
+      position: relative;
+    }
+
+    .stat-card.red-strip::before {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 4px;
+      height: 100%;
+      background: #ef4444;
+      border-radius: 12px 0 0 12px;
+    }
+
+    .stat-card.yellow-strip::before {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 4px;
+      height: 100%;
+      background: #f59e0b;
+      border-radius: 12px 0 0 12px;
+    }
+
+    .stat-card.green-strip::before {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 4px;
+      height: 100%;
+      background: #10b981;
+      border-radius: 12px 0 0 12px;
+    }
+
+    .username-gradient {
+      background: linear-gradient(135deg, var(--primary), #4099ff);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
     }
 
     .stat-icon {
@@ -201,36 +290,122 @@ import { AuthService, User } from '../../../services/auth.service';
       margin-bottom: 1rem;
     }
 
-    .booking-item {
-      display: flex;
-      align-items: center;
-      gap: 1rem;
-      padding: 1rem;
-      border-radius: 8px;
-      border: 1px solid var(--border);
-      margin-bottom: 0.75rem;
+    .meetings-table {
+      overflow-x: auto;
     }
 
-    .booking-time {
-      font-weight: 600;
-      color: var(--primary);
-      font-size: 0.875rem;
-      min-width: 120px;
+    .meetings-table table {
+      width: 100%;
+      border-collapse: collapse;
     }
 
-    .booking-details {
-      flex: 1;
-    }
-
-    .booking-title {
+    .meetings-table th {
+      background: var(--background);
+      padding: 0.75rem;
+      text-align: left;
       font-weight: 600;
       color: var(--text);
-      margin-bottom: 0.25rem;
+      border-bottom: 2px solid var(--border);
+      font-size: 0.875rem;
     }
 
-    .booking-room {
+    .meetings-table td {
+      padding: 0.75rem;
+      border-bottom: 1px solid var(--border);
       font-size: 0.875rem;
+    }
+
+    .meeting-row {
+      transition: all 0.2s ease;
+      cursor: pointer;
+    }
+
+    .meeting-row:hover {
+      background: var(--background);
+    }
+
+    .meeting-title {
+      font-weight: 500;
+      color: var(--text);
+    }
+
+    .meeting-time {
+      color: var(--primary);
+      font-weight: 500;
+    }
+
+    .meeting-location {
       color: var(--text-light);
+    }
+
+    .status-badge {
+      padding: 0.25rem 0.75rem;
+      border-radius: 20px;
+      font-size: 0.75rem;
+      font-weight: 500;
+      text-transform: uppercase;
+    }
+
+    .status-badge.status-pending {
+      background: var(--warning-light, #fef3c7);
+      color: var(--warning-dark, #92400e);
+    }
+
+    .status-badge.status-approved {
+      background: var(--success-light, #d1fae5);
+      color: var(--success-dark, #065f46);
+    }
+
+    .status-badge.status-rejected {
+      background: var(--error-light, #fee2e2);
+      color: var(--error-dark, #991b1b);
+    }
+
+    .meeting-tooltip {
+      position: fixed;
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      box-shadow: 0 8px 24px rgba(0,0,0,0.15);
+      padding: 1rem;
+      z-index: 1000;
+      max-width: 300px;
+      pointer-events: none;
+    }
+
+    .tooltip-header h4 {
+      margin: 0 0 0.75rem 0;
+      color: var(--text);
+      font-size: 1rem;
+    }
+
+    .tooltip-row {
+      display: flex;
+      margin-bottom: 0.5rem;
+      font-size: 0.875rem;
+    }
+
+    .tooltip-row .label {
+      font-weight: 600;
+      color: var(--text);
+      min-width: 80px;
+      margin-right: 0.5rem;
+    }
+
+    .tooltip-row span:last-child {
+      color: var(--text-light);
+    }
+
+    .teams-link {
+      color: #5865f2;
+      text-decoration: none;
+      display: flex;
+      align-items: center;
+      gap: 0.25rem;
+    }
+
+    .teams-link:hover {
+      text-decoration: underline;
     }
 
     .action-buttons {
@@ -306,14 +481,20 @@ export class EmployeeHome implements OnInit {
   todayBookings: Booking[] = [];
   pendingRequests = 0;
   availableRooms = 5;
+  hoveredMeeting: any = null;
+  tooltipPosition = { x: 0, y: 0 };
+  isLoading = false;
+  loadingMessage = '';
 
   constructor(
     private bookingService: BookingService,
-    private authService: AuthService
+    private authService: AuthService,
+    private loaderService: LoaderService
   ) {}
 
   ngOnInit(): void {
     this.currentUser = this.authService.getCurrentUser();
+    this.loaderService.show('Loading your bookings...');
     this.loadBookings();
   }
 
@@ -323,8 +504,12 @@ export class EmployeeHome implements OnInit {
         next: (bookings) => {
           this.allBookings = bookings;
           this.filterBookings();
+          this.loaderService.hide();
         },
-        error: (error) => console.error('Error loading bookings:', error)
+        error: (error) => {
+          console.error('Error loading bookings:', error);
+          this.loaderService.hide();
+        }
       });
     }
   }
@@ -356,4 +541,30 @@ export class EmployeeHome implements OnInit {
       hour12: true
     });
   }
+
+  showMeetingTooltip(event: MouseEvent, meeting: any): void {
+    this.hoveredMeeting = meeting;
+    this.tooltipPosition = {
+      x: event.clientX + 10,
+      y: event.clientY - 10
+    };
+  }
+
+  hideMeetingTooltip(): void {
+    this.hoveredMeeting = null;
+  }
+
+  formatAttendees(attendees: any): string {
+    if (!attendees) return 'None';
+    if (typeof attendees === 'string') return attendees;
+    if (Array.isArray(attendees)) {
+      return attendees.map(a => typeof a === 'object' ? a.name || a.email || a.userName : a).join(', ');
+    }
+    if (typeof attendees === 'object') {
+      return attendees.name || attendees.email || attendees.userName || 'Unknown';
+    }
+    return String(attendees);
+  }
+
+
 }

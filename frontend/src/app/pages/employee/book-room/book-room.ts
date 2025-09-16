@@ -8,6 +8,7 @@ import { ToastService } from '../../../services/toast.service';
 import { BookingService, BookingRequest } from '../../../services/booking.service';
 import { UserService } from '../../../services/user.service';
 import { NotificationService } from '../../../services/notification.service';
+import { LoaderService } from '../../../services/loader.service';
 
 interface AttendeeTag {
   id: number;
@@ -567,7 +568,7 @@ interface MeetingRequest {
 
     .cards-grid {
       display: grid;
-      grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+      grid-template-columns: 1fr;
       gap: 1.5rem;
     }
 
@@ -749,6 +750,46 @@ interface MeetingRequest {
       .cards-grid {
         grid-template-columns: 1fr;
       }
+
+      .room-card {
+        padding: 1rem;
+        min-height: 140px;
+      }
+
+      .room-header {
+        flex-direction: column;
+        align-items: center;
+        text-align: center;
+        margin-bottom: 0.75rem;
+      }
+
+      .room-header h4 {
+        font-size: 1.1rem;
+        font-weight: 700;
+        margin-bottom: 0.5rem;
+      }
+
+      .capacity-badge {
+        font-size: 0.7rem;
+        padding: 0.2rem 0.5rem;
+      }
+
+      .room-details {
+        margin-bottom: 1rem;
+      }
+
+      .detail-item {
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+        font-size: 0.8rem;
+        margin-bottom: 0.5rem;
+      }
+
+      .btn-select {
+        padding: 0.5rem;
+        font-size: 0.8rem;
+      }
     }
   `]
 })
@@ -808,7 +849,8 @@ export class BookRoom implements OnInit {
     private bookingService: BookingService,
     private userService: UserService,
     private notificationService: NotificationService,
-    private router: Router
+    private router: Router,
+    private loaderService: LoaderService
   ) {}
 
   ngOnInit(): void {
@@ -928,27 +970,6 @@ export class BookRoom implements OnInit {
 
   onRoleChange(attendee: AttendeeTag): void {
     this.toastService.info('Role Updated', `${attendee.name}'s role changed to ${attendee.role}`);
-    
-    // Skip notification if attendee is the organizer
-    if (attendee.id === this.currentUser?.id) {
-      console.log('Skipping notification for organizer');
-      return;
-    }
-    
-    // Send notification to the attendee about role change
-    this.notificationService.createNotification({
-      title: 'Meeting Role Updated',
-      message: `Your role in the meeting "${this.meetingRequest.title}" has been changed to ${attendee.role}`,
-      fromUser: this.currentUser?.userName || 'System',
-      userId: attendee.id
-    }).subscribe({
-      next: () => {
-        console.log('Role change notification sent to', attendee.name);
-      },
-      error: (error) => {
-        console.error('Failed to send role change notification:', error);
-      }
-    });
   }
 
   removeAttendee(index: number): void {
@@ -1026,7 +1047,7 @@ export class BookRoom implements OnInit {
       return;
     }
 
-    this.isLoading = true;
+    this.loaderService.show('Submitting meeting request...');
     this.error = '';
     this.success = '';
 
@@ -1041,6 +1062,7 @@ export class BookRoom implements OnInit {
       endTime: endDateTime,
       isEmergency: this.meetingRequest.isEmergency,
       attendeeUserIds: this.meetingRequest.attendeeIds,
+      attendeeRoles: this.attendeeTags.map(tag => tag.role),
       refreshmentRequests: this.meetingRequest.refreshmentRequests
     };
 
@@ -1049,7 +1071,7 @@ export class BookRoom implements OnInit {
       next: (availabilityResult) => {
         if (!availabilityResult.isAvailable) {
           this.toastService.error('Room Conflict', 'Selected room is no longer available for this time slot');
-          this.isLoading = false;
+          this.loaderService.hide();
           return;
         }
 
@@ -1108,7 +1130,7 @@ export class BookRoom implements OnInit {
       error: (error) => {
         console.error('Error checking availability:', error);
         this.toastService.error('Error', 'Failed to verify room availability');
-        this.isLoading = false;
+        this.loaderService.hide();
       }
     });
   }

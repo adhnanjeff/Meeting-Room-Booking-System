@@ -13,6 +13,12 @@ interface AttendeeTag {
   name: string;
 }
 
+interface SearchResult {
+  id: number;
+  userName: string;
+  email: string;
+}
+
 interface DateOption {
   date: Date;
   dayName: string;
@@ -97,6 +103,24 @@ interface DateOption {
         <div class="form-section">
           <h3>Attendee Information ({{ attendeeTags.length }} attendees)</h3>
           <div class="attendee-input-section">
+            <div class="search-section">
+              <div class="search-box">
+                <input type="text" [(ngModel)]="searchTerm" (input)="searchUsers()" 
+                       placeholder="Search users by name or email..." class="form-input search-input">
+                <i class="pi pi-search search-icon"></i>
+              </div>
+              
+              <div class="search-results" *ngIf="searchResults.length > 0 && searchTerm">
+                <div *ngFor="let user of searchResults" class="search-result-item" (click)="addAttendeeFromSearch(user)">
+                  <div class="user-info">
+                    <span class="user-name">{{ user.userName }}</span>
+                    <span class="user-email">{{ user.email }}</span>
+                  </div>
+                  <span class="user-id">ID: {{ user.id }}</span>
+                </div>
+              </div>
+            </div>
+            
             <div class="input-row">
               <input type="number" [(ngModel)]="newAttendeeId" placeholder="Enter User ID" class="form-input" (keyup.enter)="addAttendeeById()">
               <button class="btn-add" (click)="addAttendeeById()" [disabled]="!newAttendeeId">
@@ -349,6 +373,78 @@ interface DateOption {
       margin-bottom: 1.5rem;
     }
 
+    .search-section {
+      margin-bottom: 1rem;
+    }
+
+    .search-box {
+      position: relative;
+      margin-bottom: 0.5rem;
+    }
+
+    .search-input {
+      padding-right: 2.5rem;
+    }
+
+    .search-icon {
+      position: absolute;
+      right: 0.75rem;
+      top: 50%;
+      transform: translateY(-50%);
+      color: var(--text-light);
+      pointer-events: none;
+    }
+
+    .search-results {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 6px;
+      max-height: 200px;
+      overflow-y: auto;
+      box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+      z-index: 10;
+    }
+
+    .search-result-item {
+      padding: 0.75rem;
+      border-bottom: 1px solid var(--border);
+      cursor: pointer;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      transition: background-color 0.2s;
+    }
+
+    .search-result-item:hover {
+      background: var(--primary-light, rgba(59, 130, 246, 0.1));
+    }
+
+    .search-result-item:last-child {
+      border-bottom: none;
+    }
+
+    .user-info {
+      display: flex;
+      flex-direction: column;
+      gap: 0.25rem;
+    }
+
+    .user-name {
+      font-weight: 500;
+      color: var(--text);
+    }
+
+    .user-email {
+      font-size: 0.875rem;
+      color: var(--text-light);
+    }
+
+    .user-id {
+      font-size: 0.875rem;
+      color: var(--text-light);
+      font-weight: 500;
+    }
+
     .input-row {
       display: grid;
       grid-template-columns: 1fr 1fr auto;
@@ -599,6 +695,9 @@ export class BookMeetingComponent implements OnInit {
   meetingCount = 0;
   attendeeTags: AttendeeTag[] = [];
   newAttendeeId = '';
+  searchTerm = '';
+  searchResults: SearchResult[] = [];
+  allUsers: SearchResult[] = [];
   rooms: MeetingRoom[] = [];
   filteredRooms: MeetingRoom[] = [];
   refreshmentRequests = '';
@@ -638,6 +737,47 @@ export class BookMeetingComponent implements OnInit {
     this.currentUser = this.authService.getCurrentUser();
     this.generateAvailableDates();
     this.loadRooms();
+    this.loadAllUsers();
+  }
+
+  loadAllUsers(): void {
+    this.userService.getAllUsers().subscribe({
+      next: (users) => {
+        this.allUsers = users.map(user => ({
+          id: user.id,
+          userName: user.userName,
+          email: user.email
+        }));
+      },
+      error: (error) => {
+        console.error('Error loading users:', error);
+      }
+    });
+  }
+
+  searchUsers(): void {
+    if (!this.searchTerm.trim()) {
+      this.searchResults = [];
+      return;
+    }
+
+    const term = this.searchTerm.toLowerCase();
+    this.searchResults = this.allUsers
+      .filter(user => 
+        user.userName.toLowerCase().includes(term) || 
+        user.email.toLowerCase().includes(term)
+      )
+      .filter(user => !this.attendeeTags.some(attendee => attendee.id === user.id))
+      .slice(0, 5); // Limit to 5 results
+  }
+
+  addAttendeeFromSearch(user: SearchResult): void {
+    if (!this.attendeeTags.some(a => a.id === user.id)) {
+      this.attendeeTags.push({ id: user.id, name: user.userName });
+      this.toastService.success('Attendee Added', `${user.userName} added to meeting`);
+      this.searchTerm = '';
+      this.searchResults = [];
+    }
   }
 
 

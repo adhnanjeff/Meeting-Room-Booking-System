@@ -18,6 +18,8 @@ export interface BookingResponse {
   approvalStatus?: 'Pending' | 'Approved' | 'Rejected';
   suggestedRoomId?: number;
   suggestedRoomName?: string;
+  teamsEventId?: string;
+  teamsJoinUrl?: string;
 }
 
 export interface AttendeeResponse {
@@ -36,6 +38,7 @@ export interface BookingRequest {
   endTime: string;
   isEmergency: boolean;
   attendeeUserIds: number[];
+  attendeeRoles?: string[];
   refreshmentRequests?: string;
 }
 
@@ -72,6 +75,8 @@ export interface Booking {
   createdAt: string;
   attendees: AttendeeResponse[];
   rejectionComment?: string;
+  teamsEventId?: string;
+  teamsJoinUrl?: string;
 }
 
 @Injectable({

@@ -1,13 +1,17 @@
-import { Component } from '@angular/core';
+import { Component, OnInit, OnDestroy } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { RouterOutlet, RouterLink, RouterLinkActive } from '@angular/router';
 import { AuthService, User } from '../../../services/auth.service';
+import { NotificationService } from '../../../services/notification.service';
+import { LoaderService } from '../../../services/loader.service';
 import { ThemeToggle } from '../../../components/theme-toggle';
+import { LoaderComponent } from '../../../components/loader/loader.component';
+import { interval, Subscription } from 'rxjs';
 
 @Component({
   selector: 'app-manager-layout',
   standalone: true,
-  imports: [CommonModule, RouterOutlet, RouterLink, RouterLinkActive, ThemeToggle],
+  imports: [CommonModule, RouterOutlet, RouterLink, RouterLinkActive, ThemeToggle, LoaderComponent],
   template: `
     <div class="layout">
       <div class="mobile-header">
@@ -34,43 +38,44 @@ import { ThemeToggle } from '../../../components/theme-toggle';
         </div>
         
         <div class="nav-menu">
-          <a routerLink="home" routerLinkActive="active" class="nav-item">
+          <a routerLink="home" routerLinkActive="active" class="nav-item" (click)="closeSidebarOnMobile()">
             <i class="pi pi-home nav-icon"></i>
             <span>Home</span>
           </a>
-          <a routerLink="approvals" routerLinkActive="active" class="nav-item highlight">
+          <a routerLink="approvals" routerLinkActive="active" class="nav-item" (click)="closeSidebarOnMobile()">
             <i class="pi pi-check-circle nav-icon"></i>
             <span>Approvals</span>
           </a>
-          <a routerLink="team" routerLinkActive="active" class="nav-item">
+          <a routerLink="team" routerLinkActive="active" class="nav-item" (click)="closeSidebarOnMobile()">
             <i class="pi pi-users nav-icon"></i>
             <span>Team</span>
           </a>
-          <a routerLink="book-meeting" routerLinkActive="active" class="nav-item">
+          <a routerLink="book-meeting" routerLinkActive="active" class="nav-item" (click)="closeSidebarOnMobile()">
             <i class="pi pi-calendar-plus nav-icon"></i>
             <span>Book Meeting</span>
           </a>
-          <a routerLink="calendar" routerLinkActive="active" class="nav-item">
+          <a routerLink="calendar" routerLinkActive="active" class="nav-item" (click)="closeSidebarOnMobile()">
             <i class="pi pi-calendar nav-icon"></i>
             <span>Calendar</span>
           </a>
-          <a routerLink="my-bookings" routerLinkActive="active" class="nav-item">
+          <a routerLink="my-bookings" routerLinkActive="active" class="nav-item" (click)="closeSidebarOnMobile()">
             <i class="pi pi-list nav-icon"></i>
             <span>My Bookings</span>
           </a>
-          <a routerLink="invitations" routerLinkActive="active" class="nav-item">
+          <a routerLink="invitations" routerLinkActive="active" class="nav-item" (click)="closeSidebarOnMobile()">
             <i class="pi pi-envelope nav-icon"></i>
             <span>Invitations</span>
           </a>
-          <a routerLink="scheduled-meetings" routerLinkActive="active" class="nav-item">
+          <a routerLink="scheduled-meetings" routerLinkActive="active" class="nav-item" (click)="closeSidebarOnMobile()">
             <i class="pi pi-calendar-times nav-icon"></i>
             <span>Scheduled Meetings</span>
           </a>
-          <a routerLink="notifications" routerLinkActive="active" class="nav-item">
+          <a routerLink="notifications" routerLinkActive="active" class="nav-item" (click)="closeSidebarOnMobile()">
             <i class="pi pi-bell nav-icon"></i>
             <span>Notifications</span>
+            <div class="notification-badge" *ngIf="unreadCount > 0">{{ unreadCount }}</div>
           </a>
-          <a routerLink="profile" routerLinkActive="active" class="nav-item">
+          <a routerLink="profile" routerLinkActive="active" class="nav-item" (click)="closeSidebarOnMobile()">
             <i class="pi pi-user nav-icon"></i>
             <span>Profile</span>
           </a>
@@ -90,6 +95,7 @@ import { ThemeToggle } from '../../../components/theme-toggle';
       
       <main class="main-content">
         <router-outlet />
+        <app-loader></app-loader>
       </main>
     </div>
   `,
@@ -162,7 +168,7 @@ import { ThemeToggle } from '../../../components/theme-toggle';
     .user-avatar {
       width: 40px;
       height: 40px;
-      background: linear-gradient(135deg, var(--primary), var(--secondary));
+      background: linear-gradient(135deg, #3b82f6, #1d4ed8);
       color: white;
       border-radius: 50%;
       display: flex;
@@ -179,12 +185,18 @@ import { ThemeToggle } from '../../../components/theme-toggle';
 
     .user-name {
       font-weight: 600;
-      color: var(--text);
+      background: linear-gradient(135deg, #3b82f6, #1d4ed8);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
       font-size: 0.875rem;
     }
 
     [data-theme="dark"] .user-name {
-      color: #ffffff;
+      background: linear-gradient(135deg, #60a5fa, #3b82f6);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
     }
 
     .user-role {
@@ -236,21 +248,7 @@ import { ThemeToggle } from '../../../components/theme-toggle';
       box-shadow: inset 0 0 10px rgba(64, 153, 255, 0.1);
     }
 
-    .nav-item.highlight {
-      background: rgba(46, 216, 182, 0.15);
-      color: var(--secondary);
-      animation: pulse 2s infinite;
-    }
 
-    @keyframes pulse {
-      0%, 100% { background: rgba(46, 216, 182, 0.15); }
-      50% { background: rgba(46, 216, 182, 0.25); }
-    }
-
-    .nav-item.highlight.active {
-      border-left-color: var(--secondary);
-      background: rgba(46, 216, 182, 0.2);
-    }
 
     .nav-icon {
       font-size: 1.125rem;
@@ -336,6 +334,28 @@ import { ThemeToggle } from '../../../components/theme-toggle';
       cursor: pointer;
     }
 
+    .notification-badge {
+      position: absolute;
+      top: 8px;
+      right: 8px;
+      background: var(--error);
+      color: white;
+      border-radius: 50%;
+      width: 18px;
+      height: 18px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 0.7rem;
+      font-weight: 600;
+      animation: pulse-badge 2s infinite;
+    }
+
+    @keyframes pulse-badge {
+      0%, 100% { transform: scale(1); }
+      50% { transform: scale(1.1); }
+    }
+
     @media (max-width: 768px) {
       .mobile-header {
         display: flex;
@@ -362,16 +382,64 @@ import { ThemeToggle } from '../../../components/theme-toggle';
     }
   `]
 })
-export class ManagerLayout {
+export class ManagerLayout implements OnInit, OnDestroy {
   currentUser: User | null = null;
   sidebarOpen = false;
+  unreadCount = 0;
+  private pollSubscription?: Subscription;
 
-  constructor(private authService: AuthService) {
+  constructor(
+    private authService: AuthService,
+    private notificationService: NotificationService,
+    private loaderService: LoaderService
+  ) {
     this.currentUser = this.authService.getCurrentUser();
+  }
+
+  ngOnInit(): void {
+    this.loadUnreadCount();
+    // Poll for unread count every 30 seconds
+    this.pollSubscription = interval(30000).subscribe(() => {
+      this.loadUnreadCount();
+    });
+    // Listen for notification read events
+    window.addEventListener('notificationRead', () => {
+      this.loadUnreadCount();
+    });
+  }
+
+  ngOnDestroy(): void {
+    this.pollSubscription?.unsubscribe();
+    window.removeEventListener('notificationRead', () => {
+      this.loadUnreadCount();
+    });
+  }
+
+  loadUnreadCount(): void {
+    if (this.currentUser) {
+      this.notificationService.getUnreadCount(this.currentUser.id).subscribe({
+        next: (count) => {
+          this.unreadCount = count;
+        },
+        error: (error) => {
+          console.error('Error loading unread count:', error);
+          // Don't show error toast for polling failures to avoid spam
+          if (error.status !== 0) {
+            console.warn('Notification service unavailable');
+          }
+        }
+      });
+    }
   }
 
   toggleSidebar(): void {
     this.sidebarOpen = !this.sidebarOpen;
+  }
+
+  closeSidebarOnMobile(): void {
+    if (window.innerWidth <= 768) {
+      this.sidebarOpen = false;
+    }
   }
 
   getUserInitials(): string {
@@ -380,6 +448,7 @@ export class ManagerLayout {
   }
 
   logout(): void {
+    this.pollSubscription?.unsubscribe();
     this.authService.logout();
   }
 }

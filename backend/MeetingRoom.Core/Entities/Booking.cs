@@ -27,6 +27,8 @@ public partial class Booking
     public DateTime? UpdatedAt { get; set; }
     public DateTime? ActualEndTime { get; set; }
     public string? RefreshmentRequests { get; set; }
+    public string? TeamsEventId { get; set; }
+    public string? TeamsJoinUrl { get; set; }
 
     public virtual ICollection<Attendee> Attendees { get; set; } = new List<Attendee>();
 

@@ -9,6 +9,7 @@ export interface MeetingRoom {
   capacity: number;
   amenities: string;
   isAvailable: boolean;
+  totalBookings?: number;
 }
 
 export interface User {
@@ -18,6 +19,7 @@ export interface User {
   department: string;
   roles: string[];
   managerId?: number;
+  totalBookings?: number;
 }
 
 export type UpdateEmployeePayload = {

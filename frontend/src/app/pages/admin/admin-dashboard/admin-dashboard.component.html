@@ -1,37 +1,50 @@
 <div class="admin-dashboard">
-  <h1>Admin Dashboard</h1>
+  <div class="page-header">
+    <div class="header-content">
+      <h1><i class="pi pi-chart-line"></i> Admin Dashboard</h1>
+      <p>System overview and management</p>
+    </div>
+    <div class="header-actions">
+      <button class="filter-btn"><i class="pi pi-filter"></i> Filters</button>
+      <button class="theme-toggle"><i class="pi pi-moon"></i></button>
+    </div>
+  </div>
   
   <!-- Stats Cards -->
   <div class="stats-grid">
-    <div class="stat-card">
+    <div class="stat-card rooms">
       <div class="stat-icon"><i class="pi pi-building"></i></div>
       <div class="stat-content">
         <div class="stat-number">{{ rooms.length }}</div>
-        <div class="stat-label">Total Rooms</div>
+        <div class="stat-label">Meeting Rooms</div>
+        <div class="stat-trend">+2 this month</div>
       </div>
     </div>
     
-    <div class="stat-card">
+    <div class="stat-card users">
       <div class="stat-icon"><i class="pi pi-users"></i></div>
       <div class="stat-content">
         <div class="stat-number">{{ users.length }}</div>
         <div class="stat-label">Total Users</div>
+        <div class="stat-trend">+8 this week</div>
       </div>
     </div>
     
-    <div class="stat-card">
+    <div class="stat-card bookings">
       <div class="stat-icon"><i class="pi pi-calendar"></i></div>
       <div class="stat-content">
         <div class="stat-number">{{ bookings.length }}</div>
         <div class="stat-label">Total Bookings</div>
+        <div class="stat-trend">+15% vs last month</div>
       </div>
     </div>
     
-    <div class="stat-card">
+    <div class="stat-card approvals">
       <div class="stat-icon"><i class="pi pi-clock"></i></div>
       <div class="stat-content">
         <div class="stat-number">{{ getPendingBookings() }}</div>
         <div class="stat-label">Pending Approvals</div>
+        <div class="stat-trend urgent">Needs attention</div>
       </div>
     </div>
   </div>
@@ -39,24 +52,60 @@
   <!-- Charts Section -->
   <div class="charts-section">
     <div class="chart-card">
-      <h3>Booking Status</h3>
+      <div class="chart-header">
+        <h3><i class="pi pi-chart-pie"></i> Booking Status</h3>
+      </div>
       <div class="chart-container">
         <canvas #statusChart></canvas>
       </div>
     </div>
     
     <div class="chart-card">
-      <h3>Room Usage</h3>
+      <div class="chart-header">
+        <h3><i class="pi pi-chart-bar"></i> Room Usage</h3>
+      </div>
       <div class="chart-container">
         <canvas #usageChart></canvas>
       </div>
     </div>
     
-    <div class="chart-card">
-      <h3>Monthly Bookings</h3>
+    <div class="chart-card full-width">
+      <div class="chart-header">
+        <h3><i class="pi pi-chart-line"></i> Monthly Trends</h3>
+      </div>
       <div class="chart-container">
         <canvas #monthlyChart></canvas>
       </div>
+    </div>
+  </div>
+
+  <!-- Quick Actions -->
+  <div class="admin-actions">
+    <h3><i class="pi pi-flash"></i> Quick Actions</h3>
+    <div class="action-grid">
+      <a routerLink="../users" class="action-card">
+        <div class="action-icon"><i class="pi pi-users"></i></div>
+        <div class="action-content">
+          <h4>Manage Users</h4>
+          <p>Add, edit, or remove users</p>
+        </div>
+      </a>
+      
+      <a routerLink="../rooms" class="action-card">
+        <div class="action-icon"><i class="pi pi-building"></i></div>
+        <div class="action-content">
+          <h4>Manage Rooms</h4>
+          <p>Configure meeting rooms</p>
+        </div>
+      </a>
+      
+      <a routerLink="../bookings" class="action-card">
+        <div class="action-icon"><i class="pi pi-calendar"></i></div>
+        <div class="action-content">
+          <h4>View All Bookings</h4>
+          <p>Monitor system usage</p>
+        </div>
+      </a>
     </div>
   </div>
 </div>

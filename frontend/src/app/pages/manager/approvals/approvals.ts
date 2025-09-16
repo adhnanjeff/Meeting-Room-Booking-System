@@ -6,6 +6,7 @@ import { MeetingRoomService, MeetingRoom } from '../../../services/meetingroom.s
 import { BookingService } from '../../../services/booking.service';
 import { AuthService, User } from '../../../services/auth.service';
 import { ToastService } from '../../../services/toast.service';
+import { LoaderService } from '../../../services/loader.service';
 
 @Component({
   selector: 'app-approvals',
@@ -266,8 +267,20 @@ import { ToastService } from '../../../services/toast.service';
 
     .requests-grid {
       display: grid;
-      grid-template-columns: repeat(3, 1fr);
+      grid-template-columns: repeat(auto-fit, minmax(350px, 1fr));
       gap: 1.5rem;
+    }
+
+    @media (min-width: 1200px) {
+      .requests-grid {
+        grid-template-columns: repeat(3, 1fr);
+      }
+    }
+
+    @media (max-width: 1199px) and (min-width: 768px) {
+      .requests-grid {
+        grid-template-columns: repeat(2, 1fr);
+      }
     }
 
     .request-card {
@@ -654,14 +667,76 @@ import { ToastService } from '../../../services/toast.service';
         width: 100%;
       }
 
-      .requests-grid {
-        grid-template-columns: 1fr;
+      .request-card {
+        padding: 1rem;
+        min-height: 140px;
       }
-    }
 
-    @media (max-width: 1024px) {
-      .requests-grid {
-        grid-template-columns: repeat(2, 1fr);
+      .request-header {
+        flex-direction: row;
+        justify-content: space-between;
+        align-items: flex-start;
+        margin-bottom: 0.75rem;
+      }
+
+      .request-header h3 {
+        font-size: 1.1rem;
+        font-weight: 700;
+        text-align: center;
+        flex: 1;
+        margin-right: 0.5rem;
+      }
+
+      .request-details {
+        display: flex;
+        flex-direction: column;
+        gap: 0.5rem;
+        margin-bottom: 1rem;
+      }
+
+      .detail-row {
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+        font-size: 0.8rem;
+      }
+
+      .approval-actions {
+        display: flex;
+        justify-content: center;
+        gap: 0.5rem;
+      }
+
+      .btn-round {
+        width: 32px;
+        height: 32px;
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 0.9rem;
+        cursor: pointer;
+        transition: all 0.2s ease;
+      }
+
+      .status-badge {
+        padding: 0.2rem 0.5rem;
+        font-size: 0.7rem;
+      }
+
+      .status-badge.pending {
+        background: #fbbf24;
+        color: white;
+      }
+
+      .status-badge.approved {
+        background: #10b981;
+        color: white;
+      }
+
+      .status-badge.rejected {
+        background: #ef4444;
+        color: white;
       }
     }
   `]
@@ -680,17 +755,21 @@ export class Approvals implements OnInit {
   currentRequestedRoom: MeetingRoom | null = null;
   currentUser: User | null = null;
   rejectionComment = '';
+  isLoading = false;
+  loadingMessage = '';
 
   constructor(
     private approvalService: ApprovalService,
     private meetingRoomService: MeetingRoomService,
     private bookingService: BookingService,
     private authService: AuthService,
-    private toastService: ToastService
+    private toastService: ToastService,
+    private loaderService: LoaderService
   ) {}
 
   ngOnInit(): void {
     this.currentUser = this.authService.getCurrentUser();
+    this.loaderService.show('Loading approvals...');
     this.loadAllRequests();
   }
 
@@ -700,10 +779,12 @@ export class Approvals implements OnInit {
         next: (requests) => {
           this.allRequests = requests;
           this.filterRequests();
+          this.loaderService.hide();
         },
         error: (error) => {
           console.error('Error loading requests:', error);
           this.toastService.error('Error', 'Failed to load approval requests');
+          this.loaderService.hide();
         }
       });
     }
@@ -838,6 +919,7 @@ export class Approvals implements OnInit {
   }
 
   approveRequest(request: Approval): void {
+    this.loaderService.show('Approving request...');
     this.approvalService.processApproval(request.approvalId, {
       status: 1,
       comments: 'Meeting approved by manager'
@@ -848,7 +930,12 @@ export class Approvals implements OnInit {
       },
       error: (error) => {
         console.error('Approval error:', error);
-        this.toastService.error('Error', 'Failed to approve request');
+        if (error.status === 0) {
+          this.toastService.error('Connection Error', 'Unable to connect to server. Please check if the backend is running.');
+        } else {
+          this.toastService.error('Error', 'Failed to approve request');
+        }
+        this.loaderService.hide();
       }
     });
   }
@@ -899,4 +986,6 @@ export class Approvals implements OnInit {
     if (status === 2 || status === 'Rejected') return 'rejected';
     return 'pending';
   }
+
+
 }

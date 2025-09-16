@@ -24,6 +24,8 @@ namespace MeetingRoom.Core.DTOs
         
         public List<int> AttendeeUserIds { get; set; } = new();
         
+        public List<string>? AttendeeRoles { get; set; } = new();
+        
         public string? RefreshmentRequests { get; set; }
     }
 }

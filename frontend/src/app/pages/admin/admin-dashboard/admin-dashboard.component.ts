@@ -1,7 +1,7 @@
 import { Component, OnInit, AfterViewInit, ElementRef, ViewChild } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
-import { Router } from '@angular/router';
+import { Router, RouterLink } from '@angular/router';
 import { AdminService, User, Booking, UpdateEmployeePayload } from '../../../services/admin.service';
 import { MeetingRoomService, MeetingRoom } from '../../../services/meetingroom.service';
 import { Chart, ChartConfiguration, ChartData, registerables } from 'chart.js';
@@ -9,7 +9,7 @@ import { Chart, ChartConfiguration, ChartData, registerables } from 'chart.js';
 @Component({
   selector: 'app-admin-dashboard',
   standalone: true,
-  imports: [CommonModule, FormsModule],
+  imports: [CommonModule, FormsModule, RouterLink],
   templateUrl: './admin-dashboard.component.html',
   styleUrls: ['./admin-dashboard.component.css']
 })

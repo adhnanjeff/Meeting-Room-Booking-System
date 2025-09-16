@@ -6,6 +6,8 @@ using MeetingRoom.Core.Exceptions;
 using MeetingRoom.Core.Interfaces;
 using MeetingRoom.Infrastructure.Data;
 using Microsoft.EntityFrameworkCore;
+using System.Text.Json;
+using System.Text;
 
 namespace MeetingRoom.Application.Services
 {
@@ -105,6 +107,17 @@ namespace MeetingRoom.Application.Services
             if (request.Status == ApprovalStatus.Approved)
             {
                 approval.Booking.Status = BookingStatus.Scheduled;
+                
+                // Create Teams meeting when approved
+                var (eventId, joinUrl) = await CreateTeamsEventAsync(approval.Booking);
+                approval.Booking.TeamsEventId = eventId;
+                approval.Booking.TeamsJoinUrl = joinUrl;
+                
+                // Send approval notification to organizer
+                await SendApprovalNotificationAsync(approval.Booking, approver?.UserName ?? "Manager");
+                
+                // Send meeting invitations to attendees (excluding organizer)
+                await SendMeetingInvitationsAsync(approval.Booking);
             }
             else if (request.Status == ApprovalStatus.Rejected)
             {
@@ -164,15 +177,18 @@ namespace MeetingRoom.Application.Services
                 Attendees = new List<Attendee>()
             };
 
-            // Add attendees
-            foreach (var userId in bookingRequest.AttendeeUserIds)
+            // Add attendees with their roles
+            for (int i = 0; i < bookingRequest.AttendeeUserIds.Count; i++)
             {
+                var userId = bookingRequest.AttendeeUserIds[i];
+                var role = i < bookingRequest.AttendeeRoles?.Count ? bookingRequest.AttendeeRoles[i] : "Participant";
+                
                 var attendee = new Attendee
                 {
                     BookingId = booking.BookingId,
                     UserId = userId,
                     Status = AttendeeStatus.Pending,
-                    RoleInMeeting = "Participant"
+                    RoleInMeeting = role
                 };
                 booking.Attendees.Add(attendee);
             }
@@ -227,6 +243,132 @@ namespace MeetingRoom.Application.Services
                 .FirstOrDefaultAsync(a => a.ApprovalId == approvalId);
 
             return _mapper.Map<ApprovalResponseDTO>(approval!);
+        }
+
+        private async Task<(string eventId, string joinUrl)> CreateTeamsEventAsync(Booking booking)
+        {
+            try
+            {
+                var organizer = await _context.Users.FindAsync(booking.OrganizerId);
+                var room = await _context.MeetingRooms.FindAsync(booking.RoomId);
+                var attendees = new List<string>();
+
+                var bookingAttendees = await _context.Attendees
+                    .Include(a => a.User)
+                    .Where(a => a.BookingId == booking.BookingId)
+                    .ToListAsync();
+
+                foreach (var attendee in bookingAttendees)
+                {
+                    if (!string.IsNullOrEmpty(attendee.User?.Email))
+                    {
+                        attendees.Add(attendee.User.Email);
+                    }
+                }
+
+                var teamsRequest = new
+                {
+                    Subject = booking.Title,
+                    Body = $"Meeting in {room?.RoomName}. Created via SynerRoom booking system.",
+                    StartDateTime = booking.StartTime.ToString("yyyy-MM-ddTHH:mm:ss.fffZ"),
+                    EndDateTime = booking.EndTime.ToString("yyyy-MM-ddTHH:mm:ss.fffZ"),
+                    TimeZone = "UTC",
+                    Location = room?.RoomName ?? "Meeting Room",
+                    Attendees = attendees,
+                    OrganizerEmail = organizer?.Email ?? "noreply@company.com"
+                };
+
+                using var httpClient = new HttpClient();
+                var json = JsonSerializer.Serialize(teamsRequest);
+                var content = new StringContent(json, Encoding.UTF8, "application/json");
+                
+                var response = await httpClient.PostAsync("https://localhost:7273/api/MicrosoftGraph/create-event", content);
+                
+                if (response.IsSuccessStatusCode)
+                {
+                    var responseContent = await response.Content.ReadAsStringAsync();
+                    var teamsResponse = JsonSerializer.Deserialize<TeamsEventResponse>(responseContent, new JsonSerializerOptions { PropertyNameCaseInsensitive = true });
+                    
+                    return (teamsResponse?.Id ?? "", teamsResponse?.JoinUrl ?? "");
+                }
+                
+                return ("", "");
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"Failed to create Teams event: {ex.Message}");
+                return ("", "");
+            }
+        }
+
+        private async Task SendApprovalNotificationAsync(Booking booking, string approverName)
+        {
+            try
+            {
+                var room = await _context.MeetingRooms.FindAsync(booking.RoomId);
+                
+                var notification = new Notification
+                {
+                    Title = "Meeting Request Approved",
+                    Message = $"Your meeting request '{booking.Title}' has been approved by {approverName} for {booking.StartTime:MMM dd, yyyy} at {booking.StartTime:HH:mm} in {room?.RoomName}",
+                    FromUser = approverName,
+                    UserId = booking.OrganizerId,
+                    CreatedAt = DateTime.UtcNow,
+                    IsRead = false
+                };
+
+                _context.Notifications.Add(notification);
+                await _context.SaveChangesAsync();
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"Failed to send approval notification: {ex.Message}");
+            }
+        }
+
+        private async Task SendMeetingInvitationsAsync(Booking booking)
+        {
+            try
+            {
+                var attendees = await _context.Attendees
+                    .Include(a => a.User)
+                    .Where(a => a.BookingId == booking.BookingId && a.UserId != booking.OrganizerId)
+                    .ToListAsync();
+
+                var organizer = await _context.Users.FindAsync(booking.OrganizerId);
+                var room = await _context.MeetingRooms.FindAsync(booking.RoomId);
+
+                foreach (var attendee in attendees)
+                {
+                    if (attendee.User != null)
+                    {
+                        var notification = new Notification
+                        {
+                            Title = "Meeting Invitation",
+                            Message = $"You are a {attendee.RoleInMeeting} in '{booking.Title}' on {booking.StartTime:MMM dd, yyyy} at {booking.StartTime:HH:mm} in {room?.RoomName}",
+                            FromUser = organizer?.UserName ?? "System",
+                            UserId = attendee.UserId,
+                            CreatedAt = DateTime.UtcNow,
+                            IsRead = false
+                        };
+
+                        _context.Notifications.Add(notification);
+                    }
+                }
+
+                await _context.SaveChangesAsync();
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"Failed to send meeting invitations: {ex.Message}");
+            }
+        }
+
+        private class TeamsEventResponse
+        {
+            public string Id { get; set; } = "";
+            public string WebLink { get; set; } = "";
+            public string JoinUrl { get; set; } = "";
         }
     }
 }

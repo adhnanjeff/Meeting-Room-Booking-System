@@ -126,7 +126,6 @@ import { ToastService, Toast } from '../../services/toast.service';
         top: 10px;
         right: 10px;
         left: 10px;
-        max-width: none;
       }
     }
   `]

@@ -1,5 +1,7 @@
 ﻿using MeetingRoom.Core.DTOs;
 using MeetingRoom.Core.Entities;
+using MeetingRoom.Core.Interfaces;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.IdentityModel.Tokens;
@@ -15,17 +17,20 @@ public class AuthController : ControllerBase
     private readonly SignInManager<AppUser> _signInManager;
     private readonly RoleManager<IdentityRole<int>> _roleManager;
     private readonly IConfiguration _config;
+    private readonly IEmailService _emailService;
 
     public AuthController(
         UserManager<AppUser> userManager,
         SignInManager<AppUser> signInManager,
         RoleManager<IdentityRole<int>> roleManager,
-        IConfiguration config)
+        IConfiguration config,
+        IEmailService emailService)
     {
         _userManager = userManager;
         _signInManager = signInManager;
         _roleManager = roleManager;
         _config = config;
+        _emailService = emailService;
     }
 
     [HttpPost("register")]
@@ -126,5 +131,53 @@ public class AuthController : ControllerBase
         );
 
         return (new JwtSecurityTokenHandler().WriteToken(token), expiration);
+    }
+
+    [HttpPost("forgot-password")]
+    public async Task<IActionResult> ForgotPassword([FromBody] PasswordResetRequestDTO dto)
+    {
+        var user = await _userManager.FindByEmailAsync(dto.Email);
+        if (user == null)
+            return Ok(new { message = "If the email exists, a reset link has been sent." });
+
+        var token = await _userManager.GeneratePasswordResetTokenAsync(user);
+        await _emailService.SendPasswordResetEmailAsync(dto.Email, token);
+
+        return Ok(new { message = "If the email exists, a reset link has been sent." });
+    }
+
+    [HttpPost("reset-password")]
+    public async Task<IActionResult> ResetPassword([FromBody] ResetPasswordDTO dto)
+    {
+        var user = await _userManager.FindByEmailAsync(dto.Email);
+        if (user == null)
+            return BadRequest("Invalid reset request.");
+
+        var result = await _userManager.ResetPasswordAsync(user, dto.Token, dto.NewPassword);
+        if (!result.Succeeded)
+            return BadRequest(result.Errors);
+
+        await _emailService.SendPasswordChangedNotificationAsync(dto.Email);
+        return Ok(new { message = "Password reset successfully." });
+    }
+
+    [HttpPost("change-password")]
+    [Authorize]
+    public async Task<IActionResult> ChangePassword([FromBody] ChangePasswordDTO dto)
+    {
+        var userId = User.FindFirst("UserId")?.Value;
+        if (string.IsNullOrEmpty(userId))
+            return Unauthorized();
+
+        var user = await _userManager.FindByIdAsync(userId);
+        if (user == null)
+            return NotFound("User not found.");
+
+        var result = await _userManager.ChangePasswordAsync(user, dto.CurrentPassword, dto.NewPassword);
+        if (!result.Succeeded)
+            return BadRequest(result.Errors);
+
+        await _emailService.SendPasswordChangedNotificationAsync(user.Email!);
+        return Ok(new { message = "Password changed successfully." });
     }
 }
