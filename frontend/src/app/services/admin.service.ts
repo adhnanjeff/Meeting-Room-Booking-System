@@ -17,7 +17,7 @@ export interface User {
   userName: string;
   email: string;
   department: string;
-  roles: string[];
+  userRole: number;
   managerId?: number;
   totalBookings?: number;
 }
@@ -90,5 +90,15 @@ export class AdminService {
   // Bookings
   getAllBookings(): Observable<Booking[]> {
     return this.http.get<Booking[]>(`${this.API_URL}/booking`);
+  }
+
+  // Get booking count by room ID
+  getRoomBookingCount(roomId: number): Observable<number> {
+    return this.http.get<number>(`${this.API_URL}/booking/room/${roomId}/count`);
+  }
+
+  // Get booking count by user ID
+  getUserBookingCount(userId: number): Observable<number> {
+    return this.http.get<number>(`${this.API_URL}/booking/user/${userId}/count`);
   }
 }

@@ -61,7 +61,7 @@ import { AdminService, User } from '../../../services/admin.service';
           </select>
         </div>
         <div class="action-buttons">
-          <button class="btn-export" (click)="exportData('csv')" title="Export CSV"><i class="pi pi-file-excel"></i> CSV</button>
+          <button class="btn-export" (click)="exportData('csv')" title="Export CSV"><i class="pi pi-file"></i> CSV</button>
           <button class="btn-export" (click)="exportData('excel')" title="Export Excel"><i class="pi pi-file-excel"></i> Excel</button>
           <button class="btn-add" (click)="addUser()" title="Add User"><i class="pi pi-plus"></i> Add User</button>
         </div>
@@ -81,31 +81,28 @@ import { AdminService, User } from '../../../services/admin.service';
               <th (click)="sort('roles')" class="sortable">
                 Role <span class="sort-icon">{{ getSortIcon('roles') }}</span>
               </th>
+              <th (click)="sort('department')" class="sortable">
+                Department <span class="sort-icon">{{ getSortIcon('department') }}</span>
+              </th>
               <th>User ID</th>
-              <th>Total Bookings</th>
-              <th>Status</th>
-              <th>Actions</th>
+              <th class="actions-header">Actions</th>
             </tr>
           </thead>
           <tbody>
             <tr *ngFor="let user of paginatedUsers" class="table-row">
               <td class="user-name" (click)="showUserProfile(user)">
-                <div class="user-avatar">{{ user.userName.charAt(0).toUpperCase() }}</div>
                 {{ user.userName }}
               </td>
               <td>{{ user.email }}</td>
               <td>
-                <span class="role-badge" [class]="(user.roles[0] || 'employee').toLowerCase()">
-                  {{ user.roles[0] || 'Employee' }}
+                <span class="role-badge" [class]="getRoleClass(user.userRole)">
+                  {{ getDisplayRole(user.userRole) }}
                 </span>
               </td>
+              <td class="department">{{ user.department }}</td>
               <td class="user-id">#{{ user.id }}</td>
-              <td class="booking-count">{{ user.totalBookings || 0 }}</td>
-              <td>
-                <span class="status-badge active">Active</span>
-              </td>
               <td class="actions">
-                <button class="action-btn view" (click)="viewUserBookings(user.id)" title="View Bookings"><i class="pi pi-eye"></i></button>
+                <button class="action-btn view" (click)="showUserDetails(user)" title="View Details"><i class="pi pi-eye"></i></button>
                 <button class="action-btn edit" (click)="editUser(user)" title="Edit User"><i class="pi pi-pencil"></i></button>
                 <button class="action-btn delete" (click)="deleteUser(user.id)" title="Delete User"><i class="pi pi-trash"></i></button>
               </td>
@@ -147,7 +144,7 @@ import { AdminService, User } from '../../../services/admin.service';
               </div>
               <div class="detail-row">
                 <span class="label">Role:</span>
-                <span class="value">{{ selectedUser.roles[0] }}</span>
+                <span class="value">{{ getDisplayRole(selectedUser.userRole) }}</span>
               </div>
               <div class="detail-row">
                 <span class="label">User ID:</span>
@@ -161,6 +158,43 @@ import { AdminService, User } from '../../../services/admin.service';
             <div class="profile-actions">
               <button class="btn-primary" (click)="editUser(selectedUser)">Edit User</button>
               <button class="btn-secondary" (click)="viewUserBookings(selectedUser.id)">View Bookings</button>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- User Details Popup -->
+      <div class="modal-overlay" *ngIf="showDetailsPopup" (click)="closeDetailsPopup()">
+        <div class="details-popup" (click)="$event.stopPropagation()">
+          <div class="popup-header">
+            <h3>User Details</h3>
+            <button class="close-btn" (click)="closeDetailsPopup()">×</button>
+          </div>
+          <div class="popup-content" *ngIf="selectedUser">
+            <div class="user-info">
+              <div class="user-avatar-large">{{ selectedUser.userName.charAt(0).toUpperCase() }}</div>
+              <div class="user-basic">
+                <h4>{{ selectedUser.userName }}</h4>
+                <p>{{ selectedUser.email }}</p>
+              </div>
+            </div>
+            <div class="details-grid">
+              <div class="detail-item">
+                <span class="detail-label">User ID</span>
+                <span class="detail-value">#{{ selectedUser.id }}</span>
+              </div>
+              <div class="detail-item">
+                <span class="detail-label">Role</span>
+                <span class="detail-value">{{ getDisplayRole(selectedUser.userRole) }}</span>
+              </div>
+              <div class="detail-item">
+                <span class="detail-label">Department</span>
+                <span class="detail-value">{{ selectedUser.department }}</span>
+              </div>
+              <div class="detail-item">
+                <span class="detail-label">Total Bookings</span>
+                <span class="detail-value">{{ selectedUser.totalBookings || 0 }}</span>
+              </div>
             </div>
           </div>
         </div>
@@ -219,15 +253,17 @@ import { AdminService, User } from '../../../services/admin.service';
     }
 
     .stat-card {
-      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      background: var(--surface);
       border-radius: 16px;
       padding: 1.5rem;
-      color: white;
+      color: var(--text);
       display: flex;
       align-items: center;
       gap: 1rem;
       box-shadow: 0 4px 20px rgba(0,0,0,0.1);
       transition: transform 0.2s ease;
+      border-left: 12px solid #4f46e5;
+      border: 1px solid var(--border);
     }
 
     .stat-card:hover {
@@ -235,26 +271,46 @@ import { AdminService, User } from '../../../services/admin.service';
     }
 
     .stat-card:nth-child(2) {
-      background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
+      border-left-color: #ec4899;
     }
 
     .stat-card:nth-child(3) {
-      background: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%);
+      border-left-color: #06b6d4;
     }
 
     .stat-icon {
-      font-size: 2rem;
+      width: 50px;
+      height: 50px;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 1.5rem;
+      color: white;
+    }
+
+    .stat-card:nth-child(1) .stat-icon {
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    }
+
+    .stat-card:nth-child(2) .stat-icon {
+      background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
+    }
+
+    .stat-card:nth-child(3) .stat-icon {
+      background: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%);
     }
 
     .stat-value {
       font-size: 2rem;
       font-weight: 700;
       margin-bottom: 0.25rem;
+      color: var(--text);
     }
 
     .stat-label {
       font-size: 0.9rem;
-      opacity: 0.9;
+      color: var(--text-light);
     }
 
     .page-header-card {
@@ -340,25 +396,33 @@ import { AdminService, User } from '../../../services/admin.service';
 
     .btn-export {
       padding: 0.75rem 1rem;
-      border: 1px solid var(--border);
+      border: none;
       border-radius: 12px;
-      background: var(--surface);
-      color: var(--text);
+      color: white;
       cursor: pointer;
       font-size: 0.9rem;
+      font-weight: 500;
       transition: all 0.2s ease;
     }
 
+    .btn-export:first-of-type {
+      background: var(--error);
+    }
+
+    .btn-export:nth-of-type(2) {
+      background: var(--success);
+    }
+
     .btn-export:hover {
-      background: var(--background);
       transform: translateY(-2px);
+      box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
     }
 
     .btn-add {
       padding: 0.75rem 1.5rem;
       border: none;
       border-radius: 12px;
-      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      background: linear-gradient(135deg, #f97316 0%, #ea580c 100%);
       color: white;
       cursor: pointer;
       font-size: 1rem;
@@ -368,7 +432,7 @@ import { AdminService, User } from '../../../services/admin.service';
 
     .btn-add:hover {
       transform: translateY(-2px);
-      box-shadow: 0 4px 15px rgba(102, 126, 234, 0.4);
+      box-shadow: 0 4px 15px rgba(249, 115, 22, 0.4);
     }
 
     .table-container {
@@ -394,6 +458,7 @@ import { AdminService, User } from '../../../services/admin.service';
       font-size: 0.9rem;
       text-transform: uppercase;
       letter-spacing: 0.5px;
+      font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
     }
 
     .data-table th.sortable {
@@ -416,6 +481,14 @@ import { AdminService, User } from '../../../services/admin.service';
       padding: 1rem;
       border-bottom: 1px solid var(--border);
       color: var(--text);
+      font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+      vertical-align: middle;
+      text-align: center;
+    }
+
+    .data-table th {
+      vertical-align: middle;
+      text-align: center;
     }
 
     .table-row {
@@ -427,11 +500,10 @@ import { AdminService, User } from '../../../services/admin.service';
     }
 
     .user-name {
-      display: flex;
-      align-items: center;
-      gap: 0.75rem;
       cursor: pointer;
       font-weight: 500;
+      text-align: center;
+      vertical-align: middle;
     }
 
     .user-avatar {
@@ -459,10 +531,13 @@ import { AdminService, User } from '../../../services/admin.service';
     }
 
     .role-badge {
-      padding: 0.25rem 0.75rem;
-      border-radius: 20px;
-      font-size: 0.75rem;
-      font-weight: 500;
+      display: inline-block;
+      padding: 4px 10px;
+      border-radius: 12px;
+      font-size: 12px;
+      font-weight: 600;
+      text-align: center;
+      vertical-align: middle;
       text-transform: uppercase;
       color: white;
     }
@@ -495,6 +570,13 @@ import { AdminService, User } from '../../../services/admin.service';
     .actions {
       display: flex;
       gap: 0.5rem;
+      justify-content: center;
+      align-items: center;
+    }
+
+    .actions-header {
+      text-align: center;
+      vertical-align: middle;
     }
 
     .action-btn {
@@ -871,6 +953,82 @@ import { AdminService, User } from '../../../services/admin.service';
       background: #3b82f6;
       color: white;
     }
+
+    .details-popup {
+      background: var(--surface);
+      border-radius: 12px;
+      padding: 2rem;
+      width: 90%;
+      max-width: 400px;
+      box-shadow: 0 10px 25px rgba(0, 0, 0, 0.2);
+    }
+
+    .popup-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 1.5rem;
+      padding-bottom: 1rem;
+      border-bottom: 1px solid var(--border);
+    }
+
+    .popup-header h3 {
+      margin: 0;
+      color: var(--text);
+    }
+
+    .user-info {
+      display: flex;
+      align-items: center;
+      gap: 1rem;
+      margin-bottom: 1.5rem;
+    }
+
+    .user-avatar-large {
+      width: 60px;
+      height: 60px;
+      border-radius: 50%;
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      color: white;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 1.5rem;
+      font-weight: 600;
+    }
+
+    .user-basic h4 {
+      margin: 0 0 0.25rem 0;
+      color: var(--text);
+    }
+
+    .user-basic p {
+      margin: 0;
+      color: var(--text-light);
+      font-size: 0.9rem;
+    }
+
+    .details-grid {
+      display: grid;
+      gap: 1rem;
+    }
+
+    .detail-item {
+      display: flex;
+      justify-content: space-between;
+      padding: 0.75rem 0;
+      border-bottom: 1px solid var(--border);
+    }
+
+    .detail-label {
+      font-weight: 500;
+      color: var(--text-light);
+    }
+
+    .detail-value {
+      color: var(--text);
+      font-weight: 500;
+    }
   `]
 })
 export class Users implements OnInit {
@@ -881,7 +1039,8 @@ export class Users implements OnInit {
   roleFilter = '';
   showEditModal = false;
   showProfileSidebar = false;
-  editingUser: User = { id: 0, userName: '', email: '', department: '', roles: [] };
+  showDetailsPopup = false;
+  editingUser: User = { id: 0, userName: '', email: '', department: '', userRole: 0 };
   selectedUser: User | null = null;
   selectedRole = 'Employee';
   private searchTimeout: any;
@@ -913,18 +1072,15 @@ export class Users implements OnInit {
     this.adminService.getAllUsers().subscribe({
       next: (users) => {
         console.log('Users loaded successfully:', users);
-        this.users = users.map(user => ({ ...user, totalBookings: Math.floor(Math.random() * 50) }));
+        console.log('First user role:', users[0]?.userRole);
+        this.users = users || [];
+        this.loadBookingCounts();
         this.updateStats();
         this.filterUsers();
       },
       error: (error) => {
         console.error('Error loading users:', error);
-        // Add some mock data for testing
-        this.users = [
-          { id: 1, userName: 'John Doe', email: 'john.doe@company.com', department: 'IT', roles: ['Admin'] },
-          { id: 2, userName: 'Jane Smith', email: 'jane.smith@company.com', department: 'HR', roles: ['Manager'] },
-          { id: 3, userName: 'Bob Johnson', email: 'bob.johnson@company.com', department: 'IT', roles: ['Employee'] }
-        ].map(user => ({ ...user, totalBookings: Math.floor(Math.random() * 50) }));
+        this.users = [];
         this.updateStats();
         this.filterUsers();
       }
@@ -953,7 +1109,9 @@ export class Users implements OnInit {
     
     // Apply role filter
     if (this.roleFilter) {
-      filtered = filtered.filter(user => user.roles.includes(this.roleFilter));
+      const roleMap = { 'Employee': 0, 'Manager': 1, 'Admin': 2 };
+      const roleValue = roleMap[this.roleFilter as keyof typeof roleMap];
+      filtered = filtered.filter(user => user.userRole === roleValue);
     }
     
     this.filteredUsers = filtered;
@@ -993,13 +1151,14 @@ export class Users implements OnInit {
     switch (field) {
       case 'userName': return user.userName.toLowerCase();
       case 'email': return user.email.toLowerCase();
-      case 'roles': return user.roles[0]?.toLowerCase() || 'employee';
+      case 'roles': return user.userRole || 0;
+      case 'department': return user.department.toLowerCase();
       default: return '';
     }
   }
   
   getSortIcon(field: string): string {
-    if (this.sortField !== field) return '↕️';
+    if (this.sortField !== field) return '↕';
     return this.sortDirection === 'asc' ? '↑' : '↓';
   }
   
@@ -1050,9 +1209,59 @@ export class Users implements OnInit {
   }
   
   exportData(format: 'csv' | 'excel') {
-    console.log(`Exporting data as ${format}`);
-    // Implementation for export functionality
-    alert(`Export as ${format.toUpperCase()} functionality will be implemented`);
+    const data = this.filteredUsers.map(user => ({
+      'User ID': user.id,
+      'Name': user.userName,
+      'Email': user.email,
+      'Role': this.getDisplayRole(user.userRole),
+      'Department': user.department,
+      'Total Bookings': user.totalBookings || 0
+    }));
+
+    if (format === 'csv') {
+      this.downloadCSV(data);
+    } else {
+      this.downloadExcel(data);
+    }
+  }
+
+  private downloadCSV(data: any[]) {
+    const headers = Object.keys(data[0]);
+    const csvContent = [
+      headers.join(','),
+      ...data.map(row => headers.map(header => `"${row[header]}"`).join(','))
+    ].join('\n');
+
+    const blob = new Blob([csvContent], { type: 'text/csv' });
+    const url = window.URL.createObjectURL(blob);
+    const link = document.createElement('a');
+    link.href = url;
+    link.download = `users_${new Date().toISOString().split('T')[0]}.csv`;
+    link.click();
+    window.URL.revokeObjectURL(url);
+  }
+
+  private downloadExcel(data: any[]) {
+    const headers = Object.keys(data[0]);
+    let excelContent = '<table>';
+    
+    // Add headers
+    excelContent += '<tr>' + headers.map(h => `<th>${h}</th>`).join('') + '</tr>';
+    
+    // Add data rows
+    data.forEach(row => {
+      excelContent += '<tr>' + headers.map(h => `<td>${row[h]}</td>`).join('') + '</tr>';
+    });
+    
+    excelContent += '</table>';
+    
+    const blob = new Blob([excelContent], { type: 'application/vnd.ms-excel' });
+    const url = window.URL.createObjectURL(blob);
+    const link = document.createElement('a');
+    link.href = url;
+    link.download = `users_${new Date().toISOString().split('T')[0]}.xls`;
+    link.click();
+    window.URL.revokeObjectURL(url);
   }
   
   updateStats() {
@@ -1068,7 +1277,7 @@ export class Users implements OnInit {
 
   editUser(user: User) {
     this.editingUser = { ...user };
-    this.selectedRole = user.roles[0] || 'Employee';
+    this.selectedRole = this.getDisplayRole(user.userRole);
     this.showEditModal = true;
   }
 
@@ -1094,10 +1303,34 @@ export class Users implements OnInit {
     });
   }
 
+  showUserDetails(user: User) {
+    this.selectedUser = user;
+    this.showDetailsPopup = true;
+  }
+
+  closeDetailsPopup() {
+    this.showDetailsPopup = false;
+    this.selectedUser = null;
+  }
+
   viewUserBookings(userId: number) {
     // TODO: Implement viewBookingByUserId functionality
     console.log('View bookings for user:', userId);
     alert(`View booking history for User ID: ${userId}\n\nThis feature will show all bookings made by this user.`);
+  }
+
+  loadBookingCounts() {
+    this.users.forEach(user => {
+      this.adminService.getUserBookingCount(user.id).subscribe({
+        next: (count) => {
+          user.totalBookings = count;
+        },
+        error: (error) => {
+          console.error(`Error loading booking count for user ${user.id}:`, error);
+          user.totalBookings = 0;
+        }
+      });
+    });
   }
 
   deleteUser(userId: number) {
@@ -1113,5 +1346,15 @@ export class Users implements OnInit {
         }
       });
     }
+  }
+
+  getRoleClass(userRole: number): string {
+    const roleMap: { [key: number]: string } = { 0: 'employee', 1: 'manager', 2: 'admin' };
+    return roleMap[userRole] || 'employee';
+  }
+
+  getDisplayRole(userRole: number): string {
+    const roleMap: { [key: number]: string } = { 0: 'Employee', 1: 'Manager', 2: 'Admin' };
+    return roleMap[userRole] || 'Employee';
   }
 }

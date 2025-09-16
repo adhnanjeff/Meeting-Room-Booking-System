@@ -11,6 +11,7 @@ import { AuthService, User } from '../../../services/auth.service';
 interface AttendeeTag {
   id: number;
   name: string;
+  role: string;
 }
 
 interface SearchResult {
@@ -132,6 +133,26 @@ interface DateOption {
           <div class="attendee-tags" *ngIf="attendeeTags.length > 0">
             <div *ngFor="let attendee of attendeeTags; let i = index" class="attendee-tag">
               <span class="attendee-info">{{ attendee.name }} (ID: {{ attendee.id }})</span>
+              <div class="role-selector">
+                <div class="role-badge" [class]="'role-' + attendee.role.toLowerCase().replace(' ', '-')" (click)="toggleRoleDropdown(i)">
+                  {{ attendee.role }}
+                  <i class="pi pi-chevron-down"></i>
+                </div>
+                <div class="role-dropdown" *ngIf="activeRoleDropdown === i">
+                  <div class="role-option" [class.active]="attendee.role === 'Participant'" (click)="selectRole(attendee, 'Participant', i)">
+                    <i class="pi pi-user"></i> Participant
+                  </div>
+                  <div class="role-option" [class.active]="attendee.role === 'Presenter'" (click)="selectRole(attendee, 'Presenter', i)">
+                    <i class="pi pi-microphone"></i> Presenter
+                  </div>
+                  <div class="role-option" [class.active]="attendee.role === 'Note Taker'" (click)="selectRole(attendee, 'Note Taker', i)">
+                    <i class="pi pi-file-edit"></i> Note Taker
+                  </div>
+                  <div class="role-option" [class.active]="attendee.role === 'Moderator'" (click)="selectRole(attendee, 'Moderator', i)">
+                    <i class="pi pi-shield"></i> Moderator
+                  </div>
+                </div>
+              </div>
               <button class="tag-remove" (click)="removeAttendee(i)">×</button>
             </div>
           </div>
@@ -467,6 +488,88 @@ interface DateOption {
       align-items: center;
       gap: 0.5rem;
       font-size: 0.9rem;
+      position: relative;
+    }
+
+    .role-selector {
+      position: relative;
+    }
+
+    .role-badge {
+      background: var(--primary);
+      color: white;
+      padding: 0.25rem 0.75rem;
+      border-radius: 20px;
+      font-size: 0.75rem;
+      font-weight: 500;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+      transition: all 0.2s ease;
+      min-width: 90px;
+      justify-content: space-between;
+    }
+
+    .role-badge:hover {
+      transform: translateY(-1px);
+      box-shadow: 0 2px 8px rgba(0,0,0,0.15);
+    }
+
+    .role-badge.role-participant {
+      background: #3B82F6;
+    }
+
+    .role-badge.role-presenter {
+      background: #F59E0B;
+    }
+
+    .role-badge.role-note-taker {
+      background: #6B7280;
+    }
+
+    .role-badge.role-moderator {
+      background: #10B981;
+    }
+
+    .role-dropdown {
+      position: absolute;
+      top: 100%;
+      left: 0;
+      background: white;
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+      z-index: 1000;
+      overflow: hidden;
+      margin-top: 0.25rem;
+      min-width: 140px;
+      white-space: nowrap;
+    }
+
+    .role-option {
+      padding: 0.75rem 1rem;
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+      cursor: pointer;
+      transition: background-color 0.2s;
+      font-size: 0.875rem;
+      color: var(--text);
+    }
+
+    .role-option:hover {
+      background: var(--background);
+    }
+
+    .role-option.active {
+      background: var(--primary-light, rgba(59, 130, 246, 0.1));
+      color: var(--primary);
+    }
+
+    .role-option i {
+      font-size: 0.875rem;
+      width: 1rem;
     }
 
     .attendee-info {
@@ -515,8 +618,20 @@ interface DateOption {
 
     .cards-grid {
       display: grid;
-      grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+      grid-template-columns: repeat(3, 1fr);
       gap: 1.5rem;
+    }
+
+    @media (max-width: 1199px) and (min-width: 768px) {
+      .cards-grid {
+        grid-template-columns: repeat(2, 1fr);
+      }
+    }
+
+    @media (max-width: 767px) {
+      .cards-grid {
+        grid-template-columns: 1fr;
+      }
     }
 
     .room-card {
@@ -705,6 +820,7 @@ export class BookMeetingComponent implements OnInit {
   selectedRoomId = 0;
   error = '';
   success = '';
+  activeRoleDropdown: number | null = null;
 
 
   holidays = {
@@ -773,7 +889,7 @@ export class BookMeetingComponent implements OnInit {
 
   addAttendeeFromSearch(user: SearchResult): void {
     if (!this.attendeeTags.some(a => a.id === user.id)) {
-      this.attendeeTags.push({ id: user.id, name: user.userName });
+      this.attendeeTags.push({ id: user.id, name: user.userName, role: 'Participant' });
       this.toastService.success('Attendee Added', `${user.userName} added to meeting`);
       this.searchTerm = '';
       this.searchResults = [];
@@ -862,7 +978,7 @@ export class BookMeetingComponent implements OnInit {
     if (userId && !this.attendeeTags.some(a => a.id === userId)) {
       this.userService.getUserById(userId).subscribe({
         next: (user) => {
-          this.attendeeTags.push({ id: user.id, name: user.userName });
+          this.attendeeTags.push({ id: user.id, name: user.userName, role: 'Participant' });
           this.newAttendeeId = '';
           this.toastService.success('Attendee Added', `${user.userName} added to meeting`);
         },
@@ -884,9 +1000,6 @@ export class BookMeetingComponent implements OnInit {
   selectRoom(room: MeetingRoom): void {
     if (room.isAvailable) {
       this.selectedRoomId = room.id;
-      this.toastService.info('Room Selected', `${room.roomName} selected for your meeting`);
-    } else {
-      this.toastService.warning('Room Unavailable', `${room.roomName} is not available for booking`);
     }
   }
 
@@ -911,6 +1024,7 @@ export class BookMeetingComponent implements OnInit {
       endTime: endDateTime,
       isEmergency: false,
       attendeeUserIds: this.attendeeTags.map(a => a.id),
+      attendeeRoles: this.attendeeTags.map(a => a.role),
       refreshmentRequests: this.refreshmentRequests
     };
 
@@ -939,6 +1053,15 @@ export class BookMeetingComponent implements OnInit {
              this.startTime && 
              this.endTime && 
              this.startTime < this.endTime);
+  }
+
+  toggleRoleDropdown(index: number): void {
+    this.activeRoleDropdown = this.activeRoleDropdown === index ? null : index;
+  }
+
+  selectRole(attendee: AttendeeTag, role: string, index: number): void {
+    attendee.role = role;
+    this.activeRoleDropdown = null;
   }
 
   resetForm(): void {

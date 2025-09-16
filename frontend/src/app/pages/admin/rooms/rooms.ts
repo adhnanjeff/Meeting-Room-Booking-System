@@ -2,6 +2,7 @@ import { Component, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { MeetingRoomService, MeetingRoom } from '../../../services/meetingroom.service';
+import { AdminService } from '../../../services/admin.service';
 
 @Component({
   selector: 'app-rooms',
@@ -78,7 +79,7 @@ import { MeetingRoomService, MeetingRoom } from '../../../services/meetingroom.s
               (click)="setViewMode('card')"
               title="Card View"><i class="pi pi-th-large"></i></button>
           </div>
-          <button class="btn-export" (click)="exportData('csv')" title="Export CSV"><i class="pi pi-file-excel"></i> CSV</button>
+          <button class="btn-export" (click)="exportData('csv')" title="Export CSV"><i class="pi pi-file"></i> CSV</button>
           <button class="btn-export" (click)="exportData('excel')" title="Export Excel"><i class="pi pi-file-excel"></i> Excel</button>
           <button class="btn-add" (click)="addRoom()" title="Add Room"><i class="pi pi-plus"></i> Add Room</button>
         </div>
@@ -287,15 +288,17 @@ import { MeetingRoomService, MeetingRoom } from '../../../services/meetingroom.s
     }
 
     .stat-card {
-      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      background: var(--surface);
       border-radius: 16px;
       padding: 1.5rem;
-      color: white;
+      color: var(--text);
       display: flex;
       align-items: center;
       gap: 1rem;
       box-shadow: 0 4px 20px rgba(0,0,0,0.1);
       transition: transform 0.2s ease;
+      border-left: 12px solid #4f46e5;
+      border: 1px solid var(--border);
     }
 
     .stat-card:hover {
@@ -303,11 +306,34 @@ import { MeetingRoomService, MeetingRoom } from '../../../services/meetingroom.s
     }
 
     .stat-card:nth-child(2) {
-      background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
+      border-left-color: #ec4899;
     }
 
     .stat-card:nth-child(3) {
-      background: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%);
+      border-left-color: #06b6d4;
+    }
+
+    .stat-icon {
+      width: 50px;
+      height: 50px;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 1.5rem;
+      color: white;
+    }
+
+    .stat-card:nth-child(1) .stat-icon {
+      background: linear-gradient(135deg, #4f46e5 0%, #3b82f6 100%);
+    }
+
+    .stat-card:nth-child(2) .stat-icon {
+      background: linear-gradient(135deg, #ec4899 0%, #f472b6 100%);
+    }
+
+    .stat-card:nth-child(3) .stat-icon {
+      background: linear-gradient(135deg, #06b6d4 0%, #0891b2 100%);
     }
 
     .stat-icon {
@@ -436,18 +462,26 @@ import { MeetingRoomService, MeetingRoom } from '../../../services/meetingroom.s
 
     .btn-export {
       padding: 0.75rem 1rem;
-      border: 1px solid var(--border);
+      border: none;
       border-radius: 12px;
-      background: var(--surface);
-      color: var(--text);
+      color: white;
       cursor: pointer;
       font-size: 0.9rem;
+      font-weight: 500;
       transition: all 0.2s ease;
     }
 
+    .btn-export:first-of-type {
+      background: var(--error);
+    }
+
+    .btn-export:nth-of-type(2) {
+      background: var(--success);
+    }
+
     .btn-export:hover {
-      background: var(--background);
       transform: translateY(-2px);
+      box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
     }
 
     .btn-add {
@@ -513,6 +547,13 @@ import { MeetingRoomService, MeetingRoom } from '../../../services/meetingroom.s
       padding: 1rem;
       border-bottom: 1px solid var(--border);
       color: var(--text);
+      vertical-align: middle;
+      text-align: center;
+    }
+
+    .data-table th {
+      vertical-align: middle;
+      text-align: center;
     }
 
     .table-row {
@@ -653,6 +694,8 @@ import { MeetingRoomService, MeetingRoom } from '../../../services/meetingroom.s
     .actions {
       display: flex;
       gap: 0.5rem;
+      justify-content: center;
+      align-items: center;
     }
 
     .action-btn {
@@ -1068,43 +1111,44 @@ export class Rooms implements OnInit {
   sortField = '';
   sortDirection: 'asc' | 'desc' = 'asc';
   
-  // Stats
+  // Stats - Initialize with default values
   totalRooms = 0;
   availableRooms = 0;
   totalBookings = 0;
   
   Math = Math;
+  
+  // Loading state
+  isLoading = false;
 
-  constructor(private meetingRoomService: MeetingRoomService) {}
+  constructor(
+    private meetingRoomService: MeetingRoomService,
+    private adminService: AdminService
+  ) {}
 
   ngOnInit() {
     this.loadRooms();
   }
 
   loadRooms() {
+    this.isLoading = true;
     console.log('Attempting to load rooms from API...');
     this.meetingRoomService.getAllRooms().subscribe({
       next: (rooms) => {
         console.log('Rooms loaded successfully:', rooms);
-        this.rooms = rooms.map(room => ({ ...room, totalBookings: Math.floor(Math.random() * 100) }));
+        this.rooms = rooms || [];
+        this.loadBookingCounts();
         this.updateStats();
         this.filterRooms();
+        this.isLoading = false;
       },
       error: (error) => {
         console.error('Error loading rooms:', error);
-        console.error('Error details:', {
-          status: error.status,
-          message: error.message,
-          url: error.url
-        });
         // Add some mock data for testing
-        this.rooms = [
-          { id: 1, roomName: 'Conference Room A', capacity: 10, amenities: 'Projector, Whiteboard', isAvailable: true },
-          { id: 2, roomName: 'Meeting Room B', capacity: 6, amenities: 'TV Screen, Phone', isAvailable: false },
-          { id: 3, roomName: 'Board Room', capacity: 12, amenities: 'Video Conference, Projector', isAvailable: true }
-        ].map(room => ({ ...room, totalBookings: Math.floor(Math.random() * 100) }));
+        this.rooms = [];
         this.updateStats();
         this.filterRooms();
+        this.isLoading = false;
       }
     });
   }
@@ -1117,24 +1161,31 @@ export class Rooms implements OnInit {
   }
 
   filterRooms() {
-    let filtered = this.rooms;
+    if (!this.rooms || this.rooms.length === 0) {
+      this.filteredRooms = [];
+      this.updatePagination();
+      return;
+    }
+    
+    let filtered = [...this.rooms];
     
     // Apply search filter
-    if (this.searchTerm) {
-      const term = this.searchTerm.toLowerCase();
+    if (this.searchTerm && this.searchTerm.trim()) {
+      const term = this.searchTerm.toLowerCase().trim();
       filtered = filtered.filter(room =>
-        room.roomName.toLowerCase().includes(term) ||
-        room.amenities.toLowerCase().includes(term)
+        (room.roomName || '').toLowerCase().includes(term) ||
+        (room.amenities || '').toLowerCase().includes(term)
       );
     }
     
     // Apply capacity filter
     if (this.capacityFilter) {
       filtered = filtered.filter(room => {
+        const capacity = room.capacity || 0;
         switch (this.capacityFilter) {
-          case 'small': return room.capacity <= 6;
-          case 'medium': return room.capacity >= 7 && room.capacity <= 12;
-          case 'large': return room.capacity >= 13;
+          case 'small': return capacity <= 6;
+          case 'medium': return capacity >= 7 && capacity <= 12;
+          case 'large': return capacity >= 13;
           default: return true;
         }
       });
@@ -1151,12 +1202,13 @@ export class Rooms implements OnInit {
   }
   
   updatePagination() {
-    this.totalPages = Math.ceil(this.filteredRooms.length / this.pageSize);
-    this.currentPage = Math.min(this.currentPage, this.totalPages || 1);
+    const totalItems = this.filteredRooms?.length || 0;
+    this.totalPages = Math.max(1, Math.ceil(totalItems / this.pageSize));
+    this.currentPage = Math.min(this.currentPage, this.totalPages);
     
     const startIndex = (this.currentPage - 1) * this.pageSize;
     const endIndex = startIndex + this.pageSize;
-    this.paginatedRooms = this.filteredRooms.slice(startIndex, endIndex);
+    this.paginatedRooms = this.filteredRooms?.slice(startIndex, endIndex) || [];
   }
   
   sort(field: string) {
@@ -1189,7 +1241,7 @@ export class Rooms implements OnInit {
   }
   
   getSortIcon(field: string): string {
-    if (this.sortField !== field) return '↕️';
+    if (this.sortField !== field) return '↕';
     return this.sortDirection === 'asc' ? '↑' : '↓';
   }
   
@@ -1204,7 +1256,7 @@ export class Rooms implements OnInit {
   }
   
   getFacilityIcons(amenities: string): { icon: string, name: string }[] {
-    if (!amenities) return [];
+    if (!amenities || typeof amenities !== 'string') return [];
     
     const facilityMap: { [key: string]: string } = {
       'projector': 'pi pi-desktop',
@@ -1220,15 +1272,20 @@ export class Rooms implements OnInit {
       'speaker': 'pi pi-volume-up'
     };
     
-    const facilities = amenities.toLowerCase().split(/[,\s]+/);
-    return facilities.map(facility => {
-      const cleanFacility = facility.trim();
-      const icon = Object.keys(facilityMap).find(key => cleanFacility.includes(key));
-      return {
-        icon: icon ? `<i class="${facilityMap[icon]}"></i>` : '<i class="pi pi-cog"></i>',
-        name: facility.charAt(0).toUpperCase() + facility.slice(1)
-      };
-    }).filter(f => f.name.length > 0);
+    try {
+      const facilities = amenities.toLowerCase().split(/[,\s]+/).filter(f => f.trim().length > 0);
+      return facilities.map(facility => {
+        const cleanFacility = facility.trim();
+        const icon = Object.keys(facilityMap).find(key => cleanFacility.includes(key));
+        return {
+          icon: icon ? `<i class="${facilityMap[icon]}"></i>` : '<i class="pi pi-cog"></i>',
+          name: cleanFacility.charAt(0).toUpperCase() + cleanFacility.slice(1)
+        };
+      }).filter(f => f.name && f.name.length > 0);
+    } catch (error) {
+      console.error('Error parsing facilities:', error);
+      return [];
+    }
   }
   
   // Pagination methods
@@ -1278,14 +1335,71 @@ export class Rooms implements OnInit {
   }
   
   exportData(format: 'csv' | 'excel') {
-    console.log(`Exporting data as ${format}`);
-    alert(`Export as ${format.toUpperCase()} functionality will be implemented`);
+    const data = this.filteredRooms.map(room => ({
+      'Room Name': room.roomName,
+      'Capacity': room.capacity,
+      'Amenities': room.amenities,
+      'Availability': room.isAvailable ? 'Available' : 'Booked',
+      'Total Bookings': room.totalBookings || 0
+    }));
+
+    if (format === 'csv') {
+      this.downloadCSV(data);
+    } else {
+      this.downloadExcel(data);
+    }
+  }
+
+  private downloadCSV(data: any[]) {
+    const headers = Object.keys(data[0]);
+    const csvContent = [
+      headers.join(','),
+      ...data.map(row => headers.map(header => `"${row[header]}"`).join(','))
+    ].join('\n');
+
+    const blob = new Blob([csvContent], { type: 'text/csv' });
+    const url = window.URL.createObjectURL(blob);
+    const link = document.createElement('a');
+    link.href = url;
+    link.download = `rooms_${new Date().toISOString().split('T')[0]}.csv`;
+    link.click();
+    window.URL.revokeObjectURL(url);
+  }
+
+  private downloadExcel(data: any[]) {
+    const headers = Object.keys(data[0]);
+    let excelContent = '<table>';
+    
+    // Add headers
+    excelContent += '<tr>' + headers.map(h => `<th>${h}</th>`).join('') + '</tr>';
+    
+    // Add data rows
+    data.forEach(row => {
+      excelContent += '<tr>' + headers.map(h => `<td>${row[h]}</td>`).join('') + '</tr>';
+    });
+    
+    excelContent += '</table>';
+    
+    const blob = new Blob([excelContent], { type: 'application/vnd.ms-excel' });
+    const url = window.URL.createObjectURL(blob);
+    const link = document.createElement('a');
+    link.href = url;
+    link.download = `rooms_${new Date().toISOString().split('T')[0]}.xls`;
+    link.click();
+    window.URL.revokeObjectURL(url);
   }
   
   updateStats() {
+    if (!this.rooms || !Array.isArray(this.rooms)) {
+      this.totalRooms = 0;
+      this.availableRooms = 0;
+      this.totalBookings = 0;
+      return;
+    }
+    
     this.totalRooms = this.rooms.length;
-    this.availableRooms = this.rooms.filter(room => room.isAvailable).length;
-    this.totalBookings = this.rooms.reduce((sum, room) => sum + (room.totalBookings || 0), 0);
+    this.availableRooms = this.rooms.filter(room => room && room.isAvailable).length;
+    this.totalBookings = this.rooms.reduce((sum, room) => sum + (room?.totalBookings || 0), 0);
   }
 
   addRoom() {
@@ -1341,6 +1455,20 @@ export class Rooms implements OnInit {
     // TODO: Implement viewBookingByRoomId functionality
     console.log('View bookings for room:', roomId);
     alert(`View booking history for Room ID: ${roomId}\n\nThis feature will show all bookings made for this room.`);
+  }
+
+  loadBookingCounts() {
+    this.rooms.forEach(room => {
+      this.adminService.getRoomBookingCount(room.id).subscribe({
+        next: (count) => {
+          room.totalBookings = count;
+        },
+        error: (error) => {
+          console.error(`Error loading booking count for room ${room.id}:`, error);
+          room.totalBookings = 0;
+        }
+      });
+    });
   }
 
   deleteRoom(roomId: number) {

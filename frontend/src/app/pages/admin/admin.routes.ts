@@ -9,6 +9,8 @@ export const adminRoutes: Routes = [
       { path: 'home', loadComponent: () => import('./admin-dashboard/admin-dashboard.component').then(m => m.AdminDashboardComponent) },
       { path: 'users', loadComponent: () => import('./users/users').then(m => m.Users) },
       { path: 'rooms', loadComponent: () => import('./rooms/rooms').then(m => m.Rooms) },
+      { path: 'analytics', loadComponent: () => import('./analytics/analytics.component').then(m => m.AnalyticsComponent) },
+      { path: 'sustainability', loadComponent: () => import('./sustainability/sustainability.component').then(m => m.SustainabilityComponent) },
       { path: 'bookings', loadComponent: () => import('./admin-dashboard/admin-dashboard.component').then(m => m.AdminDashboardComponent) }
     ]
   }

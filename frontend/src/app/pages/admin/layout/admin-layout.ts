@@ -48,6 +48,14 @@ import { LoaderComponent } from '../../../components/loader/loader.component';
             <i class="pi pi-building nav-icon"></i>
             <span>Room Management</span>
           </a>
+          <a routerLink="analytics" routerLinkActive="active" class="nav-item">
+            <i class="pi pi-chart-bar nav-icon"></i>
+            <span>Room Analytics</span>
+          </a>
+          <a routerLink="sustainability" routerLinkActive="active" class="nav-item">
+            <i class="pi pi-globe nav-icon"></i>
+            <span>Green Insights</span>
+          </a>
           <a routerLink="bookings" routerLinkActive="active" class="nav-item">
             <i class="pi pi-calendar nav-icon"></i>
             <span>All Bookings</span>

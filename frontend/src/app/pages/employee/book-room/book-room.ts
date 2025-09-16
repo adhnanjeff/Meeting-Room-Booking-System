@@ -969,7 +969,7 @@ export class BookRoom implements OnInit {
   }
 
   onRoleChange(attendee: AttendeeTag): void {
-    this.toastService.info('Role Updated', `${attendee.name}'s role changed to ${attendee.role}`);
+    // Role updated silently
   }
 
   removeAttendee(index: number): void {
@@ -982,7 +982,6 @@ export class BookRoom implements OnInit {
 
   selectRoom(room: MeetingRoom): void {
     if (!room.isAvailable) {
-      this.toastService.warning('Room Unavailable', `${room.roomName} is not available for booking`);
       return;
     }
     
@@ -999,7 +998,6 @@ export class BookRoom implements OnInit {
       next: (result) => {
         if (result.isAvailable) {
           this.meetingRequest.roomId = room.id;
-          this.toastService.success('Room Selected', `${room.roomName} is available and selected`);
         } else {
           this.toastService.error('Room Conflict', `${room.roomName} is already booked for this time slot`);
         }
