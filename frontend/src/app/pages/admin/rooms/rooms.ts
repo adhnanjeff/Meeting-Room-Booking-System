@@ -79,8 +79,7 @@ import { AdminService } from '../../../services/admin.service';
               (click)="setViewMode('card')"
               title="Card View"><i class="pi pi-th-large"></i></button>
           </div>
-          <button class="btn-export" (click)="exportData('csv')" title="Export CSV"><i class="pi pi-file"></i> CSV</button>
-          <button class="btn-export" (click)="exportData('excel')" title="Export Excel"><i class="pi pi-file-excel"></i> Excel</button>
+
           <button class="btn-add" (click)="addRoom()" title="Add Room"><i class="pi pi-plus"></i> Add Room</button>
         </div>
       </div>
@@ -105,32 +104,32 @@ import { AdminService } from '../../../services/admin.service';
             </tr>
           </thead>
           <tbody>
-            <tr *ngFor="let room of paginatedRooms" class="table-row">
+            <tr *ngFor="let room of paginatedRooms; trackBy: trackByRoomId" class="table-row">
               <td class="room-name" (click)="showRoomPreview(room)">
                 <div class="room-icon"><i class="pi pi-building"></i></div>
-                {{ room.roomName }}
+                {{ room?.roomName || 'Unknown Room' }}
               </td>
               <td class="capacity">
-                <span class="capacity-badge" [class]="getCapacityClass(room.capacity)">
-                  <i class="pi pi-users"></i> {{ room.capacity }}
+                <span class="capacity-badge" [class]="getCapacityClass(room?.capacity || 0)">
+                  <i class="pi pi-users"></i> {{ room?.capacity || 0 }}
                 </span>
               </td>
               <td class="facilities">
                 <div class="facility-icons">
-                  <span *ngFor="let facility of getFacilityIcons(room.amenities)" class="facility-icon" [title]="facility.name" [innerHTML]="facility.icon">
+                  <span *ngFor="let facility of getFacilityIcons(room?.amenities || '')" class="facility-icon" [title]="facility.name" [innerHTML]="facility.icon">
                   </span>
                 </div>
               </td>
               <td>
-                <span class="status-badge" [class.available]="room.isAvailable" [class.booked]="!room.isAvailable">
-                  {{ room.isAvailable ? 'Available' : 'Booked' }}
+                <span class="status-badge" [class.available]="room?.isAvailable" [class.booked]="!room?.isAvailable">
+                  {{ room?.isAvailable ? 'Available' : 'Booked' }}
                 </span>
               </td>
-              <td class="booking-count">{{ room.totalBookings || 0 }}</td>
+              <td class="booking-count">{{ room?.totalBookings || 0 }}</td>
               <td class="actions">
-                <button class="action-btn view" (click)="viewRoomBookings(room.id)" title="View Bookings"><i class="pi pi-eye"></i></button>
+                <button class="action-btn view" (click)="viewRoomBookings(room?.id || 0)" title="View Bookings"><i class="pi pi-eye"></i></button>
                 <button class="action-btn edit" (click)="editRoom(room)" title="Edit Room"><i class="pi pi-pencil"></i></button>
-                <button class="action-btn delete" (click)="deleteRoom(room.id)" title="Delete Room"><i class="pi pi-trash"></i></button>
+                <button class="action-btn delete" (click)="deleteRoom(room?.id || 0)" title="Delete Room"><i class="pi pi-trash"></i></button>
               </td>
             </tr>
           </tbody>
@@ -140,29 +139,29 @@ import { AdminService } from '../../../services/admin.service';
       <!-- Card View -->
       <div class="cards-grid" *ngIf="viewMode === 'card'">
         <div 
-          *ngFor="let room of paginatedRooms" 
+          *ngFor="let room of paginatedRooms; trackBy: trackByRoomId" 
           class="room-card"
-          [class.available]="room.isAvailable"
-          [class.booked]="!room.isAvailable"
+          [class.available]="room?.isAvailable"
+          [class.booked]="!room?.isAvailable"
           (click)="showRoomPreview(room)"
         >
           <div class="room-header">
-            <h3>{{ room.roomName }}</h3>
-            <span class="status-badge" [class.available]="room.isAvailable" [class.booked]="!room.isAvailable">
-              {{ room.isAvailable ? 'Available' : 'Booked' }}
+            <h3>{{ room?.roomName || 'Unknown Room' }}</h3>
+            <span class="status-badge" [class.available]="room?.isAvailable" [class.booked]="!room?.isAvailable">
+              {{ room?.isAvailable ? 'Available' : 'Booked' }}
             </span>
           </div>
           
           <div class="room-details">
             <div class="detail-item">
-              <span class="capacity-badge" [class]="getCapacityClass(room.capacity)">
-                <i class="pi pi-users"></i> {{ room.capacity }} people
+              <span class="capacity-badge" [class]="getCapacityClass(room?.capacity || 0)">
+                <i class="pi pi-users"></i> {{ room?.capacity || 0 }} people
               </span>
             </div>
             
-            <div class="facilities-section" *ngIf="room.amenities">
+            <div class="facilities-section" *ngIf="room?.amenities">
               <div class="facility-icons">
-                <span *ngFor="let facility of getFacilityIcons(room.amenities)" 
+                <span *ngFor="let facility of getFacilityIcons(room?.amenities || '')" 
                       class="facility-icon" 
                       [title]="facility.name"
                       [innerHTML]="facility.icon">
@@ -171,14 +170,14 @@ import { AdminService } from '../../../services/admin.service';
             </div>
             
             <div class="booking-stats">
-              <span class="booking-count"><i class="pi pi-chart-bar"></i> {{ room.totalBookings || 0 }} bookings</span>
+              <span class="booking-count"><i class="pi pi-chart-bar"></i> {{ room?.totalBookings || 0 }} bookings</span>
             </div>
           </div>
           
           <div class="room-actions" (click)="$event.stopPropagation()">
-            <button class="action-btn view" (click)="viewRoomBookings(room.id)" title="View Bookings"><i class="pi pi-eye"></i></button>
+            <button class="action-btn view" (click)="viewRoomBookings(room?.id || 0)" title="View Bookings"><i class="pi pi-eye"></i></button>
             <button class="action-btn edit" (click)="editRoom(room)" title="Edit Room"><i class="pi pi-pencil"></i></button>
-            <button class="action-btn delete" (click)="deleteRoom(room.id)" title="Delete Room"><i class="pi pi-trash"></i></button>
+            <button class="action-btn delete" (click)="deleteRoom(room?.id || 0)" title="Delete Room"><i class="pi pi-trash"></i></button>
           </div>
         </div>
       </div>
@@ -460,29 +459,7 @@ import { AdminService } from '../../../services/admin.service';
       color: white;
     }
 
-    .btn-export {
-      padding: 0.75rem 1rem;
-      border: none;
-      border-radius: 12px;
-      color: white;
-      cursor: pointer;
-      font-size: 0.9rem;
-      font-weight: 500;
-      transition: all 0.2s ease;
-    }
 
-    .btn-export:first-of-type {
-      background: var(--error);
-    }
-
-    .btn-export:nth-of-type(2) {
-      background: var(--success);
-    }
-
-    .btn-export:hover {
-      transform: translateY(-2px);
-      box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
-    }
 
     .btn-add {
       padding: 0.75rem 1.5rem;
@@ -1233,8 +1210,8 @@ export class Rooms implements OnInit {
   
   getFieldValue(room: MeetingRoom, field: string): any {
     switch (field) {
-      case 'roomName': return room.roomName.toLowerCase();
-      case 'capacity': return room.capacity;
+      case 'roomName': return (room.roomName || '').toLowerCase();
+      case 'capacity': return room.capacity || 0;
       case 'isAvailable': return room.isAvailable ? 1 : 0;
       default: return '';
     }
@@ -1334,60 +1311,7 @@ export class Rooms implements OnInit {
     this.selectedRoom = null;
   }
   
-  exportData(format: 'csv' | 'excel') {
-    const data = this.filteredRooms.map(room => ({
-      'Room Name': room.roomName,
-      'Capacity': room.capacity,
-      'Amenities': room.amenities,
-      'Availability': room.isAvailable ? 'Available' : 'Booked',
-      'Total Bookings': room.totalBookings || 0
-    }));
 
-    if (format === 'csv') {
-      this.downloadCSV(data);
-    } else {
-      this.downloadExcel(data);
-    }
-  }
-
-  private downloadCSV(data: any[]) {
-    const headers = Object.keys(data[0]);
-    const csvContent = [
-      headers.join(','),
-      ...data.map(row => headers.map(header => `"${row[header]}"`).join(','))
-    ].join('\n');
-
-    const blob = new Blob([csvContent], { type: 'text/csv' });
-    const url = window.URL.createObjectURL(blob);
-    const link = document.createElement('a');
-    link.href = url;
-    link.download = `rooms_${new Date().toISOString().split('T')[0]}.csv`;
-    link.click();
-    window.URL.revokeObjectURL(url);
-  }
-
-  private downloadExcel(data: any[]) {
-    const headers = Object.keys(data[0]);
-    let excelContent = '<table>';
-    
-    // Add headers
-    excelContent += '<tr>' + headers.map(h => `<th>${h}</th>`).join('') + '</tr>';
-    
-    // Add data rows
-    data.forEach(row => {
-      excelContent += '<tr>' + headers.map(h => `<td>${row[h]}</td>`).join('') + '</tr>';
-    });
-    
-    excelContent += '</table>';
-    
-    const blob = new Blob([excelContent], { type: 'application/vnd.ms-excel' });
-    const url = window.URL.createObjectURL(blob);
-    const link = document.createElement('a');
-    link.href = url;
-    link.download = `rooms_${new Date().toISOString().split('T')[0]}.xls`;
-    link.click();
-    window.URL.revokeObjectURL(url);
-  }
   
   updateStats() {
     if (!this.rooms || !Array.isArray(this.rooms)) {
@@ -1458,10 +1382,14 @@ export class Rooms implements OnInit {
   }
 
   loadBookingCounts() {
+    if (!this.rooms || !Array.isArray(this.rooms)) return;
+    
     this.rooms.forEach(room => {
+      if (!room || !room.id) return;
+      
       this.adminService.getRoomBookingCount(room.id).subscribe({
         next: (count) => {
-          room.totalBookings = count;
+          room.totalBookings = count || 0;
         },
         error: (error) => {
           console.error(`Error loading booking count for room ${room.id}:`, error);
@@ -1472,6 +1400,8 @@ export class Rooms implements OnInit {
   }
 
   deleteRoom(roomId: number) {
+    if (!roomId || roomId === 0) return;
+    
     if (confirm('Are you sure you want to delete this room?')) {
       this.meetingRoomService.deleteRoom(roomId).subscribe({
         next: () => {
@@ -1484,5 +1414,9 @@ export class Rooms implements OnInit {
         }
       });
     }
+  }
+
+  trackByRoomId(index: number, room: MeetingRoom): number {
+    return room?.id || index;
   }
 }

@@ -201,12 +201,12 @@ import { ToastService } from '../../../services/toast.service';
     }
 
     .btn-export.csv {
-      background: var(--success);
+      background: var(--error);
       color: white;
     }
 
     .btn-export.pdf {
-      background: var(--error);
+      background: var(--success);
       color: white;
     }
 
