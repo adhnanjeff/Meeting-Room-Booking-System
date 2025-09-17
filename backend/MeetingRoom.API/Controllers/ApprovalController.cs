@@ -81,5 +81,25 @@ namespace MeetingRoom.API.Controllers
                 return NotFound(new { error = "Not Found", message = ex.Message });
             }
         }
+
+        [HttpPut("{id}/approve-with-room/{roomId}")]
+        public async Task<ActionResult<ApprovalResponseDTO>> ApproveWithSuggestedRoom(int id, int roomId)
+        {
+            try
+            {
+                var userIdClaim = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
+                var userId = int.Parse(userIdClaim ?? "0");
+                var result = await _approvalService.ApproveWithSuggestedRoomAsync(id, roomId, userId);
+                return Ok(result);
+            }
+            catch (NotFoundException ex)
+            {
+                return NotFound(new { error = "Not Found", message = ex.Message });
+            }
+            catch (ValidationException ex)
+            {
+                return BadRequest(new { error = "Validation Error", message = ex.Message });
+            }
+        }
     }
 }

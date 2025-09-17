@@ -195,6 +195,7 @@ import { Router } from '@angular/router';
       width: 100%;
       padding: 0.875rem;
       font-weight: 600;
+      color: white;
     }
 
     .login-link {

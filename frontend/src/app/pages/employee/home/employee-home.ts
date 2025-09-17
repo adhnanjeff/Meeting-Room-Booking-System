@@ -4,6 +4,7 @@ import { RouterLink } from '@angular/router';
 import { BookingService, Booking } from '../../../services/booking.service';
 import { AuthService, User } from '../../../services/auth.service';
 import { LoaderService } from '../../../services/loader.service';
+import { MeetingRoomService } from '../../../services/meetingroom.service';
 
 @Component({
   selector: 'app-employee-home',
@@ -480,7 +481,7 @@ export class EmployeeHome implements OnInit {
   upcomingBookings: Booking[] = [];
   todayBookings: Booking[] = [];
   pendingRequests = 0;
-  availableRooms = 5;
+  availableRooms = 0;
   hoveredMeeting: any = null;
   tooltipPosition = { x: 0, y: 0 };
   isLoading = false;
@@ -489,13 +490,27 @@ export class EmployeeHome implements OnInit {
   constructor(
     private bookingService: BookingService,
     private authService: AuthService,
-    private loaderService: LoaderService
+    private loaderService: LoaderService,
+    private meetingRoomService: MeetingRoomService
   ) {}
 
   ngOnInit(): void {
     this.currentUser = this.authService.getCurrentUser();
     this.loaderService.show('Loading your bookings...');
     this.loadBookings();
+    this.loadAvailableRooms();
+  }
+
+  loadAvailableRooms(): void {
+    this.meetingRoomService.getAllRooms().subscribe({
+      next: (rooms) => {
+        this.availableRooms = rooms.filter(room => room.isAvailable).length;
+      },
+      error: (error) => {
+        console.error('Error loading rooms:', error);
+        this.availableRooms = 0;
+      }
+    });
   }
 
   loadBookings(): void {

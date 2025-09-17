@@ -23,6 +23,10 @@ export class MeetingRoomService {
     return this.http.get<MeetingRoom[]>(this.API_URL);
   }
 
+  getAvailableRooms(startTime: string, endTime: string): Observable<MeetingRoom[]> {
+    return this.http.get<MeetingRoom[]>(`${this.API_URL}/available?startTime=${startTime}&endTime=${endTime}`);
+  }
+
   getRoomById(id: number): Observable<MeetingRoom> {
     return this.http.get<MeetingRoom>(`${this.API_URL}/${id}`);
   }

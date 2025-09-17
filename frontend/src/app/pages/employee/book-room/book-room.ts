@@ -1,4 +1,4 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, HostListener } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { Router } from '@angular/router';
@@ -47,10 +47,51 @@ interface MeetingRequest {
   standalone: true,
   imports: [CommonModule, FormsModule],
   template: `
+    <div class="sticky-header" [class.visible]="showStickyHeader">
+      <div class="sticky-content">
+        <div class="sticky-left">
+          <div class="sticky-icon">
+            <i class="pi pi-calendar"></i>
+          </div>
+          <h2>Request Meeting Approval</h2>
+        </div>
+        <div class="sticky-right">
+          <div class="quick-actions">
+            <button class="action-btn" title="Notifications">
+              <i class="pi pi-bell"></i>
+              <span class="notification-badge">3</span>
+            </button>
+            <button class="action-btn" title="Calendar">
+              <i class="pi pi-calendar-plus"></i>
+            </button>
+          </div>
+          <div class="user-profile">
+            <div class="role-badge">Employee</div>
+            <div class="user-avatar">
+              <div class="avatar-circle">
+                {{ currentUser?.userName?.charAt(0)?.toUpperCase() || 'U' }}
+              </div>
+              <div class="user-info">
+                <span class="user-name">{{ currentUser?.userName || 'User' }}</span>
+                <span class="user-dept">{{ currentUser?.department || 'Department' }}</span>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+    
     <div class="container">
-      <div class="page-header">
-        <h1><i class="pi pi-calendar"></i> Request Meeting Approval</h1>
-        <p>Submit your meeting request for manager approval</p>
+      <div class="enhanced-header">
+        <div class="header-left">
+          <div class="page-icon">
+            <i class="pi pi-calendar"></i>
+          </div>
+          <div class="page-info">
+            <h1>Request Meeting Approval</h1>
+            <p>Submit your meeting request for manager approval</p>
+          </div>
+        </div>
       </div>
 
       <div class="date-selector-container">
@@ -85,11 +126,11 @@ interface MeetingRequest {
           <div class="form-row">
             <div class="form-group">
               <label>Start Time</label>
-              <input type="time" [(ngModel)]="startTime" class="form-input" required>
+              <input type="time" [(ngModel)]="startTime" (ngModelChange)="onTimeChange()" class="form-input" required>
             </div>
             <div class="form-group">
               <label>End Time</label>
-              <input type="time" [(ngModel)]="endTime" class="form-input" required>
+              <input type="time" [(ngModel)]="endTime" (ngModelChange)="onTimeChange()" class="form-input" required>
             </div>
           </div>
           
@@ -163,7 +204,7 @@ interface MeetingRequest {
       </div>
 
       <div class="rooms-section">
-        <h3>Available Rooms (Capacity: {{meetingRequest.attendeeCount - 2}} - {{meetingRequest.attendeeCount + 2}} people)</h3>
+        <h3>Available Rooms ({{ filteredRooms.length }})</h3>
         <div class="cards-grid">
           <div 
             *ngFor="let room of filteredRooms" 
@@ -215,22 +256,230 @@ interface MeetingRequest {
     </div>
   `,
   styles: [`
+    .sticky-header {
+      position: fixed;
+      top: 0;
+      left: 280px;
+      right: 0;
+      background: var(--surface);
+      border-bottom: 1px solid var(--border);
+      box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+      z-index: 999;
+      transform: translateY(-100%);
+      transition: transform 0.3s ease;
+    }
+
+    .sticky-header.visible {
+      transform: translateY(0);
+    }
+
+    .sticky-content {
+      padding: 1rem 2rem;
+      max-width: calc(1400px - 280px);
+      margin: 0 auto;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+
+    .sticky-left {
+      display: flex;
+      align-items: center;
+      gap: 1rem;
+    }
+
+    .sticky-icon {
+      background: var(--primary);
+      color: white;
+      width: 36px;
+      height: 36px;
+      border-radius: 8px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 1.2rem;
+    }
+
+    .sticky-content h2 {
+      margin: 0;
+      font-size: 1.3rem;
+      font-weight: 600;
+      color: var(--text);
+    }
+
+    .sticky-right {
+      display: flex;
+      align-items: center;
+      gap: 1.5rem;
+    }
+
+    @media (max-width: 768px) {
+      .sticky-header {
+        left: 0;
+        top: 70px;
+      }
+      
+      .sticky-content {
+        max-width: 100%;
+        padding: 1rem;
+        flex-direction: column;
+        gap: 1rem;
+      }
+      
+      .sticky-right {
+        gap: 1rem;
+      }
+      
+      .user-info {
+        display: none;
+      }
+    }
+
     .container {
       padding: 2rem;
       max-width: 1400px;
       margin: 0 auto;
     }
 
-    .page-header h1 {
-      font-size: 2rem;
-      font-weight: 700;
-      color: var(--text);
-      margin-bottom: 0.5rem;
+    .enhanced-header {
+      background: linear-gradient(135deg, var(--surface) 0%, var(--background) 100%);
+      border-radius: 16px;
+      padding: 1.5rem 2rem;
+      margin-bottom: 2rem;
+      box-shadow: 0 4px 20px rgba(0,0,0,0.08);
+      border: 1px solid var(--border);
     }
 
-    .page-header p {
+    .header-left {
+      display: flex;
+      align-items: center;
+      gap: 1rem;
+    }
+
+    .page-icon {
+      background: var(--primary);
+      color: white;
+      width: 48px;
+      height: 48px;
+      border-radius: 12px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 1.5rem;
+    }
+
+    .page-info h1 {
+      font-size: 1.75rem;
+      font-weight: 700;
+      color: var(--text);
+      margin: 0 0 0.25rem 0;
+    }
+
+    .page-info p {
       color: var(--text-light);
-      margin-bottom: 2rem;
+      margin: 0;
+      font-size: 0.9rem;
+    }
+
+    .header-right {
+      display: flex;
+      align-items: center;
+      gap: 1.5rem;
+    }
+
+    .quick-actions {
+      display: flex;
+      gap: 0.5rem;
+    }
+
+    .action-btn {
+      position: relative;
+      width: 40px;
+      height: 40px;
+      border-radius: 10px;
+      border: 1px solid var(--border);
+      background: var(--surface);
+      color: var(--text);
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      transition: all 0.2s ease;
+    }
+
+    .action-btn:hover {
+      background: var(--primary);
+      color: white;
+      transform: translateY(-1px);
+    }
+
+    .notification-badge {
+      position: absolute;
+      top: -6px;
+      right: -6px;
+      background: #ef4444;
+      color: white;
+      font-size: 0.7rem;
+      font-weight: 600;
+      padding: 2px 6px;
+      border-radius: 10px;
+      min-width: 18px;
+      height: 18px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .user-profile {
+      display: flex;
+      align-items: center;
+      gap: 1rem;
+    }
+
+    .role-badge {
+      background: var(--primary);
+      color: white;
+      padding: 0.4rem 0.8rem;
+      border-radius: 20px;
+      font-size: 0.8rem;
+      font-weight: 600;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+    }
+
+    .user-avatar {
+      display: flex;
+      align-items: center;
+      gap: 0.75rem;
+    }
+
+    .avatar-circle {
+      width: 40px;
+      height: 40px;
+      border-radius: 50%;
+      background: linear-gradient(135deg, var(--primary), #6366f1);
+      color: white;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-weight: 600;
+      font-size: 1.1rem;
+    }
+
+    .user-info {
+      display: flex;
+      flex-direction: column;
+    }
+
+    .user-name {
+      font-weight: 600;
+      color: var(--text);
+      font-size: 0.9rem;
+    }
+
+    .user-dept {
+      font-size: 0.8rem;
+      color: var(--text-light);
     }
 
     .date-selector-container {
@@ -568,7 +817,7 @@ interface MeetingRequest {
 
     .cards-grid {
       display: grid;
-      grid-template-columns: 1fr;
+      grid-template-columns: repeat(3, 1fr);
       gap: 1.5rem;
     }
 
@@ -748,6 +997,12 @@ interface MeetingRequest {
       }
 
       .cards-grid {
+        grid-template-columns: repeat(2, 1fr);
+      }
+    }
+
+    @media (max-width: 480px) {
+      .cards-grid {
         grid-template-columns: 1fr;
       }
 
@@ -823,6 +1078,7 @@ export class BookRoom implements OnInit {
   error = '';
   success = '';
   activeRoleDropdown: number | null = null;
+  showStickyHeader = false;
 
 
   holidays = {
@@ -858,6 +1114,12 @@ export class BookRoom implements OnInit {
     this.meetingRequest.organizerId = this.currentUser?.id || 0;
     this.generateAvailableDates();
     this.loadRooms();
+  }
+
+  @HostListener('window:scroll')
+  onWindowScroll() {
+    const scrollPosition = window.pageYOffset || document.documentElement.scrollTop || document.body.scrollTop || 0;
+    this.showStickyHeader = scrollPosition > 200;
   }
 
   generateAvailableDates(): void {
@@ -900,9 +1162,36 @@ export class BookRoom implements OnInit {
     if (this.availableDates[index].isDisabled) return;
     this.selectedDateIndex = index;
     this.meetingDate = this.availableDates[index].dateString;
+    this.loadRooms();
+  }
+
+  onTimeChange(): void {
+    if (this.startTime && this.endTime && this.startTime < this.endTime) {
+      this.loadRooms();
+    }
   }
 
   loadRooms(): void {
+    if (this.meetingDate && this.startTime && this.endTime) {
+      const startDateTime = `${this.meetingDate}T${this.startTime}:00`;
+      const endDateTime = `${this.meetingDate}T${this.endTime}:00`;
+      
+      this.meetingRoomService.getAvailableRooms(startDateTime, endDateTime).subscribe({
+        next: (rooms) => {
+          this.rooms = rooms.map(room => ({ ...room, isAvailable: true }));
+          this.filterRooms();
+        },
+        error: (error) => {
+          console.error('Error loading available rooms:', error);
+          this.loadAllRooms();
+        }
+      });
+    } else {
+      this.loadAllRooms();
+    }
+  }
+
+  loadAllRooms(): void {
     this.meetingRoomService.getAllRooms().subscribe({
       next: (rooms) => {
         this.rooms = rooms;
@@ -910,13 +1199,7 @@ export class BookRoom implements OnInit {
       },
       error: (error) => {
         console.error('Error loading rooms:', error);
-        // Mock data for testing
-        this.rooms = [
-          { id: 1, roomName: 'Conference Room A', capacity: 10, amenities: 'Projector, Whiteboard', isAvailable: true },
-          { id: 2, roomName: 'Meeting Room B', capacity: 6, amenities: 'TV Screen, Phone', isAvailable: false },
-          { id: 3, roomName: 'Board Room', capacity: 12, amenities: 'Video Conference, Projector', isAvailable: true },
-          { id: 4, roomName: 'Small Room', capacity: 4, amenities: 'Basic Setup', isAvailable: true }
-        ];
+        this.rooms = [];
         this.filterRooms();
       }
     });
@@ -924,11 +1207,10 @@ export class BookRoom implements OnInit {
 
   filterRooms(): void {
     if (this.meetingRequest.attendeeCount > 0) {
-      const minCapacity = this.meetingRequest.attendeeCount - 2;
       const maxCapacity = this.meetingRequest.attendeeCount + 2;
       
       this.filteredRooms = this.rooms.filter(room => 
-        room.capacity >= minCapacity && room.capacity <= maxCapacity
+        room.capacity >= this.meetingRequest.attendeeCount && room.capacity <= maxCapacity
       );
     } else {
       this.filteredRooms = this.rooms;

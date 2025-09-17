@@ -1,5 +1,6 @@
 import { Component, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
+import { FormsModule } from '@angular/forms';
 import { RouterLink } from '@angular/router';
 import { AuthService, User } from '../../../services/auth.service';
 import { ApprovalService } from '../../../services/approval.service';
@@ -23,7 +24,7 @@ interface ApprovalItem {
 @Component({
   selector: 'app-manager-home',
   standalone: true,
-  imports: [CommonModule, RouterLink],
+  imports: [CommonModule, FormsModule, RouterLink],
   template: `
     <div class="container">
       <div class="page-header">
@@ -227,6 +228,37 @@ interface ApprovalItem {
               </a>
             </div>
           </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Rejection Dialog Modal -->
+    <div *ngIf="showRejectModal" class="modal-overlay" (click)="closeRejectModal()">
+      <div class="rejection-modal" (click)="$event.stopPropagation()">
+        <div class="modal-header">
+          <h3><i class="pi pi-times-circle"></i> Reject Meeting Request</h3>
+        </div>
+        <div class="modal-body">
+          <div class="meeting-info" *ngIf="approvalToReject">
+            <h4>{{ approvalToReject.meetingTitle }}</h4>
+            <p><strong>Requested by:</strong> {{ approvalToReject.requesterName }}</p>
+            <p><strong>Date & Time:</strong> {{ formatFullDateTime(approvalToReject.meetingDate, approvalToReject.startTime, approvalToReject.endTime) }}</p>
+          </div>
+          <div class="form-group">
+            <label for="rejectionReason">Reason for rejection (optional):</label>
+            <textarea 
+              id="rejectionReason"
+              [(ngModel)]="rejectionReason" 
+              placeholder="Please provide a reason for rejecting this meeting request..."
+              rows="4"
+              class="form-textarea"
+            ></textarea>
+          </div>
+          <p class="warning-text">The organizer will be notified of this rejection.</p>
+        </div>
+        <div class="modal-actions">
+          <button class="btn-cancel" (click)="closeRejectModal()">Cancel</button>
+          <button class="btn-reject" (click)="confirmReject()">Reject Request</button>
         </div>
       </div>
     </div>
@@ -697,6 +729,143 @@ interface ApprovalItem {
         grid-template-columns: 1fr;
       }
     }
+
+    .modal-overlay {
+      position: fixed;
+      top: 0;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      background: rgba(0, 0, 0, 0.5);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      z-index: 1000;
+    }
+
+    .rejection-modal {
+      background: var(--surface);
+      border-radius: 12px;
+      width: 90%;
+      max-width: 500px;
+      box-shadow: 0 20px 40px rgba(0,0,0,0.2);
+      border: 1px solid var(--border);
+    }
+
+    .rejection-modal .modal-header {
+      padding: 1.5rem;
+      border-bottom: 1px solid var(--border);
+      background: #fef2f2;
+      border-radius: 12px 12px 0 0;
+    }
+
+    .rejection-modal .modal-header h3 {
+      margin: 0;
+      color: #dc2626;
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+      font-size: 1.1rem;
+    }
+
+    .rejection-modal .modal-body {
+      padding: 1.5rem;
+    }
+
+    .meeting-info {
+      background: var(--background);
+      padding: 1rem;
+      border-radius: 8px;
+      margin-bottom: 1.5rem;
+      border-left: 4px solid var(--primary);
+    }
+
+    .meeting-info h4 {
+      margin: 0 0 0.5rem 0;
+      color: var(--text);
+      font-size: 1.1rem;
+    }
+
+    .meeting-info p {
+      margin: 0.25rem 0;
+      color: var(--text-light);
+      font-size: 0.9rem;
+    }
+
+    .form-group {
+      margin-bottom: 1rem;
+    }
+
+    .form-group label {
+      display: block;
+      margin-bottom: 0.5rem;
+      font-weight: 500;
+      color: var(--text);
+    }
+
+    .form-textarea {
+      width: 100%;
+      padding: 0.75rem;
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      background: var(--background);
+      color: var(--text);
+      font-family: inherit;
+      font-size: 0.9rem;
+      resize: vertical;
+      min-height: 100px;
+    }
+
+    .form-textarea:focus {
+      outline: none;
+      border-color: var(--primary);
+      box-shadow: 0 0 0 2px rgba(59, 130, 246, 0.1);
+    }
+
+    .warning-text {
+      color: #dc2626;
+      font-size: 0.9rem;
+      font-weight: 500;
+      margin-top: 1rem;
+    }
+
+    .modal-actions {
+      display: flex;
+      gap: 1rem;
+      justify-content: flex-end;
+      padding: 1rem 1.5rem 1.5rem;
+      border-top: 1px solid var(--border);
+    }
+
+    .btn-cancel {
+      padding: 0.75rem 1.5rem;
+      border: 1px solid var(--border);
+      background: var(--surface);
+      color: var(--text);
+      border-radius: 8px;
+      cursor: pointer;
+      font-weight: 500;
+      transition: all 0.2s;
+    }
+
+    .btn-cancel:hover {
+      background: var(--background);
+    }
+
+    .btn-reject {
+      padding: 0.75rem 1.5rem;
+      border: none;
+      background: #dc2626;
+      color: white;
+      border-radius: 8px;
+      cursor: pointer;
+      font-weight: 500;
+      transition: all 0.2s;
+    }
+
+    .btn-reject:hover {
+      background: #b91c1c;
+    }
   `]
 })
 export class ManagerHome implements OnInit {
@@ -710,6 +879,9 @@ export class ManagerHome implements OnInit {
   tooltipPosition = { x: 0, y: 0 };
   hoveredApproval: ApprovalItem | null = null;
   approvalTooltipPosition = { x: 0, y: 0 };
+  showRejectModal = false;
+  approvalToReject: ApprovalItem | null = null;
+  rejectionReason = '';
 
   constructor(
     private authService: AuthService,
@@ -780,15 +952,20 @@ export class ManagerHome implements OnInit {
   }
 
   rejectRequest(approval: ApprovalItem): void {
-    const reason = prompt('Reason for rejection (optional):');
-    if (reason !== null) {
-      this.approvalService.processApproval(Number(approval.id), {
+    this.approvalToReject = approval;
+    this.rejectionReason = '';
+    this.showRejectModal = true;
+  }
+
+  confirmReject(): void {
+    if (this.approvalToReject) {
+      this.approvalService.processApproval(Number(this.approvalToReject.id), {
         status: 2,
-        comments: reason || 'Rejected by manager'
+        comments: this.rejectionReason || 'Rejected by manager'
       }).subscribe({
         next: () => {
           this.loadPendingApprovals();
-          this.toastService.info('Request Rejected', `Meeting "${approval.meetingTitle}" rejected.`);
+          this.toastService.info('Request Rejected', `Meeting "${this.approvalToReject!.meetingTitle}" rejected.`);
         },
         error: (error) => {
           console.error('Rejection error:', error);
@@ -796,6 +973,13 @@ export class ManagerHome implements OnInit {
         }
       });
     }
+    this.closeRejectModal();
+  }
+
+  closeRejectModal(): void {
+    this.showRejectModal = false;
+    this.approvalToReject = null;
+    this.rejectionReason = '';
   }
 
   loadTeamSize(): void {

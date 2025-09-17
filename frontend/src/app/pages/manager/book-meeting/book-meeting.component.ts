@@ -160,7 +160,7 @@ interface DateOption {
       </div>
 
       <div class="rooms-section" *ngIf="meetingCount > 0">
-        <h3>Available Rooms (Capacity: {{meetingCount - 2}} - {{meetingCount + 2}} people)</h3>
+        <h3>Available Rooms ({{ filteredRooms.length }})</h3>
         <div class="cards-grid">
           <div 
             *ngFor="let room of filteredRooms" 
@@ -962,11 +962,10 @@ export class BookMeetingComponent implements OnInit {
 
   filterRooms() {
     if (this.meetingCount > 0) {
-      const minCapacity = this.meetingCount - 2;
       const maxCapacity = this.meetingCount + 2;
       
       this.filteredRooms = this.rooms.filter(room => 
-        room.capacity >= minCapacity && room.capacity <= maxCapacity
+        room.capacity >= this.meetingCount && room.capacity <= maxCapacity
       );
     } else {
       this.filteredRooms = [];

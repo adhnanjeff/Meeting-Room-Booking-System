@@ -23,6 +23,14 @@ namespace MeetingRoom.API.Controllers
             return Ok(rooms);
         }
 
+        // GET: api/MeetingRoom/available?startTime=2024-01-01T10:00:00&endTime=2024-01-01T12:00:00
+        [HttpGet("available")]
+        public async Task<ActionResult<List<MeetingRoomResponseDTO>>> GetAvailableRooms([FromQuery] DateTime startTime, [FromQuery] DateTime endTime)
+        {
+            var rooms = await _service.GetAvailableRoomsAsync(startTime, endTime);
+            return Ok(rooms);
+        }
+
         // GET: api/MeetingRoom/{id}
         [HttpGet("{id}")]
         public async Task<ActionResult<MeetingRoomResponseDTO>> GetRoomById(int id)

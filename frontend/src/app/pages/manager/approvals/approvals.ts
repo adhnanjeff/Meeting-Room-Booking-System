@@ -744,7 +744,7 @@ import { LoaderService } from '../../../services/loader.service';
 export class Approvals implements OnInit {
   allRequests: Approval[] = [];
   filteredRequests: Approval[] = [];
-  activeFilter: 'all' | 'pending' | 'approved' | 'rejected' = 'all';
+  activeFilter: 'all' | 'pending' | 'approved' | 'rejected' = 'pending';
   searchTerm = '';
   showRoomsModal = false;
   showRejectModal = false;

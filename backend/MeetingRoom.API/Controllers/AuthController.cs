@@ -141,7 +141,7 @@ public class AuthController : ControllerBase
             return Ok(new { message = "If the email exists, a reset link has been sent." });
 
         var token = await _userManager.GeneratePasswordResetTokenAsync(user);
-        await _emailService.SendPasswordResetEmailAsync(dto.Email, token);
+        await _emailService.SendPasswordResetEmailAsync(dto.Email, token, user.UserName ?? "User");
 
         return Ok(new { message = "If the email exists, a reset link has been sent." });
     }
@@ -157,7 +157,7 @@ public class AuthController : ControllerBase
         if (!result.Succeeded)
             return BadRequest(result.Errors);
 
-        await _emailService.SendPasswordChangedNotificationAsync(dto.Email);
+        await _emailService.SendPasswordChangedNotificationAsync(dto.Email, user.UserName ?? "User");
         return Ok(new { message = "Password reset successfully." });
     }
 
@@ -177,7 +177,7 @@ public class AuthController : ControllerBase
         if (!result.Succeeded)
             return BadRequest(result.Errors);
 
-        await _emailService.SendPasswordChangedNotificationAsync(user.Email!);
+        await _emailService.SendPasswordChangedNotificationAsync(user.Email!, user.UserName ?? "User");
         return Ok(new { message = "Password changed successfully." });
     }
 }

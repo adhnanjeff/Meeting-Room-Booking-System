@@ -10,6 +10,7 @@ namespace MeetingRoom.Core.Interfaces
         Task UpdateRoomAsync(int id, MeetingRoomRequestDTO roomDto);
         Task DeleteRoomAsync(int id);
         Task<List<MeetingRoomResponseDTO>> GetAllRoomsAsync();
+        Task<List<MeetingRoomResponseDTO>> GetAvailableRoomsAsync(DateTime startTime, DateTime endTime);
         Task<MeetingRoomResponseDTO?> GetRoomByIdAsync(int id);
     }
 }

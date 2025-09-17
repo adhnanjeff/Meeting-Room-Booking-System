@@ -3,16 +3,32 @@
   "WorkspaceRootPath": "C:\\Users\\adhnjeff\\OneDrive - EPS US, LLC\\Desktop\\Capstone\\backend\\",
   "Documents": [
     {
+      "AbsoluteMoniker": "D:0:0:{CB35F421-1B3A-40E2-95BC-98237939F808}|MeetingRoom.Application\\MeetingRoom.Application.csproj|c:\\users\\adhnjeff\\onedrive - eps us, llc\\desktop\\capstone\\backend\\meetingroom.application\\services\\approvalservice.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{CB35F421-1B3A-40E2-95BC-98237939F808}|MeetingRoom.Application\\MeetingRoom.Application.csproj|solutionrelative:meetingroom.application\\services\\approvalservice.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{B699E31F-752C-4DDA-B530-765D08687EEE}|MeetingRoom.API\\MeetingRoom.API.csproj|c:\\users\\adhnjeff\\onedrive - eps us, llc\\desktop\\capstone\\backend\\meetingroom.api\\controllers\\authcontroller.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{B699E31F-752C-4DDA-B530-765D08687EEE}|MeetingRoom.API\\MeetingRoom.API.csproj|solutionrelative:meetingroom.api\\controllers\\authcontroller.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{F4BCB900-96CE-41E0-9CB9-4A4DC866C5BA}|MeetingRoom.Core\\MeetingRoom.Core.csproj|c:\\users\\adhnjeff\\onedrive - eps us, llc\\desktop\\capstone\\backend\\meetingroom.core\\meetingroom.core.csproj||{FA3CD31E-987B-443A-9B81-186104E8DAC1}|",
+      "RelativeMoniker": "D:0:0:{F4BCB900-96CE-41E0-9CB9-4A4DC866C5BA}|MeetingRoom.Core\\MeetingRoom.Core.csproj|solutionrelative:meetingroom.core\\meetingroom.core.csproj||{FA3CD31E-987B-443A-9B81-186104E8DAC1}|"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{F4BCB900-96CE-41E0-9CB9-4A4DC866C5BA}|MeetingRoom.Core\\MeetingRoom.Core.csproj|c:\\users\\adhnjeff\\onedrive - eps us, llc\\desktop\\capstone\\backend\\meetingroom.core\\services\\emailservice.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{F4BCB900-96CE-41E0-9CB9-4A4DC866C5BA}|MeetingRoom.Core\\MeetingRoom.Core.csproj|solutionrelative:meetingroom.core\\services\\emailservice.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{B699E31F-752C-4DDA-B530-765D08687EEE}|MeetingRoom.API\\MeetingRoom.API.csproj|c:\\users\\adhnjeff\\onedrive - eps us, llc\\desktop\\capstone\\backend\\meetingroom.api\\program.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{B699E31F-752C-4DDA-B530-765D08687EEE}|MeetingRoom.API\\MeetingRoom.API.csproj|solutionrelative:meetingroom.api\\program.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
       "AbsoluteMoniker": "D:0:0:{B699E31F-752C-4DDA-B530-765D08687EEE}|MeetingRoom.API\\MeetingRoom.API.csproj|c:\\users\\adhnjeff\\onedrive - eps us, llc\\desktop\\capstone\\backend\\meetingroom.api\\appsettings.json||{90A6B3A7-C1A3-4009-A288-E2FF89E96FA0}",
       "RelativeMoniker": "D:0:0:{B699E31F-752C-4DDA-B530-765D08687EEE}|MeetingRoom.API\\MeetingRoom.API.csproj|solutionrelative:meetingroom.api\\appsettings.json||{90A6B3A7-C1A3-4009-A288-E2FF89E96FA0}"
     },
     {
       "AbsoluteMoniker": "D:0:0:{B699E31F-752C-4DDA-B530-765D08687EEE}|MeetingRoom.API\\MeetingRoom.API.csproj|c:\\users\\adhnjeff\\onedrive - eps us, llc\\desktop\\capstone\\backend\\meetingroom.api\\controllers\\usercontroller.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
       "RelativeMoniker": "D:0:0:{B699E31F-752C-4DDA-B530-765D08687EEE}|MeetingRoom.API\\MeetingRoom.API.csproj|solutionrelative:meetingroom.api\\controllers\\usercontroller.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
-    },
-    {
-      "AbsoluteMoniker": "D:0:0:{B699E31F-752C-4DDA-B530-765D08687EEE}|MeetingRoom.API\\MeetingRoom.API.csproj|c:\\users\\adhnjeff\\onedrive - eps us, llc\\desktop\\capstone\\backend\\meetingroom.api\\controllers\\authcontroller.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
-      "RelativeMoniker": "D:0:0:{B699E31F-752C-4DDA-B530-765D08687EEE}|MeetingRoom.API\\MeetingRoom.API.csproj|solutionrelative:meetingroom.api\\controllers\\authcontroller.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
     },
     {
       "AbsoluteMoniker": "D:0:0:{69C8FD4E-EA4D-4DCD-8D98-C4C79F0F24D0}|MeetingRoom.Infrastructure\\MeetingRoom.Infrastructure.csproj|c:\\users\\adhnjeff\\onedrive - eps us, llc\\desktop\\capstone\\backend\\meetingroom.infrastructure\\repositories\\userrepository.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
@@ -71,10 +87,6 @@
       "RelativeMoniker": "D:0:0:{69C8FD4E-EA4D-4DCD-8D98-C4C79F0F24D0}|MeetingRoom.Infrastructure\\MeetingRoom.Infrastructure.csproj|solutionrelative:meetingroom.infrastructure\\data\\meetingroomcontext.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
     },
     {
-      "AbsoluteMoniker": "D:0:0:{B699E31F-752C-4DDA-B530-765D08687EEE}|MeetingRoom.API\\MeetingRoom.API.csproj|c:\\users\\adhnjeff\\onedrive - eps us, llc\\desktop\\capstone\\backend\\meetingroom.api\\program.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
-      "RelativeMoniker": "D:0:0:{B699E31F-752C-4DDA-B530-765D08687EEE}|MeetingRoom.API\\MeetingRoom.API.csproj|solutionrelative:meetingroom.api\\program.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
-    },
-    {
       "AbsoluteMoniker": "D:0:0:{B699E31F-752C-4DDA-B530-765D08687EEE}|MeetingRoom.API\\MeetingRoom.API.csproj|c:\\users\\adhnjeff\\onedrive - eps us, llc\\desktop\\capstone\\backend\\meetingroom.api\\controllers\\bookingcontroller.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
       "RelativeMoniker": "D:0:0:{B699E31F-752C-4DDA-B530-765D08687EEE}|MeetingRoom.API\\MeetingRoom.API.csproj|solutionrelative:meetingroom.api\\controllers\\bookingcontroller.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
     },
@@ -121,10 +133,6 @@
     {
       "AbsoluteMoniker": "D:0:0:{F4BCB900-96CE-41E0-9CB9-4A4DC866C5BA}|MeetingRoom.Core\\MeetingRoom.Core.csproj|c:\\users\\adhnjeff\\onedrive - eps us, llc\\desktop\\capstone\\backend\\meetingroom.core\\dtos\\errorresponsedto.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
       "RelativeMoniker": "D:0:0:{F4BCB900-96CE-41E0-9CB9-4A4DC866C5BA}|MeetingRoom.Core\\MeetingRoom.Core.csproj|solutionrelative:meetingroom.core\\dtos\\errorresponsedto.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
-    },
-    {
-      "AbsoluteMoniker": "D:0:0:{F4BCB900-96CE-41E0-9CB9-4A4DC866C5BA}|MeetingRoom.Core\\MeetingRoom.Core.csproj|c:\\users\\adhnjeff\\onedrive - eps us, llc\\desktop\\capstone\\backend\\meetingroom.core\\meetingroom.core.csproj||{FA3CD31E-987B-443A-9B81-186104E8DAC1}|",
-      "RelativeMoniker": "D:0:0:{F4BCB900-96CE-41E0-9CB9-4A4DC866C5BA}|MeetingRoom.Core\\MeetingRoom.Core.csproj|solutionrelative:meetingroom.core\\meetingroom.core.csproj||{FA3CD31E-987B-443A-9B81-186104E8DAC1}|"
     },
     {
       "AbsoluteMoniker": "D:0:0:{69C8FD4E-EA4D-4DCD-8D98-C4C79F0F24D0}|MeetingRoom.Infrastructure\\MeetingRoom.Infrastructure.csproj|c:\\users\\adhnjeff\\onedrive - eps us, llc\\desktop\\capstone\\backend\\meetingroom.infrastructure\\repositories\\bookingrepository.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
@@ -198,7 +206,7 @@
       "DocumentGroups": [
         {
           "DockedWidth": 200,
-          "SelectedChildIndex": 8,
+          "SelectedChildIndex": 1,
           "Children": [
             {
               "$type": "Bookmark",
@@ -206,55 +214,46 @@
             },
             {
               "$type": "Document",
-              "DocumentIndex": 7,
-              "Title": "AspNetRole.cs",
-              "DocumentMoniker": "C:\\Users\\adhnjeff\\OneDrive - EPS US, LLC\\Desktop\\Capstone\\backend\\MeetingRoom.Core\\Entities\\AspNetRole.cs",
-              "RelativeDocumentMoniker": "MeetingRoom.Core\\Entities\\AspNetRole.cs",
-              "ToolTip": "C:\\Users\\adhnjeff\\OneDrive - EPS US, LLC\\Desktop\\Capstone\\backend\\MeetingRoom.Core\\Entities\\AspNetRole.cs",
-              "RelativeToolTip": "MeetingRoom.Core\\Entities\\AspNetRole.cs",
-              "ViewState": "AgIAAAAAAAAAAAAAAAAAAAMAAAAAAAAAAAAAAA==",
+              "DocumentIndex": 0,
+              "Title": "ApprovalService.cs",
+              "DocumentMoniker": "C:\\Users\\adhnjeff\\OneDrive - EPS US, LLC\\Desktop\\Capstone\\backend\\MeetingRoom.Application\\Services\\ApprovalService.cs",
+              "RelativeDocumentMoniker": "MeetingRoom.Application\\Services\\ApprovalService.cs",
+              "ToolTip": "C:\\Users\\adhnjeff\\OneDrive - EPS US, LLC\\Desktop\\Capstone\\backend\\MeetingRoom.Application\\Services\\ApprovalService.cs",
+              "RelativeToolTip": "MeetingRoom.Application\\Services\\ApprovalService.cs",
+              "ViewState": "AgIAALMBAAAAAAAAAAAAALoBAAA4AAAAAAAAAA==",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
-              "WhenOpened": "2025-09-04T13:56:57.525Z"
-            },
-            {
-              "$type": "Document",
-              "DocumentIndex": 4,
-              "Title": "UserService.cs",
-              "DocumentMoniker": "C:\\Users\\adhnjeff\\OneDrive - EPS US, LLC\\Desktop\\Capstone\\backend\\MeetingRoom.Application\\Services\\UserService.cs",
-              "RelativeDocumentMoniker": "MeetingRoom.Application\\Services\\UserService.cs",
-              "ToolTip": "C:\\Users\\adhnjeff\\OneDrive - EPS US, LLC\\Desktop\\Capstone\\backend\\MeetingRoom.Application\\Services\\UserService.cs",
-              "RelativeToolTip": "MeetingRoom.Application\\Services\\UserService.cs",
-              "ViewState": "AgIAAA4AAAAAAAAAAAAAwGwAAAAMAAAAAAAAAA==",
-              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
-              "WhenOpened": "2025-09-02T15:14:39.308Z"
+              "WhenOpened": "2025-09-16T16:02:13.818Z",
+              "EditorCaption": ""
             },
             {
               "$type": "Document",
               "DocumentIndex": 3,
-              "Title": "UserRepository.cs",
-              "DocumentMoniker": "C:\\Users\\adhnjeff\\OneDrive - EPS US, LLC\\Desktop\\Capstone\\backend\\MeetingRoom.Infrastructure\\Repositories\\UserRepository.cs",
-              "RelativeDocumentMoniker": "MeetingRoom.Infrastructure\\Repositories\\UserRepository.cs",
-              "ToolTip": "C:\\Users\\adhnjeff\\OneDrive - EPS US, LLC\\Desktop\\Capstone\\backend\\MeetingRoom.Infrastructure\\Repositories\\UserRepository.cs",
-              "RelativeToolTip": "MeetingRoom.Infrastructure\\Repositories\\UserRepository.cs",
-              "ViewState": "AgIAABEAAAAAAAAAAAAmwBQAAAAqAAAAAAAAAA==",
+              "Title": "EmailService.cs",
+              "DocumentMoniker": "C:\\Users\\adhnjeff\\OneDrive - EPS US, LLC\\Desktop\\Capstone\\backend\\MeetingRoom.Core\\Services\\EmailService.cs",
+              "RelativeDocumentMoniker": "MeetingRoom.Core\\Services\\EmailService.cs",
+              "ToolTip": "C:\\Users\\adhnjeff\\OneDrive - EPS US, LLC\\Desktop\\Capstone\\backend\\MeetingRoom.Core\\Services\\EmailService.cs",
+              "RelativeToolTip": "MeetingRoom.Core\\Services\\EmailService.cs",
+              "ViewState": "AgIAAAgAAAAAAAAAAAAAAAwAAABGAAAAAAAAAA==",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
-              "WhenOpened": "2025-09-02T14:14:49.502Z"
+              "WhenOpened": "2025-09-16T15:53:18.386Z",
+              "EditorCaption": ""
             },
             {
               "$type": "Document",
-              "DocumentIndex": 2,
+              "DocumentIndex": 1,
               "Title": "AuthController.cs",
               "DocumentMoniker": "C:\\Users\\adhnjeff\\OneDrive - EPS US, LLC\\Desktop\\Capstone\\backend\\MeetingRoom.API\\Controllers\\AuthController.cs",
               "RelativeDocumentMoniker": "MeetingRoom.API\\Controllers\\AuthController.cs",
               "ToolTip": "C:\\Users\\adhnjeff\\OneDrive - EPS US, LLC\\Desktop\\Capstone\\backend\\MeetingRoom.API\\Controllers\\AuthController.cs",
               "RelativeToolTip": "MeetingRoom.API\\Controllers\\AuthController.cs",
-              "ViewState": "AgIAACYAAAAAAAAAAAAAAD4AAAAAAAAAAAAAAA==",
+              "ViewState": "AgIAAK0AAAAAAAAAAAAIwLAAAAAeAAAAAAAAAA==",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
-              "WhenOpened": "2025-09-02T09:49:37.75Z"
+              "WhenOpened": "2025-09-02T09:49:37.75Z",
+              "EditorCaption": ""
             },
             {
               "$type": "Document",
-              "DocumentIndex": 5,
+              "DocumentIndex": 9,
               "Title": "AspNetUser.cs",
               "DocumentMoniker": "C:\\Users\\adhnjeff\\OneDrive - EPS US, LLC\\Desktop\\Capstone\\backend\\MeetingRoom.Core\\Entities\\AspNetUser.cs",
               "RelativeDocumentMoniker": "MeetingRoom.Core\\Entities\\AspNetUser.cs",
@@ -266,7 +265,7 @@
             },
             {
               "$type": "Document",
-              "DocumentIndex": 10,
+              "DocumentIndex": 14,
               "Title": "User.cs",
               "DocumentMoniker": "C:\\Users\\adhnjeff\\OneDrive - EPS US, LLC\\Desktop\\Capstone\\backend\\MeetingRoom.Core\\Entities\\User.cs",
               "RelativeDocumentMoniker": "MeetingRoom.Core\\Entities\\User.cs",
@@ -278,7 +277,44 @@
             },
             {
               "$type": "Document",
-              "DocumentIndex": 9,
+              "DocumentIndex": 2,
+              "Title": "MeetingRoom.Core.csproj",
+              "DocumentMoniker": "C:\\Users\\adhnjeff\\OneDrive - EPS US, LLC\\Desktop\\Capstone\\backend\\MeetingRoom.Core\\MeetingRoom.Core.csproj",
+              "RelativeDocumentMoniker": "MeetingRoom.Core\\MeetingRoom.Core.csproj",
+              "ToolTip": "C:\\Users\\adhnjeff\\OneDrive - EPS US, LLC\\Desktop\\Capstone\\backend\\MeetingRoom.Core\\MeetingRoom.Core.csproj",
+              "RelativeToolTip": "MeetingRoom.Core\\MeetingRoom.Core.csproj",
+              "ViewState": "AgIAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000758|",
+              "WhenOpened": "2025-09-09T05:10:50.439Z",
+              "EditorCaption": ""
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 7,
+              "Title": "UserRepository.cs",
+              "DocumentMoniker": "C:\\Users\\adhnjeff\\OneDrive - EPS US, LLC\\Desktop\\Capstone\\backend\\MeetingRoom.Infrastructure\\Repositories\\UserRepository.cs",
+              "RelativeDocumentMoniker": "MeetingRoom.Infrastructure\\Repositories\\UserRepository.cs",
+              "ToolTip": "C:\\Users\\adhnjeff\\OneDrive - EPS US, LLC\\Desktop\\Capstone\\backend\\MeetingRoom.Infrastructure\\Repositories\\UserRepository.cs",
+              "RelativeToolTip": "MeetingRoom.Infrastructure\\Repositories\\UserRepository.cs",
+              "ViewState": "AgIAABEAAAAAAAAAAAAmwBQAAAAqAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2025-09-02T14:14:49.502Z"
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 8,
+              "Title": "UserService.cs",
+              "DocumentMoniker": "C:\\Users\\adhnjeff\\OneDrive - EPS US, LLC\\Desktop\\Capstone\\backend\\MeetingRoom.Application\\Services\\UserService.cs",
+              "RelativeDocumentMoniker": "MeetingRoom.Application\\Services\\UserService.cs",
+              "ToolTip": "C:\\Users\\adhnjeff\\OneDrive - EPS US, LLC\\Desktop\\Capstone\\backend\\MeetingRoom.Application\\Services\\UserService.cs",
+              "RelativeToolTip": "MeetingRoom.Application\\Services\\UserService.cs",
+              "ViewState": "AgIAAA4AAAAAAAAAAAAAwGwAAAAMAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2025-09-02T15:14:39.308Z"
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 13,
               "Title": "UserRequestDTO.cs",
               "DocumentMoniker": "C:\\Users\\adhnjeff\\OneDrive - EPS US, LLC\\Desktop\\Capstone\\backend\\MeetingRoom.Core\\DTOs\\UserRequestDTO.cs",
               "RelativeDocumentMoniker": "MeetingRoom.Core\\DTOs\\UserRequestDTO.cs",
@@ -290,7 +326,32 @@
             },
             {
               "$type": "Document",
-              "DocumentIndex": 0,
+              "DocumentIndex": 4,
+              "Title": "Program.cs",
+              "DocumentMoniker": "C:\\Users\\adhnjeff\\OneDrive - EPS US, LLC\\Desktop\\Capstone\\backend\\MeetingRoom.API\\Program.cs",
+              "RelativeDocumentMoniker": "MeetingRoom.API\\Program.cs",
+              "ToolTip": "C:\\Users\\adhnjeff\\OneDrive - EPS US, LLC\\Desktop\\Capstone\\backend\\MeetingRoom.API\\Program.cs",
+              "RelativeToolTip": "MeetingRoom.API\\Program.cs",
+              "ViewState": "AgIAAHcAAAAAAAAAAAAAwIEAAABwAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2025-09-02T15:24:37.545Z",
+              "EditorCaption": ""
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 11,
+              "Title": "AspNetRole.cs",
+              "DocumentMoniker": "C:\\Users\\adhnjeff\\OneDrive - EPS US, LLC\\Desktop\\Capstone\\backend\\MeetingRoom.Core\\Entities\\AspNetRole.cs",
+              "RelativeDocumentMoniker": "MeetingRoom.Core\\Entities\\AspNetRole.cs",
+              "ToolTip": "C:\\Users\\adhnjeff\\OneDrive - EPS US, LLC\\Desktop\\Capstone\\backend\\MeetingRoom.Core\\Entities\\AspNetRole.cs",
+              "RelativeToolTip": "MeetingRoom.Core\\Entities\\AspNetRole.cs",
+              "ViewState": "AgIAAAAAAAAAAAAAAAAAAAMAAAAAAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2025-09-04T13:56:57.525Z"
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 5,
               "Title": "appsettings.json",
               "DocumentMoniker": "C:\\Users\\adhnjeff\\OneDrive - EPS US, LLC\\Desktop\\Capstone\\backend\\MeetingRoom.API\\appsettings.json",
               "RelativeDocumentMoniker": "MeetingRoom.API\\appsettings.json",
@@ -303,7 +364,7 @@
             },
             {
               "$type": "Document",
-              "DocumentIndex": 6,
+              "DocumentIndex": 10,
               "Title": "MappingProfile.cs",
               "DocumentMoniker": "C:\\Users\\adhnjeff\\OneDrive - EPS US, LLC\\Desktop\\Capstone\\backend\\MeetingRoom.Application\\Mapping\\MappingProfile.cs",
               "RelativeDocumentMoniker": "MeetingRoom.Application\\Mapping\\MappingProfile.cs",
@@ -315,7 +376,7 @@
             },
             {
               "$type": "Document",
-              "DocumentIndex": 1,
+              "DocumentIndex": 6,
               "Title": "UserController.cs",
               "DocumentMoniker": "C:\\Users\\adhnjeff\\OneDrive - EPS US, LLC\\Desktop\\Capstone\\backend\\MeetingRoom.API\\Controllers\\UserController.cs",
               "RelativeDocumentMoniker": "MeetingRoom.API\\Controllers\\UserController.cs",
@@ -323,12 +384,11 @@
               "RelativeToolTip": "MeetingRoom.API\\Controllers\\UserController.cs",
               "ViewState": "AgIAAAAAAAAAAAAAAAAwwAQAAAAAAAAAAAAAAA==",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
-              "WhenOpened": "2025-09-02T15:19:07.027Z",
-              "EditorCaption": ""
+              "WhenOpened": "2025-09-02T15:19:07.027Z"
             },
             {
               "$type": "Document",
-              "DocumentIndex": 8,
+              "DocumentIndex": 12,
               "Title": "UserResponseDTO.cs",
               "DocumentMoniker": "C:\\Users\\adhnjeff\\OneDrive - EPS US, LLC\\Desktop\\Capstone\\backend\\MeetingRoom.Core\\DTOs\\UserResponseDTO.cs",
               "RelativeDocumentMoniker": "MeetingRoom.Core\\DTOs\\UserResponseDTO.cs",
@@ -340,7 +400,7 @@
             },
             {
               "$type": "Document",
-              "DocumentIndex": 11,
+              "DocumentIndex": 15,
               "Title": "UserRole.cs",
               "DocumentMoniker": "C:\\Users\\adhnjeff\\OneDrive - EPS US, LLC\\Desktop\\Capstone\\backend\\MeetingRoom.Core\\Enums\\UserRole.cs",
               "RelativeDocumentMoniker": "MeetingRoom.Core\\Enums\\UserRole.cs",
@@ -352,7 +412,7 @@
             },
             {
               "$type": "Document",
-              "DocumentIndex": 20,
+              "DocumentIndex": 23,
               "Title": "Attendee.cs",
               "DocumentMoniker": "C:\\Users\\adhnjeff\\OneDrive - EPS US, LLC\\Desktop\\Capstone\\backend\\MeetingRoom.Core\\Entities\\Attendee.cs",
               "RelativeDocumentMoniker": "MeetingRoom.Core\\Entities\\Attendee.cs",
@@ -364,7 +424,7 @@
             },
             {
               "$type": "Document",
-              "DocumentIndex": 15,
+              "DocumentIndex": 19,
               "Title": "IMeetingRoomRepository.cs",
               "DocumentMoniker": "C:\\Users\\adhnjeff\\OneDrive - EPS US, LLC\\Desktop\\Capstone\\backend\\MeetingRoom.Core\\Interfaces\\IMeetingRoomRepository.cs",
               "RelativeDocumentMoniker": "MeetingRoom.Core\\Interfaces\\IMeetingRoomRepository.cs",
@@ -376,7 +436,7 @@
             },
             {
               "$type": "Document",
-              "DocumentIndex": 13,
+              "DocumentIndex": 17,
               "Title": "MeetingRoom.cs",
               "DocumentMoniker": "C:\\Users\\adhnjeff\\OneDrive - EPS US, LLC\\Desktop\\Capstone\\backend\\MeetingRoom.Core\\Entities\\MeetingRoom.cs",
               "RelativeDocumentMoniker": "MeetingRoom.Core\\Entities\\MeetingRoom.cs",
@@ -388,7 +448,7 @@
             },
             {
               "$type": "Document",
-              "DocumentIndex": 12,
+              "DocumentIndex": 16,
               "Title": "Booking.cs",
               "DocumentMoniker": "C:\\Users\\adhnjeff\\OneDrive - EPS US, LLC\\Desktop\\Capstone\\backend\\MeetingRoom.Core\\Entities\\Booking.cs",
               "RelativeDocumentMoniker": "MeetingRoom.Core\\Entities\\Booking.cs",
@@ -400,7 +460,7 @@
             },
             {
               "$type": "Document",
-              "DocumentIndex": 14,
+              "DocumentIndex": 18,
               "Title": "IMeetingRoomService.cs",
               "DocumentMoniker": "C:\\Users\\adhnjeff\\OneDrive - EPS US, LLC\\Desktop\\Capstone\\backend\\MeetingRoom.Core\\Interfaces\\IMeetingRoomService.cs",
               "RelativeDocumentMoniker": "MeetingRoom.Core\\Interfaces\\IMeetingRoomService.cs",
@@ -412,19 +472,7 @@
             },
             {
               "$type": "Document",
-              "DocumentIndex": 17,
-              "Title": "Program.cs",
-              "DocumentMoniker": "C:\\Users\\adhnjeff\\OneDrive - EPS US, LLC\\Desktop\\Capstone\\backend\\MeetingRoom.API\\Program.cs",
-              "RelativeDocumentMoniker": "MeetingRoom.API\\Program.cs",
-              "ToolTip": "C:\\Users\\adhnjeff\\OneDrive - EPS US, LLC\\Desktop\\Capstone\\backend\\MeetingRoom.API\\Program.cs",
-              "RelativeToolTip": "MeetingRoom.API\\Program.cs",
-              "ViewState": "AgIAAH8AAAAAAAAAAAAAAJAAAAAAAAAAAAAAAA==",
-              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
-              "WhenOpened": "2025-09-02T15:24:37.545Z"
-            },
-            {
-              "$type": "Document",
-              "DocumentIndex": 16,
+              "DocumentIndex": 20,
               "Title": "MeetingRoomContext.cs",
               "DocumentMoniker": "C:\\Users\\adhnjeff\\OneDrive - EPS US, LLC\\Desktop\\Capstone\\backend\\MeetingRoom.Infrastructure\\Data\\MeetingRoomContext.cs",
               "RelativeDocumentMoniker": "MeetingRoom.Infrastructure\\Data\\MeetingRoomContext.cs",
@@ -436,7 +484,7 @@
             },
             {
               "$type": "Document",
-              "DocumentIndex": 21,
+              "DocumentIndex": 24,
               "Title": "AttendeeRequestDTO.cs",
               "DocumentMoniker": "C:\\Users\\adhnjeff\\OneDrive - EPS US, LLC\\Desktop\\Capstone\\backend\\MeetingRoom.Core\\DTOs\\AttendeeRequestDTO.cs",
               "RelativeDocumentMoniker": "MeetingRoom.Core\\DTOs\\AttendeeRequestDTO.cs",
@@ -448,7 +496,7 @@
             },
             {
               "$type": "Document",
-              "DocumentIndex": 18,
+              "DocumentIndex": 21,
               "Title": "BookingController.cs",
               "DocumentMoniker": "C:\\Users\\adhnjeff\\OneDrive - EPS US, LLC\\Desktop\\Capstone\\backend\\MeetingRoom.API\\Controllers\\BookingController.cs",
               "RelativeDocumentMoniker": "MeetingRoom.API\\Controllers\\BookingController.cs",
@@ -460,7 +508,7 @@
             },
             {
               "$type": "Document",
-              "DocumentIndex": 19,
+              "DocumentIndex": 22,
               "Title": "BookingService.cs",
               "DocumentMoniker": "C:\\Users\\adhnjeff\\OneDrive - EPS US, LLC\\Desktop\\Capstone\\backend\\MeetingRoom.Application\\Services\\BookingService.cs",
               "RelativeDocumentMoniker": "MeetingRoom.Application\\Services\\BookingService.cs",
@@ -472,7 +520,7 @@
             },
             {
               "$type": "Document",
-              "DocumentIndex": 22,
+              "DocumentIndex": 25,
               "Title": "AttendeeResponseDTO.cs",
               "DocumentMoniker": "C:\\Users\\adhnjeff\\OneDrive - EPS US, LLC\\Desktop\\Capstone\\backend\\MeetingRoom.Core\\DTOs\\AttendeeResponseDTO.cs",
               "RelativeDocumentMoniker": "MeetingRoom.Core\\DTOs\\AttendeeResponseDTO.cs",
@@ -484,7 +532,7 @@
             },
             {
               "$type": "Document",
-              "DocumentIndex": 23,
+              "DocumentIndex": 26,
               "Title": "IUserService.cs",
               "DocumentMoniker": "C:\\Users\\adhnjeff\\OneDrive - EPS US, LLC\\Desktop\\Capstone\\backend\\MeetingRoom.Core\\Interfaces\\IUserService.cs",
               "RelativeDocumentMoniker": "MeetingRoom.Core\\Interfaces\\IUserService.cs",
@@ -496,7 +544,7 @@
             },
             {
               "$type": "Document",
-              "DocumentIndex": 24,
+              "DocumentIndex": 27,
               "Title": "IUserRepository.cs",
               "DocumentMoniker": "C:\\Users\\adhnjeff\\OneDrive - EPS US, LLC\\Desktop\\Capstone\\backend\\MeetingRoom.Core\\Interfaces\\IUserRepository.cs",
               "RelativeDocumentMoniker": "MeetingRoom.Core\\Interfaces\\IUserRepository.cs",
@@ -508,7 +556,7 @@
             },
             {
               "$type": "Document",
-              "DocumentIndex": 25,
+              "DocumentIndex": 28,
               "Title": "IRepository.cs",
               "DocumentMoniker": "C:\\Users\\adhnjeff\\OneDrive - EPS US, LLC\\Desktop\\Capstone\\backend\\MeetingRoom.Core\\Interfaces\\IRepository.cs",
               "RelativeDocumentMoniker": "MeetingRoom.Core\\Interfaces\\IRepository.cs",
@@ -520,7 +568,7 @@
             },
             {
               "$type": "Document",
-              "DocumentIndex": 26,
+              "DocumentIndex": 29,
               "Title": "RegisterRequestDTO.cs",
               "DocumentMoniker": "C:\\Users\\adhnjeff\\OneDrive - EPS US, LLC\\Desktop\\Capstone\\backend\\MeetingRoom.Core\\DTOs\\RegisterRequestDTO.cs",
               "RelativeDocumentMoniker": "MeetingRoom.Core\\DTOs\\RegisterRequestDTO.cs",
@@ -532,7 +580,7 @@
             },
             {
               "$type": "Document",
-              "DocumentIndex": 27,
+              "DocumentIndex": 30,
               "Title": "MeetingRoomRequestDTO.cs",
               "DocumentMoniker": "C:\\Users\\adhnjeff\\OneDrive - EPS US, LLC\\Desktop\\Capstone\\backend\\MeetingRoom.Core\\DTOs\\MeetingRoomRequestDTO.cs",
               "RelativeDocumentMoniker": "MeetingRoom.Core\\DTOs\\MeetingRoomRequestDTO.cs",
@@ -544,7 +592,7 @@
             },
             {
               "$type": "Document",
-              "DocumentIndex": 28,
+              "DocumentIndex": 31,
               "Title": "LoginRequestDTO.cs",
               "DocumentMoniker": "C:\\Users\\adhnjeff\\OneDrive - EPS US, LLC\\Desktop\\Capstone\\backend\\MeetingRoom.Core\\DTOs\\LoginRequestDTO.cs",
               "RelativeDocumentMoniker": "MeetingRoom.Core\\DTOs\\LoginRequestDTO.cs",
@@ -556,7 +604,7 @@
             },
             {
               "$type": "Document",
-              "DocumentIndex": 29,
+              "DocumentIndex": 32,
               "Title": "ErrorResponseDTO.cs",
               "DocumentMoniker": "C:\\Users\\adhnjeff\\OneDrive - EPS US, LLC\\Desktop\\Capstone\\backend\\MeetingRoom.Core\\DTOs\\ErrorResponseDTO.cs",
               "RelativeDocumentMoniker": "MeetingRoom.Core\\DTOs\\ErrorResponseDTO.cs",
@@ -568,19 +616,7 @@
             },
             {
               "$type": "Document",
-              "DocumentIndex": 30,
-              "Title": "MeetingRoom.Core.csproj",
-              "DocumentMoniker": "C:\\Users\\adhnjeff\\OneDrive - EPS US, LLC\\Desktop\\Capstone\\backend\\MeetingRoom.Core\\MeetingRoom.Core.csproj",
-              "RelativeDocumentMoniker": "MeetingRoom.Core\\MeetingRoom.Core.csproj",
-              "ToolTip": "C:\\Users\\adhnjeff\\OneDrive - EPS US, LLC\\Desktop\\Capstone\\backend\\MeetingRoom.Core\\MeetingRoom.Core.csproj",
-              "RelativeToolTip": "MeetingRoom.Core\\MeetingRoom.Core.csproj",
-              "ViewState": "AgIAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA==",
-              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000758|",
-              "WhenOpened": "2025-09-09T05:10:50.439Z"
-            },
-            {
-              "$type": "Document",
-              "DocumentIndex": 31,
+              "DocumentIndex": 33,
               "Title": "BookingRepository.cs",
               "DocumentMoniker": "C:\\Users\\adhnjeff\\OneDrive - EPS US, LLC\\Desktop\\Capstone\\backend\\MeetingRoom.Infrastructure\\Repositories\\BookingRepository.cs",
               "RelativeDocumentMoniker": "MeetingRoom.Infrastructure\\Repositories\\BookingRepository.cs",
@@ -592,7 +628,7 @@
             },
             {
               "$type": "Document",
-              "DocumentIndex": 33,
+              "DocumentIndex": 35,
               "Title": "MeetingRoomResponseDTO.cs",
               "DocumentMoniker": "C:\\Users\\adhnjeff\\OneDrive - EPS US, LLC\\Desktop\\Capstone\\backend\\MeetingRoom.Core\\DTOs\\MeetingRoomResponseDTO.cs",
               "RelativeDocumentMoniker": "MeetingRoom.Core\\DTOs\\MeetingRoomResponseDTO.cs",
@@ -604,7 +640,7 @@
             },
             {
               "$type": "Document",
-              "DocumentIndex": 32,
+              "DocumentIndex": 34,
               "Title": "MeetingRoomService.cs",
               "DocumentMoniker": "C:\\Users\\adhnjeff\\OneDrive - EPS US, LLC\\Desktop\\Capstone\\backend\\MeetingRoom.Application\\Services\\MeetingRoomService.cs",
               "RelativeDocumentMoniker": "MeetingRoom.Application\\Services\\MeetingRoomService.cs",
@@ -616,7 +652,7 @@
             },
             {
               "$type": "Document",
-              "DocumentIndex": 34,
+              "DocumentIndex": 36,
               "Title": "MeetingRoomRepository.cs",
               "DocumentMoniker": "C:\\Users\\adhnjeff\\OneDrive - EPS US, LLC\\Desktop\\Capstone\\backend\\MeetingRoom.Infrastructure\\Repositories\\MeetingRoomRepository.cs",
               "RelativeDocumentMoniker": "MeetingRoom.Infrastructure\\Repositories\\MeetingRoomRepository.cs",
@@ -628,7 +664,7 @@
             },
             {
               "$type": "Document",
-              "DocumentIndex": 35,
+              "DocumentIndex": 37,
               "Title": "ValidationException.cs",
               "DocumentMoniker": "C:\\Users\\adhnjeff\\OneDrive - EPS US, LLC\\Desktop\\Capstone\\backend\\MeetingRoom.Core\\Exceptions\\ValidationException.cs",
               "RelativeDocumentMoniker": "MeetingRoom.Core\\Exceptions\\ValidationException.cs",
@@ -640,7 +676,7 @@
             },
             {
               "$type": "Document",
-              "DocumentIndex": 36,
+              "DocumentIndex": 38,
               "Title": "20250904134133_FixRelationship.cs",
               "DocumentMoniker": "C:\\Users\\adhnjeff\\source\\repos\\DontnetTraining\\Capstone\\backend\\MeetingRoom.Infrastructure\\Migrations\\20250904134133_FixRelationship.cs",
               "RelativeDocumentMoniker": "..\\..\\..\\..\\source\\repos\\DontnetTraining\\Capstone\\backend\\MeetingRoom.Infrastructure\\Migrations\\20250904134133_FixRelationship.cs",
@@ -652,7 +688,7 @@
             },
             {
               "$type": "Document",
-              "DocumentIndex": 37,
+              "DocumentIndex": 39,
               "Title": "20250904131530_FixRelationships.cs",
               "DocumentMoniker": "C:\\Users\\adhnjeff\\source\\repos\\DontnetTraining\\Capstone\\backend\\MeetingRoom.Infrastructure\\Migrations\\20250904131530_FixRelationships.cs",
               "RelativeDocumentMoniker": "..\\..\\..\\..\\source\\repos\\DontnetTraining\\Capstone\\backend\\MeetingRoom.Infrastructure\\Migrations\\20250904131530_FixRelationships.cs",
@@ -664,7 +700,7 @@
             },
             {
               "$type": "Document",
-              "DocumentIndex": 39,
+              "DocumentIndex": 41,
               "Title": "20250904130632_InitIdentitySchema.cs",
               "DocumentMoniker": "C:\\Users\\adhnjeff\\source\\repos\\DontnetTraining\\Capstone\\backend\\MeetingRoom.Infrastructure\\Migrations\\20250904130632_InitIdentitySchema.cs",
               "RelativeDocumentMoniker": "..\\..\\..\\..\\source\\repos\\DontnetTraining\\Capstone\\backend\\MeetingRoom.Infrastructure\\Migrations\\20250904130632_InitIdentitySchema.cs",
@@ -676,7 +712,7 @@
             },
             {
               "$type": "Document",
-              "DocumentIndex": 38,
+              "DocumentIndex": 40,
               "Title": "20250904131144_InitIdentitySchemaV2.cs",
               "DocumentMoniker": "C:\\Users\\adhnjeff\\source\\repos\\DontnetTraining\\Capstone\\backend\\MeetingRoom.Infrastructure\\Migrations\\20250904131144_InitIdentitySchemaV2.cs",
               "RelativeDocumentMoniker": "..\\..\\..\\..\\source\\repos\\DontnetTraining\\Capstone\\backend\\MeetingRoom.Infrastructure\\Migrations\\20250904131144_InitIdentitySchemaV2.cs",
@@ -688,7 +724,7 @@
             },
             {
               "$type": "Document",
-              "DocumentIndex": 40,
+              "DocumentIndex": 42,
               "Title": "MeetingRoom.API.csproj",
               "DocumentMoniker": "C:\\Users\\adhnjeff\\OneDrive - EPS US, LLC\\Desktop\\Capstone\\backend\\MeetingRoom.API\\MeetingRoom.API.csproj",
               "RelativeDocumentMoniker": "MeetingRoom.API\\MeetingRoom.API.csproj",
@@ -696,11 +732,12 @@
               "RelativeToolTip": "MeetingRoom.API\\MeetingRoom.API.csproj",
               "ViewState": "AgIAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA==",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000758|",
-              "WhenOpened": "2025-08-28T14:34:35.546Z"
+              "WhenOpened": "2025-08-28T14:34:35.546Z",
+              "EditorCaption": ""
             },
             {
               "$type": "Document",
-              "DocumentIndex": 41,
+              "DocumentIndex": 43,
               "Title": "MeetingRoomController.cs",
               "DocumentMoniker": "C:\\Users\\adhnjeff\\OneDrive - EPS US, LLC\\Desktop\\Capstone\\backend\\MeetingRoom.API\\Controllers\\MeetingRoomController.cs",
               "RelativeDocumentMoniker": "MeetingRoom.API\\Controllers\\MeetingRoomController.cs",
@@ -712,7 +749,7 @@
             },
             {
               "$type": "Document",
-              "DocumentIndex": 43,
+              "DocumentIndex": 45,
               "Title": "GlobalExceptionMiddleware.cs",
               "DocumentMoniker": "C:\\Users\\adhnjeff\\OneDrive - EPS US, LLC\\Desktop\\Capstone\\backend\\MeetingRoom.API\\Middleware\\GlobalExceptionMiddleware.cs",
               "RelativeDocumentMoniker": "MeetingRoom.API\\Middleware\\GlobalExceptionMiddleware.cs",
@@ -724,7 +761,7 @@
             },
             {
               "$type": "Document",
-              "DocumentIndex": 42,
+              "DocumentIndex": 44,
               "Title": "ExceptionMiddlewareExtensions.cs",
               "DocumentMoniker": "C:\\Users\\adhnjeff\\OneDrive - EPS US, LLC\\Desktop\\Capstone\\backend\\MeetingRoom.API\\Extensions\\ExceptionMiddlewareExtensions.cs",
               "RelativeDocumentMoniker": "MeetingRoom.API\\Extensions\\ExceptionMiddlewareExtensions.cs",
@@ -736,7 +773,7 @@
             },
             {
               "$type": "Document",
-              "DocumentIndex": 44,
+              "DocumentIndex": 46,
               "Title": "Class1.cs",
               "DocumentMoniker": "C:\\Users\\adhnjeff\\OneDrive - EPS US, LLC\\Desktop\\Capstone\\backend\\MeetingRoom.Infrastructure\\Class1.cs",
               "RelativeDocumentMoniker": "MeetingRoom.Infrastructure\\Class1.cs",
@@ -748,7 +785,7 @@
             },
             {
               "$type": "Document",
-              "DocumentIndex": 45,
+              "DocumentIndex": 47,
               "Title": "Class1.cs",
               "DocumentMoniker": "C:\\Users\\adhnjeff\\OneDrive - EPS US, LLC\\Desktop\\Capstone\\backend\\MeetingRoom.Application\\Class1.cs",
               "RelativeDocumentMoniker": "MeetingRoom.Application\\Class1.cs",
@@ -760,7 +797,7 @@
             },
             {
               "$type": "Document",
-              "DocumentIndex": 46,
+              "DocumentIndex": 48,
               "Title": "Class1.cs",
               "DocumentMoniker": "C:\\Users\\adhnjeff\\OneDrive - EPS US, LLC\\Desktop\\Capstone\\backend\\MeetingRoom.Core\\Class1.cs",
               "RelativeDocumentMoniker": "MeetingRoom.Core\\Class1.cs",
@@ -772,7 +809,7 @@
             },
             {
               "$type": "Document",
-              "DocumentIndex": 47,
+              "DocumentIndex": 49,
               "Title": "UnitTest1.cs",
               "DocumentMoniker": "C:\\Users\\adhnjeff\\OneDrive - EPS US, LLC\\Desktop\\Capstone\\backend\\MeetingRoom.Test\\UnitTest1.cs",
               "RelativeDocumentMoniker": "MeetingRoom.Test\\UnitTest1.cs",

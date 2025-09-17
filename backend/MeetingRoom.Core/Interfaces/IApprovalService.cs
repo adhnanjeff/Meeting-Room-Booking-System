@@ -10,5 +10,6 @@ namespace MeetingRoom.Core.Interfaces
         Task<ApprovalResponseDTO> CreateApprovalRequestAsync(Guid bookingId, int requesterId);
         Task<ApprovalResponseDTO> CreateApprovalRequestAsync(BookingRequestDTO bookingRequest);
         Task<ApprovalResponseDTO> SuggestAlternativeRoomAsync(int approvalId, RoomSuggestionDTO suggestion, int approverId);
+        Task<ApprovalResponseDTO> ApproveWithSuggestedRoomAsync(int approvalId, int suggestedRoomId, int approverId);
     }
 }

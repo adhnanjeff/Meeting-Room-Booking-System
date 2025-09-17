@@ -1,4 +1,4 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, HostListener } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { Router } from '@angular/router';
@@ -12,11 +12,50 @@ import { LoaderService } from '../../../services/loader.service';
   standalone: true,
   imports: [CommonModule, FormsModule],
   template: `
+    <div class="sticky-header" [class.visible]="showStickyHeader">
+      <div class="sticky-content">
+        <div class="sticky-left">
+          <div class="sticky-icon">
+            <i class="pi pi-calendar"></i>
+          </div>
+          <h2>My Bookings</h2>
+        </div>
+        <div class="sticky-right">
+          <div class="quick-actions">
+            <button class="action-btn" title="Notifications">
+              <i class="pi pi-bell"></i>
+              <span class="notification-badge">3</span>
+            </button>
+            <button class="action-btn" title="Calendar">
+              <i class="pi pi-calendar-plus"></i>
+            </button>
+          </div>
+          <div class="user-profile">
+            <div class="role-badge">Employee</div>
+            <div class="user-avatar">
+              <div class="avatar-circle">
+                {{ currentUser?.userName?.charAt(0)?.toUpperCase() || 'U' }}
+              </div>
+              <div class="user-info">
+                <span class="user-name">{{ currentUser?.userName || 'User' }}</span>
+                <span class="user-dept">{{ currentUser?.department || 'Department' }}</span>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+    
     <div class="container">
-      <div class="page-header-card">
-        <div class="page-header">
-          <h1><i class="pi pi-calendar"></i> My Bookings</h1>
-          <p>Manage your confirmed meeting room reservations</p>
+      <div class="enhanced-header">
+        <div class="header-left">
+          <div class="page-icon">
+            <i class="pi pi-calendar"></i>
+          </div>
+          <div class="page-info">
+            <h1>My Bookings</h1>
+            <p>Manage your confirmed meeting room reservations</p>
+          </div>
         </div>
       </div>
 
@@ -169,8 +208,204 @@ import { LoaderService } from '../../../services/loader.service';
         </div>
       </div>
     </div>
+
+    <!-- Cancel Confirmation Modal -->
+    <div *ngIf="showCancelModal" class="modal-overlay" (click)="closeCancelModal()">
+      <div class="confirmation-modal" (click)="$event.stopPropagation()">
+        <div class="modal-header">
+          <h3><i class="pi pi-exclamation-triangle"></i> Cancel Meeting</h3>
+        </div>
+        <div class="modal-body">
+          <p>Are you sure you want to cancel this meeting?</p>
+          <div class="meeting-info" *ngIf="bookingToCancel">
+            <strong>{{ bookingToCancel.title }}</strong><br>
+            <span>{{ formatDate(bookingToCancel.startTime) }}</span><br>
+            <span>{{ formatTimeRange(bookingToCancel.startTime, bookingToCancel.endTime) }}</span>
+          </div>
+          <p class="warning-text">This action cannot be undone and all attendees will be notified.</p>
+        </div>
+        <div class="modal-actions">
+          <button class="btn-cancel-action" (click)="closeCancelModal()">Keep Meeting</button>
+          <button class="btn-confirm-cancel" (click)="confirmCancel()">Cancel Meeting</button>
+        </div>
+      </div>
+    </div>
   `,
   styles: [`
+    .sticky-header {
+      position: fixed;
+      top: 0;
+      left: 280px;
+      right: 0;
+      background: var(--surface);
+      border-bottom: 1px solid var(--border);
+      box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+      z-index: 999;
+      transform: translateY(-100%);
+      transition: transform 0.3s ease;
+    }
+
+    .sticky-header.visible {
+      transform: translateY(0);
+    }
+
+    .sticky-content {
+      padding: 1rem 2rem;
+      max-width: calc(1400px - 280px);
+      margin: 0 auto;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+
+    .sticky-left {
+      display: flex;
+      align-items: center;
+      gap: 1rem;
+    }
+
+    .sticky-icon {
+      background: var(--primary);
+      color: white;
+      width: 36px;
+      height: 36px;
+      border-radius: 8px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 1.2rem;
+    }
+
+    .sticky-content h2 {
+      margin: 0;
+      font-size: 1.3rem;
+      font-weight: 600;
+      color: var(--text);
+    }
+
+    .sticky-right {
+      display: flex;
+      align-items: center;
+      gap: 1.5rem;
+    }
+
+    .quick-actions {
+      display: flex;
+      gap: 0.5rem;
+    }
+
+    .action-btn {
+      position: relative;
+      width: 40px;
+      height: 40px;
+      border-radius: 10px;
+      border: 1px solid var(--border);
+      background: var(--surface);
+      color: var(--text);
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      transition: all 0.2s ease;
+    }
+
+    .action-btn:hover {
+      background: var(--primary);
+      color: white;
+      transform: translateY(-1px);
+    }
+
+    .notification-badge {
+      position: absolute;
+      top: -6px;
+      right: -6px;
+      background: #ef4444;
+      color: white;
+      font-size: 0.7rem;
+      font-weight: 600;
+      padding: 2px 6px;
+      border-radius: 10px;
+      min-width: 18px;
+      height: 18px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .user-profile {
+      display: flex;
+      align-items: center;
+      gap: 1rem;
+    }
+
+    .role-badge {
+      background: var(--primary);
+      color: white;
+      padding: 0.4rem 0.8rem;
+      border-radius: 20px;
+      font-size: 0.8rem;
+      font-weight: 600;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+    }
+
+    .user-avatar {
+      display: flex;
+      align-items: center;
+      gap: 0.75rem;
+    }
+
+    .avatar-circle {
+      width: 40px;
+      height: 40px;
+      border-radius: 50%;
+      background: linear-gradient(135deg, var(--primary), #6366f1);
+      color: white;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-weight: 600;
+      font-size: 1.1rem;
+    }
+
+    .user-info {
+      display: flex;
+      flex-direction: column;
+    }
+
+    .user-name {
+      font-weight: 600;
+      color: var(--text);
+      font-size: 0.9rem;
+    }
+
+    .user-dept {
+      font-size: 0.8rem;
+      color: var(--text-light);
+    }
+
+    @media (max-width: 768px) {
+      .sticky-header {
+        left: 0;
+        top: 70px;
+      }
+      
+      .sticky-content {
+        max-width: 100%;
+        padding: 1rem;
+        flex-direction: column;
+        gap: 1rem;
+      }
+      
+      .sticky-right {
+        gap: 1rem;
+      }
+      
+      .user-info {
+        display: none;
+      }
+    }
+
     .container {
       padding: 2rem;
       max-width: 1200px;
@@ -178,25 +413,44 @@ import { LoaderService } from '../../../services/loader.service';
       font-family: 'Inter', sans-serif;
     }
 
-    .page-header-card {
-      background: var(--surface);
-      border-radius: 12px;
-      padding: 2rem;
-      box-shadow: var(--shadow);
-      border: 1px solid var(--border);
+    .enhanced-header {
+      background: linear-gradient(135deg, var(--surface) 0%, var(--background) 100%);
+      border-radius: 16px;
+      padding: 1.5rem 2rem;
       margin-bottom: 2rem;
+      box-shadow: 0 4px 20px rgba(0,0,0,0.08);
+      border: 1px solid var(--border);
     }
 
-    .page-header h1 {
-      font-size: 2rem;
+    .header-left {
+      display: flex;
+      align-items: center;
+      gap: 1rem;
+    }
+
+    .page-icon {
+      background: var(--primary);
+      color: white;
+      width: 48px;
+      height: 48px;
+      border-radius: 12px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 1.5rem;
+    }
+
+    .page-info h1 {
+      font-size: 1.75rem;
       font-weight: 700;
       color: var(--text);
-      margin-bottom: 0.5rem;
+      margin: 0 0 0.25rem 0;
     }
 
-    .page-header p {
+    .page-info p {
       color: var(--text-light);
       margin: 0;
+      font-size: 0.9rem;
     }
 
     .filters {
@@ -691,6 +945,92 @@ import { LoaderService } from '../../../services/loader.service';
         color: white;
       }
     }
+
+    .confirmation-modal {
+      background: var(--surface);
+      border-radius: 12px;
+      width: 90%;
+      max-width: 450px;
+      box-shadow: 0 20px 40px rgba(0,0,0,0.2);
+      border: 1px solid var(--border);
+    }
+
+    .confirmation-modal .modal-header {
+      padding: 1.5rem;
+      border-bottom: 1px solid var(--border);
+      background: #fef2f2;
+      border-radius: 12px 12px 0 0;
+    }
+
+    .confirmation-modal .modal-header h3 {
+      margin: 0;
+      color: #dc2626;
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+      font-size: 1.1rem;
+    }
+
+    .confirmation-modal .modal-body {
+      padding: 1.5rem;
+    }
+
+    .confirmation-modal .modal-body p {
+      margin: 0 0 1rem 0;
+      color: var(--text);
+    }
+
+    .meeting-info {
+      background: var(--background);
+      padding: 1rem;
+      border-radius: 8px;
+      margin: 1rem 0;
+      border-left: 4px solid var(--primary);
+    }
+
+    .warning-text {
+      color: #dc2626;
+      font-size: 0.9rem;
+      font-weight: 500;
+    }
+
+    .modal-actions {
+      display: flex;
+      gap: 1rem;
+      justify-content: flex-end;
+      padding: 1rem 1.5rem 1.5rem;
+      border-top: 1px solid var(--border);
+    }
+
+    .btn-cancel-action {
+      padding: 0.75rem 1.5rem;
+      border: 1px solid var(--border);
+      background: var(--surface);
+      color: var(--text);
+      border-radius: 8px;
+      cursor: pointer;
+      font-weight: 500;
+      transition: all 0.2s;
+    }
+
+    .btn-cancel-action:hover {
+      background: var(--background);
+    }
+
+    .btn-confirm-cancel {
+      padding: 0.75rem 1.5rem;
+      border: none;
+      background: #dc2626;
+      color: white;
+      border-radius: 8px;
+      cursor: pointer;
+      font-weight: 500;
+      transition: all 0.2s;
+    }
+
+    .btn-confirm-cancel:hover {
+      background: #b91c1c;
+    }
   `]
 })
 export class MyBookings implements OnInit {
@@ -698,10 +1038,13 @@ export class MyBookings implements OnInit {
   allBookings: Booking[] = [];
   filteredBookings: Booking[] = [];
   cancelledBookings: Booking[] = [];
-  activeFilter: 'all' | 'upcoming' | 'past' | 'cancelled' = 'all';
+  activeFilter: 'all' | 'upcoming' | 'past' | 'cancelled' = 'upcoming';
   searchTerm = '';
   isLoading = true;
   selectedBooking: Booking | null = null;
+  showStickyHeader = false;
+  showCancelModal = false;
+  bookingToCancel: Booking | null = null;
 
   constructor(
     private bookingService: BookingService,
@@ -716,6 +1059,12 @@ export class MyBookings implements OnInit {
     this.loadCancelledBookings();
     this.loaderService.show('Loading your bookings...');
     this.loadBookings();
+  }
+
+  @HostListener('window:scroll')
+  onWindowScroll() {
+    const scrollPosition = window.pageYOffset || document.documentElement.scrollTop || document.body.scrollTop || 0;
+    this.showStickyHeader = scrollPosition > 200;
   }
 
   private updateMeetingStatuses(bookings: Booking[]): Booking[] {
@@ -853,24 +1202,35 @@ export class MyBookings implements OnInit {
   }
 
   cancelBooking(booking: Booking): void {
-    if (confirm('Are you sure you want to cancel this booking?')) {
-      const cancelledBooking = { ...booking, status: 'Cancelled' };
+    this.bookingToCancel = booking;
+    this.showCancelModal = true;
+  }
+
+  confirmCancel(): void {
+    if (this.bookingToCancel) {
+      const cancelledBooking = { ...this.bookingToCancel, status: 'Cancelled' };
       this.cancelledBookings.push({...cancelledBooking, status: cancelledBooking.status as any});
       this.saveCancelledBookings();
       
-      this.bookingService.cancelBooking(booking.bookingId).subscribe({
+      this.bookingService.cancelBooking(this.bookingToCancel.bookingId).subscribe({
         next: () => {
           this.toastService.success('Booking Cancelled', 'Your booking has been cancelled successfully');
           this.loadBookings();
         },
         error: (error) => {
-          this.cancelledBookings = this.cancelledBookings.filter(b => b.bookingId !== booking.bookingId);
+          this.cancelledBookings = this.cancelledBookings.filter(b => b.bookingId !== this.bookingToCancel!.bookingId);
           this.saveCancelledBookings();
           this.toastService.error('Error', 'Failed to cancel booking');
           console.error('Error cancelling booking:', error);
         }
       });
     }
+    this.closeCancelModal();
+  }
+
+  closeCancelModal(): void {
+    this.showCancelModal = false;
+    this.bookingToCancel = null;
   }
 
   endEarly(booking: Booking): void {

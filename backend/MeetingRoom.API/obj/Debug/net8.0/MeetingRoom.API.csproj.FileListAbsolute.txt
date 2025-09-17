@@ -371,7 +371,6 @@ C:\Users\adhnjeff\OneDrive - EPS US, LLC\Desktop\Capstone\backend\MeetingRoom.AP
 C:\Users\adhnjeff\OneDrive - EPS US, LLC\Desktop\Capstone\backend\MeetingRoom.API\obj\Debug\net8.0\staticwebassets.build.json.cache
 C:\Users\adhnjeff\OneDrive - EPS US, LLC\Desktop\Capstone\backend\MeetingRoom.API\obj\Debug\net8.0\staticwebassets.development.json
 C:\Users\adhnjeff\OneDrive - EPS US, LLC\Desktop\Capstone\backend\MeetingRoom.API\obj\Debug\net8.0\staticwebassets.build.endpoints.json
-C:\Users\adhnjeff\OneDrive - EPS US, LLC\Desktop\Capstone\backend\MeetingRoom.API\obj\Debug\net8.0\staticwebassets.upToDateCheck.txt
 C:\Users\adhnjeff\OneDrive - EPS US, LLC\Desktop\Capstone\backend\MeetingRoom.API\obj\Debug\net8.0\MeetingR.65278351.Up2Date
 C:\Users\adhnjeff\OneDrive - EPS US, LLC\Desktop\Capstone\backend\MeetingRoom.API\obj\Debug\net8.0\MeetingRoom.API.dll
 C:\Users\adhnjeff\OneDrive - EPS US, LLC\Desktop\Capstone\backend\MeetingRoom.API\obj\Debug\net8.0\refint\MeetingRoom.API.dll
@@ -391,3 +390,4 @@ C:\Users\adhnjeff\OneDrive - EPS US, LLC\Desktop\Capstone\backend\MeetingRoom.AP
 C:\Users\adhnjeff\OneDrive - EPS US, LLC\Desktop\Capstone\backend\MeetingRoom.API\bin\Debug\net8.0\Microsoft.Kiota.Serialization.Multipart.dll
 C:\Users\adhnjeff\OneDrive - EPS US, LLC\Desktop\Capstone\backend\MeetingRoom.API\bin\Debug\net8.0\Microsoft.Kiota.Serialization.Text.dll
 C:\Users\adhnjeff\OneDrive - EPS US, LLC\Desktop\Capstone\backend\MeetingRoom.API\bin\Debug\net8.0\Std.UriTemplate.dll
+C:\Users\adhnjeff\OneDrive - EPS US, LLC\Desktop\Capstone\backend\MeetingRoom.API\obj\Debug\net8.0\staticwebassets.upToDateCheck.txt

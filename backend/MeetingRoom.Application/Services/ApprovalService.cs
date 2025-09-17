@@ -15,11 +15,13 @@ namespace MeetingRoom.Application.Services
     {
         private readonly MeetingRoomContext _context;
         private readonly IMapper _mapper;
+        private readonly IEmailService _emailService;
 
-        public ApprovalService(MeetingRoomContext context, IMapper mapper)
+        public ApprovalService(MeetingRoomContext context, IMapper mapper, IEmailService emailService)
         {
             _context = context;
             _mapper = mapper;
+            _emailService = emailService;
         }
 
         public async Task<List<ApprovalResponseDTO>> GetPendingApprovalsAsync(int managerId)
@@ -108,6 +110,12 @@ namespace MeetingRoom.Application.Services
             {
                 approval.Booking.Status = BookingStatus.Scheduled;
                 
+                // Update room if a suggested room was provided
+                if (approval.SuggestedRoomId.HasValue)
+                {
+                    approval.Booking.RoomId = approval.SuggestedRoomId.Value;
+                }
+                
                 // Create Teams meeting when approved
                 var (eventId, joinUrl) = await CreateTeamsEventAsync(approval.Booking);
                 approval.Booking.TeamsEventId = eventId;
@@ -118,10 +126,14 @@ namespace MeetingRoom.Application.Services
                 
                 // Send meeting invitations to attendees (excluding organizer)
                 await SendMeetingInvitationsAsync(approval.Booking);
+                await SendEmailInvitationsAsync(approval.Booking);
             }
             else if (request.Status == ApprovalStatus.Rejected)
             {
                 approval.Booking.Status = BookingStatus.Cancelled;
+                
+                // Send rejection notification to organizer
+                await SendRejectionNotificationAsync(approval.Booking, approver?.UserName ?? "Manager", request.Comments);
             }
 
             await _context.SaveChangesAsync();
@@ -233,6 +245,57 @@ namespace MeetingRoom.Application.Services
             return await GetApprovalByIdAsync(approval.ApprovalId);
         }
 
+        public async Task<ApprovalResponseDTO> ApproveWithSuggestedRoomAsync(int approvalId, int suggestedRoomId, int approverId)
+        {
+            var approval = await _context.BookingApprovals
+                .Include(a => a.Booking)
+                .ThenInclude(b => b.Room)
+                .Include(a => a.Requester)
+                .FirstOrDefaultAsync(a => a.ApprovalId == approvalId);
+
+            if (approval == null)
+                throw new NotFoundException("Approval request not found");
+
+            if (approval.Status != ApprovalStatus.Pending)
+                throw new ValidationException("Approval request has already been processed");
+
+            // Set the suggested room and approve
+            approval.SuggestedRoomId = suggestedRoomId;
+            approval.Status = ApprovalStatus.Approved;
+            approval.Comments = "Approved with suggested room";
+            
+            var approver = await _context.Users.FindAsync(approverId);
+            if (approver != null)
+            {
+                approval.ApproverId = approverId;
+            }
+            
+            approval.ApprovedAt = DateTime.UtcNow;
+
+            // Get original room name for notification
+            var originalRoom = await _context.MeetingRooms.FindAsync(approval.Booking.RoomId);
+            var originalRoomName = originalRoom?.RoomName;
+            
+            // Update booking with suggested room and set to scheduled
+            approval.Booking.RoomId = suggestedRoomId;
+            approval.Booking.Status = BookingStatus.Scheduled;
+            
+            // Create Teams meeting when approved
+            var (eventId, joinUrl) = await CreateTeamsEventAsync(approval.Booking);
+            approval.Booking.TeamsEventId = eventId;
+            approval.Booking.TeamsJoinUrl = joinUrl;
+            
+            // Send approval notification to organizer with room change info
+            await SendApprovalNotificationAsync(approval.Booking, approver?.UserName ?? "Manager", true, originalRoomName);
+            
+            // Send meeting invitations to attendees with room change info
+            await SendMeetingInvitationsWithRoomChangeAsync(approval.Booking, originalRoomName);
+            await SendEmailInvitationsAsync(approval.Booking);
+
+            await _context.SaveChangesAsync();
+            return await GetApprovalByIdAsync(approval.ApprovalId);
+        }
+
         private async Task<ApprovalResponseDTO> GetApprovalByIdAsync(int approvalId)
         {
             var approval = await _context.BookingApprovals
@@ -301,16 +364,19 @@ namespace MeetingRoom.Application.Services
             }
         }
 
-        private async Task SendApprovalNotificationAsync(Booking booking, string approverName)
+        private async Task SendApprovalNotificationAsync(Booking booking, string approverName, bool roomChanged = false, string originalRoomName = null)
         {
             try
             {
                 var room = await _context.MeetingRooms.FindAsync(booking.RoomId);
+                var roomChangeText = roomChanged && !string.IsNullOrEmpty(originalRoomName) 
+                    ? $" The room has been changed from {originalRoomName} to {room?.RoomName}."
+                    : "";
                 
                 var notification = new Notification
                 {
                     Title = "Meeting Request Approved",
-                    Message = $"Your meeting request '{booking.Title}' has been approved by {approverName} for {booking.StartTime:MMM dd, yyyy} at {booking.StartTime:HH:mm} in {room?.RoomName}",
+                    Message = $"Your meeting request '{booking.Title}' has been approved by {approverName} for {booking.StartTime:MMM dd, yyyy} at {booking.StartTime:HH:mm} in {room?.RoomName}.{roomChangeText}",
                     FromUser = approverName,
                     UserId = booking.OrganizerId,
                     CreatedAt = DateTime.UtcNow,
@@ -326,13 +392,39 @@ namespace MeetingRoom.Application.Services
             }
         }
 
+        private async Task SendRejectionNotificationAsync(Booking booking, string approverName, string rejectionReason)
+        {
+            try
+            {
+                var room = await _context.MeetingRooms.FindAsync(booking.RoomId);
+                var reasonText = !string.IsNullOrEmpty(rejectionReason) ? $" Reason: {rejectionReason}" : "";
+                
+                var notification = new Notification
+                {
+                    Title = "Meeting Request Rejected",
+                    Message = $"Your meeting request '{booking.Title}' has been rejected by {approverName} for {booking.StartTime:MMM dd, yyyy} at {booking.StartTime:HH:mm} in {room?.RoomName}.{reasonText}",
+                    FromUser = approverName,
+                    UserId = booking.OrganizerId,
+                    CreatedAt = DateTime.UtcNow,
+                    IsRead = false
+                };
+
+                _context.Notifications.Add(notification);
+                await _context.SaveChangesAsync();
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"Failed to send rejection notification: {ex.Message}");
+            }
+        }
+
         private async Task SendMeetingInvitationsAsync(Booking booking)
         {
             try
             {
                 var attendees = await _context.Attendees
                     .Include(a => a.User)
-                    .Where(a => a.BookingId == booking.BookingId && a.UserId != booking.OrganizerId)
+                    .Where(a => a.BookingId == booking.BookingId)
                     .ToListAsync();
 
                 var organizer = await _context.Users.FindAsync(booking.OrganizerId);
@@ -361,6 +453,78 @@ namespace MeetingRoom.Application.Services
             catch (Exception ex)
             {
                 Console.WriteLine($"Failed to send meeting invitations: {ex.Message}");
+            }
+        }
+
+        private async Task SendMeetingInvitationsWithRoomChangeAsync(Booking booking, string originalRoomName)
+        {
+            try
+            {
+                var attendees = await _context.Attendees
+                    .Include(a => a.User)
+                    .Where(a => a.BookingId == booking.BookingId)
+                    .ToListAsync();
+
+                var organizer = await _context.Users.FindAsync(booking.OrganizerId);
+                var room = await _context.MeetingRooms.FindAsync(booking.RoomId);
+                var roomChangeText = !string.IsNullOrEmpty(originalRoomName) 
+                    ? $" The room has been changed from {originalRoomName} to {room?.RoomName}."
+                    : "";
+
+                foreach (var attendee in attendees)
+                {
+                    if (attendee.User != null)
+                    {
+                        var notification = new Notification
+                        {
+                            Title = "Meeting Invitation - Room Changed",
+                            Message = $"You are a {attendee.RoleInMeeting} in '{booking.Title}' on {booking.StartTime:MMM dd, yyyy} at {booking.StartTime:HH:mm} in {room?.RoomName}.{roomChangeText}",
+                            FromUser = organizer?.UserName ?? "System",
+                            UserId = attendee.UserId,
+                            CreatedAt = DateTime.UtcNow,
+                            IsRead = false
+                        };
+
+                        _context.Notifications.Add(notification);
+                    }
+                }
+
+                await _context.SaveChangesAsync();
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"Failed to send meeting invitations with room change: {ex.Message}");
+            }
+        }
+
+        private async Task SendEmailInvitationsAsync(Booking booking)
+        {
+            try
+            {
+                var attendees = await _context.Attendees
+                    .Include(a => a.User)
+                    .Where(a => a.BookingId == booking.BookingId)
+                    .ToListAsync();
+
+                var room = await _context.MeetingRooms.FindAsync(booking.RoomId);
+
+                foreach (var attendee in attendees)
+                {
+                    if (attendee.User != null && !string.IsNullOrEmpty(attendee.User.Email))
+                    {
+                        await _emailService.SendMeetingInvitationAsync(
+                            attendee.User.Email,
+                            booking.Title,
+                            attendee.RoleInMeeting,
+                            booking.StartTime,
+                            room?.RoomName ?? "Meeting Room"
+                        );
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"Failed to send email invitations: {ex.Message}");
             }
         }
 

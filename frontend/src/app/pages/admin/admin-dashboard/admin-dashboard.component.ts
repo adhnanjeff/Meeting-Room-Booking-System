@@ -63,10 +63,23 @@ export class AdminDashboardComponent implements OnInit, AfterViewInit {
     this.adminService.getAllBookings().subscribe({
       next: (bookings) => {
         this.bookings = bookings;
+        console.log('Loaded bookings:', bookings.map(b => ({ status: b.status })));
         setTimeout(() => this.updateCharts(), 100);
       },
       error: (error) => console.error('Error loading bookings:', error)
     });
+  }
+  
+  getMonthlyBookingData(): number[] {
+    const monthlyData = new Array(12).fill(0);
+    
+    this.bookings.forEach(booking => {
+      const date = new Date(booking.startTime);
+      const month = date.getMonth();
+      monthlyData[month]++;
+    });
+    
+    return monthlyData;
   }
 
   ngAfterViewInit() {
@@ -77,13 +90,21 @@ export class AdminDashboardComponent implements OnInit, AfterViewInit {
     this.statusChart = new Chart(this.statusChartRef.nativeElement, {
       type: 'doughnut',
       data: {
-        labels: ['Pending', 'Approved', 'Rejected'],
+        labels: [],
         datasets: [{
-          data: [0, 0, 0],
-          backgroundColor: ['#ffb64d', '#2ed8b6', '#ff5370']
+          data: [],
+          backgroundColor: []
         }]
       },
-      options: { responsive: true, maintainAspectRatio: false }
+      options: { 
+        responsive: true, 
+        maintainAspectRatio: false,
+        plugins: {
+          legend: {
+            position: 'bottom'
+          }
+        }
+      }
     });
 
     this.usageChart = new Chart(this.usageChartRef.nativeElement, {
@@ -102,29 +123,57 @@ export class AdminDashboardComponent implements OnInit, AfterViewInit {
     this.monthlyChart = new Chart(this.monthlyChartRef.nativeElement, {
       type: 'line',
       data: {
-        labels: ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun'],
+        labels: ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'],
         datasets: [{
           label: 'Monthly Bookings',
-          data: [0, 0, 0, 0, 0, 0],
+          data: new Array(12).fill(0),
           borderColor: '#4099ff',
           backgroundColor: 'rgba(64, 153, 255, 0.1)',
-          tension: 0.4
+          tension: 0.4,
+          fill: true
         }]
       },
-      options: { responsive: true, maintainAspectRatio: false }
+      options: { 
+        responsive: true, 
+        maintainAspectRatio: false,
+        scales: {
+          y: {
+            beginAtZero: true
+          }
+        }
+      }
     });
   }
 
   updateCharts() {
-    if (!this.statusChart) return;
+    if (!this.statusChart || !this.bookings.length) return;
     
-    const pending = this.bookings.filter(b => b.status === 'Pending').length;
-    const approved = this.bookings.filter(b => b.status === 'Approved').length;
-    const rejected = this.bookings.filter(b => b.status === 'Rejected').length;
+    // Get all unique statuses from bookings
+    const statusCounts = this.bookings.reduce((acc, booking) => {
+      acc[booking.status] = (acc[booking.status] || 0) + 1;
+      return acc;
+    }, {} as Record<string, number>);
     
-    this.statusChart.data.datasets[0].data = [pending, approved, rejected];
+    // Update status chart with all statuses
+    const statuses = Object.keys(statusCounts);
+    const counts = Object.values(statusCounts);
+    const colors = {
+      'Pending': '#ffb64d',
+      'Approved': '#2ed8b6', 
+      'Scheduled': '#4099ff',
+      'Completed': '#28a745',
+      'Rejected': '#ff5370',
+      'Cancelled': '#6c757d'
+    };
+    
+    this.statusChart.data.labels = statuses;
+    this.statusChart.data.datasets[0].data = counts;
+    this.statusChart.data.datasets[0].backgroundColor = statuses.map(status => 
+      colors[status as keyof typeof colors] || '#6c757d'
+    );
     this.statusChart.update();
 
+    // Update room usage chart
     const roomUsage = this.rooms.map(room => {
       const count = this.bookings.filter(b => b.roomName === room.roomName).length;
       return { room: room.roomName, count };
@@ -133,5 +182,10 @@ export class AdminDashboardComponent implements OnInit, AfterViewInit {
     this.usageChart.data.labels = roomUsage.map(r => r.room);
     this.usageChart.data.datasets[0].data = roomUsage.map(r => r.count);
     this.usageChart.update();
+    
+    // Update monthly chart with actual data
+    const monthlyData = this.getMonthlyBookingData();
+    this.monthlyChart.data.datasets[0].data = monthlyData;
+    this.monthlyChart.update();
   }
 }

@@ -89,10 +89,23 @@ namespace MeetingRoom.API.Controllers
         }
 
         [HttpGet("invitations/{userId}")]
-        public async Task<ActionResult<List<AttendeeResponseDTO>>> GetUserInvitations(int userId)
+        public async Task<ActionResult<List<AttendeeResponseDTO>>> GetUserInvitations(int userId, [FromQuery] string? status = null)
         {
             var attendees = await _attendeeService.GetAttendeesByUserIdAsync(userId);
-            return Ok(attendees.Where(a => a.Status == Core.Enums.AttendeeStatus.Pending).ToList());
+            
+            if (!string.IsNullOrEmpty(status))
+            {
+                var statusEnum = status.ToLower() switch
+                {
+                    "pending" => Core.Enums.AttendeeStatus.Pending,
+                    "accepted" => Core.Enums.AttendeeStatus.Accepted,
+                    "declined" => Core.Enums.AttendeeStatus.Declined,
+                    _ => Core.Enums.AttendeeStatus.Pending
+                };
+                attendees = attendees.Where(a => a.Status == statusEnum).ToList();
+            }
+            
+            return Ok(attendees);
         }
     }
 }

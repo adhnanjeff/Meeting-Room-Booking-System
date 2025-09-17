@@ -1,4 +1,4 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, HostListener } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { AuthService, User } from '../../services/auth.service';
 import { ToastService } from '../../services/toast.service';
@@ -23,11 +23,50 @@ interface Invitation {
   standalone: true,
   imports: [CommonModule],
   template: `
+    <div class="sticky-header" [class.visible]="showStickyHeader">
+      <div class="sticky-content">
+        <div class="sticky-left">
+          <div class="sticky-icon">
+            <i class="pi pi-envelope"></i>
+          </div>
+          <h2>Meeting Invitations</h2>
+        </div>
+        <div class="sticky-right">
+          <div class="quick-actions">
+            <button class="action-btn" title="Notifications">
+              <i class="pi pi-bell"></i>
+              <span class="notification-badge">3</span>
+            </button>
+            <button class="action-btn" title="Calendar">
+              <i class="pi pi-calendar-plus"></i>
+            </button>
+          </div>
+          <div class="user-profile">
+            <div class="role-badge">Employee</div>
+            <div class="user-avatar">
+              <div class="avatar-circle">
+                {{ currentUser?.userName?.charAt(0)?.toUpperCase() || 'U' }}
+              </div>
+              <div class="user-info">
+                <span class="user-name">{{ currentUser?.userName || 'User' }}</span>
+                <span class="user-dept">{{ currentUser?.department || 'Department' }}</span>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+    
     <div class="container">
-      <div class="page-header-card">
-        <div class="page-header">
-          <h1><i class="pi pi-envelope"></i> Meeting Invitations</h1>
-          <p>Respond to meeting invitations you've received</p>
+      <div class="enhanced-header">
+        <div class="header-left">
+          <div class="page-icon">
+            <i class="pi pi-envelope"></i>
+          </div>
+          <div class="page-info">
+            <h1>Meeting Invitations</h1>
+            <p>Respond to meeting invitations you've received</p>
+          </div>
         </div>
       </div>
 
@@ -111,6 +150,180 @@ interface Invitation {
     </div>
   `,
   styles: [`
+    .sticky-header {
+      position: fixed;
+      top: 0;
+      left: 280px;
+      right: 0;
+      background: var(--surface);
+      border-bottom: 1px solid var(--border);
+      box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+      z-index: 999;
+      transform: translateY(-100%);
+      transition: transform 0.3s ease;
+    }
+
+    .sticky-header.visible {
+      transform: translateY(0);
+    }
+
+    .sticky-content {
+      padding: 1rem 2rem;
+      max-width: calc(1400px - 280px);
+      margin: 0 auto;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+
+    .sticky-left {
+      display: flex;
+      align-items: center;
+      gap: 1rem;
+    }
+
+    .sticky-icon {
+      background: var(--primary);
+      color: white;
+      width: 36px;
+      height: 36px;
+      border-radius: 8px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 1.2rem;
+    }
+
+    .sticky-content h2 {
+      margin: 0;
+      font-size: 1.3rem;
+      font-weight: 600;
+      color: var(--text);
+    }
+
+    .sticky-right {
+      display: flex;
+      align-items: center;
+      gap: 1.5rem;
+    }
+
+    .quick-actions {
+      display: flex;
+      gap: 0.5rem;
+    }
+
+    .action-btn {
+      position: relative;
+      width: 40px;
+      height: 40px;
+      border-radius: 10px;
+      border: 1px solid var(--border);
+      background: var(--surface);
+      color: var(--text);
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      transition: all 0.2s ease;
+    }
+
+    .action-btn:hover {
+      background: var(--primary);
+      color: white;
+      transform: translateY(-1px);
+    }
+
+    .notification-badge {
+      position: absolute;
+      top: -6px;
+      right: -6px;
+      background: #ef4444;
+      color: white;
+      font-size: 0.7rem;
+      font-weight: 600;
+      padding: 2px 6px;
+      border-radius: 10px;
+      min-width: 18px;
+      height: 18px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .user-profile {
+      display: flex;
+      align-items: center;
+      gap: 1rem;
+    }
+
+    .role-badge {
+      background: var(--primary);
+      color: white;
+      padding: 0.4rem 0.8rem;
+      border-radius: 20px;
+      font-size: 0.8rem;
+      font-weight: 600;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+    }
+
+    .user-avatar {
+      display: flex;
+      align-items: center;
+      gap: 0.75rem;
+    }
+
+    .avatar-circle {
+      width: 40px;
+      height: 40px;
+      border-radius: 50%;
+      background: linear-gradient(135deg, var(--primary), #6366f1);
+      color: white;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-weight: 600;
+      font-size: 1.1rem;
+    }
+
+    .user-info {
+      display: flex;
+      flex-direction: column;
+    }
+
+    .user-name {
+      font-weight: 600;
+      color: var(--text);
+      font-size: 0.9rem;
+    }
+
+    .user-dept {
+      font-size: 0.8rem;
+      color: var(--text-light);
+    }
+
+    @media (max-width: 768px) {
+      .sticky-header {
+        left: 0;
+        top: 70px;
+      }
+      
+      .sticky-content {
+        max-width: 100%;
+        padding: 1rem;
+        flex-direction: column;
+        gap: 1rem;
+      }
+      
+      .sticky-right {
+        gap: 1rem;
+      }
+      
+      .user-info {
+        display: none;
+      }
+    }
+
     .container {
       padding: 2rem;
       max-width: 1200px;
@@ -118,25 +331,44 @@ interface Invitation {
       font-family: 'Inter', sans-serif;
     }
 
-    .page-header-card {
-      background: var(--surface);
-      border-radius: 12px;
-      padding: 2rem;
-      box-shadow: var(--shadow);
-      border: 1px solid var(--border);
+    .enhanced-header {
+      background: linear-gradient(135deg, var(--surface) 0%, var(--background) 100%);
+      border-radius: 16px;
+      padding: 1.5rem 2rem;
       margin-bottom: 2rem;
+      box-shadow: 0 4px 20px rgba(0,0,0,0.08);
+      border: 1px solid var(--border);
     }
 
-    .page-header h1 {
-      font-size: 2rem;
+    .header-left {
+      display: flex;
+      align-items: center;
+      gap: 1rem;
+    }
+
+    .page-icon {
+      background: var(--primary);
+      color: white;
+      width: 48px;
+      height: 48px;
+      border-radius: 12px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 1.5rem;
+    }
+
+    .page-info h1 {
+      font-size: 1.75rem;
       font-weight: 700;
       color: var(--text);
-      margin-bottom: 0.5rem;
+      margin: 0 0 0.25rem 0;
     }
 
-    .page-header p {
+    .page-info p {
       color: var(--text-light);
       margin: 0;
+      font-size: 0.9rem;
     }
 
     .filters {
@@ -420,7 +652,8 @@ export class Invitations implements OnInit {
   invitations: Invitation[] = [];
   filteredInvitations: Invitation[] = [];
   isLoading = true;
-  activeFilter: 'all' | 'pending' | 'accepted' | 'declined' = 'all';
+  activeFilter: 'all' | 'pending' | 'accepted' | 'declined' = 'pending';
+  showStickyHeader = false;
 
   constructor(
     private authService: AuthService,
@@ -434,6 +667,12 @@ export class Invitations implements OnInit {
     this.currentUser = this.authService.getCurrentUser();
     this.loaderService.show('Loading invitations...');
     this.loadFilteredInvitations();
+  }
+
+  @HostListener('window:scroll')
+  onWindowScroll() {
+    const scrollPosition = window.pageYOffset || document.documentElement.scrollTop || document.body.scrollTop || 0;
+    this.showStickyHeader = scrollPosition > 200;
   }
 
   loadInvitations(): void {

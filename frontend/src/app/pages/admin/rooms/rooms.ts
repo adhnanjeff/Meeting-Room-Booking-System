@@ -465,7 +465,7 @@ import { AdminService } from '../../../services/admin.service';
       padding: 0.75rem 1.5rem;
       border: none;
       border-radius: 12px;
-      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      background: linear-gradient(135deg, #f97316 0%, #ea580c 100%);
       color: white;
       cursor: pointer;
       font-size: 1rem;
@@ -475,7 +475,7 @@ import { AdminService } from '../../../services/admin.service';
 
     .btn-add:hover {
       transform: translateY(-2px);
-      box-shadow: 0 4px 15px rgba(102, 126, 234, 0.4);
+      box-shadow: 0 4px 15px rgba(249, 115, 22, 0.4);
     }
 
     .table-container {

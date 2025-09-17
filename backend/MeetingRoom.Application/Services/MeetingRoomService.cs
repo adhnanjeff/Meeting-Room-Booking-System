@@ -8,11 +8,13 @@ namespace MeetingRoom.Application.Services
     public class MeetingRoomService : IMeetingRoomService
     {
         private readonly IMeetingRoomRepository _repository;
+        private readonly IBookingRepository _bookingRepository;
         private readonly IMapper _mapper;
 
-        public MeetingRoomService(IMeetingRoomRepository repository, IMapper mapper)
+        public MeetingRoomService(IMeetingRoomRepository repository, IBookingRepository bookingRepository, IMapper mapper)
         {
             _repository = repository;
+            _bookingRepository = bookingRepository;
             _mapper = mapper;
         }
 
@@ -47,6 +49,22 @@ namespace MeetingRoom.Application.Services
         {
             var entities = await _repository.GetAllAsync();
             return _mapper.Map<List<MeetingRoomResponseDTO>>(entities);
+        }
+
+        public async Task<List<MeetingRoomResponseDTO>> GetAvailableRoomsAsync(DateTime startTime, DateTime endTime)
+        {
+            var allRooms = await _repository.GetAllAsync();
+            var availableRooms = new List<MeetingRoomEntity>();
+
+            foreach (var room in allRooms)
+            {
+                if (room.IsAvailable && await _bookingRepository.IsRoomAvailableAsync(room.Id, startTime, endTime))
+                {
+                    availableRooms.Add(room);
+                }
+            }
+
+            return _mapper.Map<List<MeetingRoomResponseDTO>>(availableRooms);
         }
 
         public async Task<MeetingRoomResponseDTO?> GetRoomByIdAsync(int id)

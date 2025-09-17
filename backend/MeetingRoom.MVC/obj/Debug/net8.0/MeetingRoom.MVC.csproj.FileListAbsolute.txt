@@ -31,3 +31,36 @@ C:\Users\adhnjeff\source\repos\DontnetTraining\Capstone\backend\MeetingRoom.MVC\
 C:\Users\adhnjeff\source\repos\DontnetTraining\Capstone\backend\MeetingRoom.MVC\obj\Debug\net8.0\MeetingRoom.MVC.pdb
 C:\Users\adhnjeff\source\repos\DontnetTraining\Capstone\backend\MeetingRoom.MVC\obj\Debug\net8.0\MeetingRoom.MVC.genruntimeconfig.cache
 C:\Users\adhnjeff\source\repos\DontnetTraining\Capstone\backend\MeetingRoom.MVC\obj\Debug\net8.0\ref\MeetingRoom.MVC.dll
+C:\Users\adhnjeff\OneDrive - EPS US, LLC\Desktop\Capstone\backend\MeetingRoom.MVC\bin\Debug\net8.0\appsettings.Development.json
+C:\Users\adhnjeff\OneDrive - EPS US, LLC\Desktop\Capstone\backend\MeetingRoom.MVC\bin\Debug\net8.0\appsettings.json
+C:\Users\adhnjeff\OneDrive - EPS US, LLC\Desktop\Capstone\backend\MeetingRoom.MVC\bin\Debug\net8.0\MeetingRoom.MVC.staticwebassets.endpoints.json
+C:\Users\adhnjeff\OneDrive - EPS US, LLC\Desktop\Capstone\backend\MeetingRoom.MVC\bin\Debug\net8.0\MeetingRoom.MVC.staticwebassets.runtime.json
+C:\Users\adhnjeff\OneDrive - EPS US, LLC\Desktop\Capstone\backend\MeetingRoom.MVC\bin\Debug\net8.0\MeetingRoom.MVC.exe
+C:\Users\adhnjeff\OneDrive - EPS US, LLC\Desktop\Capstone\backend\MeetingRoom.MVC\bin\Debug\net8.0\MeetingRoom.MVC.deps.json
+C:\Users\adhnjeff\OneDrive - EPS US, LLC\Desktop\Capstone\backend\MeetingRoom.MVC\bin\Debug\net8.0\MeetingRoom.MVC.runtimeconfig.json
+C:\Users\adhnjeff\OneDrive - EPS US, LLC\Desktop\Capstone\backend\MeetingRoom.MVC\bin\Debug\net8.0\MeetingRoom.MVC.dll
+C:\Users\adhnjeff\OneDrive - EPS US, LLC\Desktop\Capstone\backend\MeetingRoom.MVC\bin\Debug\net8.0\MeetingRoom.MVC.pdb
+C:\Users\adhnjeff\OneDrive - EPS US, LLC\Desktop\Capstone\backend\MeetingRoom.MVC\obj\Debug\net8.0\rpswa.dswa.cache.json
+C:\Users\adhnjeff\OneDrive - EPS US, LLC\Desktop\Capstone\backend\MeetingRoom.MVC\obj\Debug\net8.0\MeetingRoom.MVC.GeneratedMSBuildEditorConfig.editorconfig
+C:\Users\adhnjeff\OneDrive - EPS US, LLC\Desktop\Capstone\backend\MeetingRoom.MVC\obj\Debug\net8.0\MeetingRoom.MVC.AssemblyInfoInputs.cache
+C:\Users\adhnjeff\OneDrive - EPS US, LLC\Desktop\Capstone\backend\MeetingRoom.MVC\obj\Debug\net8.0\MeetingRoom.MVC.AssemblyInfo.cs
+C:\Users\adhnjeff\OneDrive - EPS US, LLC\Desktop\Capstone\backend\MeetingRoom.MVC\obj\Debug\net8.0\MeetingRoom.MVC.csproj.CoreCompileInputs.cache
+C:\Users\adhnjeff\OneDrive - EPS US, LLC\Desktop\Capstone\backend\MeetingRoom.MVC\obj\Debug\net8.0\MeetingRoom.MVC.MvcApplicationPartsAssemblyInfo.cache
+C:\Users\adhnjeff\OneDrive - EPS US, LLC\Desktop\Capstone\backend\MeetingRoom.MVC\obj\Debug\net8.0\MeetingRoom.MVC.RazorAssemblyInfo.cache
+C:\Users\adhnjeff\OneDrive - EPS US, LLC\Desktop\Capstone\backend\MeetingRoom.MVC\obj\Debug\net8.0\MeetingRoom.MVC.RazorAssemblyInfo.cs
+C:\Users\adhnjeff\OneDrive - EPS US, LLC\Desktop\Capstone\backend\MeetingRoom.MVC\obj\Debug\net8.0\MeetingRoom.MVC.sourcelink.json
+C:\Users\adhnjeff\OneDrive - EPS US, LLC\Desktop\Capstone\backend\MeetingRoom.MVC\obj\Debug\net8.0\rjimswa.dswa.cache.json
+C:\Users\adhnjeff\OneDrive - EPS US, LLC\Desktop\Capstone\backend\MeetingRoom.MVC\obj\Debug\net8.0\rjsmrazor.dswa.cache.json
+C:\Users\adhnjeff\OneDrive - EPS US, LLC\Desktop\Capstone\backend\MeetingRoom.MVC\obj\Debug\net8.0\rjsmcshtml.dswa.cache.json
+C:\Users\adhnjeff\OneDrive - EPS US, LLC\Desktop\Capstone\backend\MeetingRoom.MVC\obj\Debug\net8.0\scopedcss\Views\Shared\_Layout.cshtml.rz.scp.css
+C:\Users\adhnjeff\OneDrive - EPS US, LLC\Desktop\Capstone\backend\MeetingRoom.MVC\obj\Debug\net8.0\scopedcss\bundle\MeetingRoom.MVC.styles.css
+C:\Users\adhnjeff\OneDrive - EPS US, LLC\Desktop\Capstone\backend\MeetingRoom.MVC\obj\Debug\net8.0\scopedcss\projectbundle\MeetingRoom.MVC.bundle.scp.css
+C:\Users\adhnjeff\OneDrive - EPS US, LLC\Desktop\Capstone\backend\MeetingRoom.MVC\obj\Debug\net8.0\staticwebassets.build.json
+C:\Users\adhnjeff\OneDrive - EPS US, LLC\Desktop\Capstone\backend\MeetingRoom.MVC\obj\Debug\net8.0\staticwebassets.build.json.cache
+C:\Users\adhnjeff\OneDrive - EPS US, LLC\Desktop\Capstone\backend\MeetingRoom.MVC\obj\Debug\net8.0\staticwebassets.development.json
+C:\Users\adhnjeff\OneDrive - EPS US, LLC\Desktop\Capstone\backend\MeetingRoom.MVC\obj\Debug\net8.0\staticwebassets.build.endpoints.json
+C:\Users\adhnjeff\OneDrive - EPS US, LLC\Desktop\Capstone\backend\MeetingRoom.MVC\obj\Debug\net8.0\MeetingRoom.MVC.dll
+C:\Users\adhnjeff\OneDrive - EPS US, LLC\Desktop\Capstone\backend\MeetingRoom.MVC\obj\Debug\net8.0\refint\MeetingRoom.MVC.dll
+C:\Users\adhnjeff\OneDrive - EPS US, LLC\Desktop\Capstone\backend\MeetingRoom.MVC\obj\Debug\net8.0\MeetingRoom.MVC.pdb
+C:\Users\adhnjeff\OneDrive - EPS US, LLC\Desktop\Capstone\backend\MeetingRoom.MVC\obj\Debug\net8.0\MeetingRoom.MVC.genruntimeconfig.cache
+C:\Users\adhnjeff\OneDrive - EPS US, LLC\Desktop\Capstone\backend\MeetingRoom.MVC\obj\Debug\net8.0\ref\MeetingRoom.MVC.dll
